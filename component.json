@@ -1,0 +1,11 @@
+{
+  "name": "vui",
+  "main": "src/main.js",
+  "scripts": [
+    "src/main.js",
+    "src/superagnet.js",
+    "src/emitter.js",
+    "src/reduce.js"
+  ],
+  "license": "MIT"
+}

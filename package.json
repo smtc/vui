@@ -1,0 +1,28 @@
+{
+  "name": "vui",
+  "version": "0.0.1",
+  "description": "Vue js ui",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Lobos/vui.git"
+  },
+  "keywords": [
+    "vui"
+  ],
+  "author": "lobos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lobos/vui/issues"
+  },
+  "homepage": "https://github.com/Lobos/vui",
+  "devDependencies": {
+    "gulp-rename": "*",
+    "gulp-uglify": "*",
+    "gulp-component": "*",
+    "gulp": "^3.7.0"
+  }
+}
