@@ -1,11 +1,12 @@
 <html>
 <head>
 	<title>test</title>
-	<script type="text/javascript" src="../vui.js"></script>
 </head>
 <body>
+	<div src="json/select.json" v-component="select"></div>
+	<script type="text/javascript" src="../vui.js"></script>
 	<script type="text/javascript">
-	vui.request.get('request_1.json', function (res) {
+	vui.request.get('json/request_1.json', function (res) {
 		console.log(res)
 	})
 	</script>

@@ -6,5 +6,5 @@ node_modules
 *.sock
 *.swp
 test.js
-components
 test/node/fixtures/tmp.json
+/components

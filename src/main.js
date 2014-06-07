@@ -1,5 +1,25 @@
-var request = require('./request'),
+var request = require('request'),
     Vue     = require('vue')
+
+
+new Vue({
+
+    el: 'body',
+
+    directives: {
+    },
+
+    filters: {
+    },
+
+    components: {
+        select: require('select')
+    },
+
+    data: {
+    }
+})
+
 
 module.exports = {
     request: request,

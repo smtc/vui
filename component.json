@@ -2,15 +2,18 @@
   "name": "vui",
   "main": "src/main.js",
   "scripts": [
-    "src/main.js",
-    "src/request.js"
+    "src/main.js"
   ],
   "paths": [
-    "components"
+    "components",
+    "src/components"
   ],
   "dependencies": {
-    "visionmedia/superagent": "*",
     "yyx990803/vue": "*"
   },
+  "local": [
+    "request",
+    "select"
+  ],
   "license": "MIT"
 }

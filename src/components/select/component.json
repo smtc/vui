@@ -1,0 +1,8 @@
+{
+    "name": "select",
+    "scripts": ["index.js"],
+    "styles": [],
+    "templates": ["template.html"],
+    "paths": ["src/components"],
+    "local": ["request"]
+}
