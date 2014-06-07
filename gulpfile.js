@@ -15,3 +15,5 @@ gulp.task('default', function () {
         .pipe(uglify())
         .pipe(gulp.dest('./'))
 })
+
+gulp.watch('./src/*.js', ['default']);

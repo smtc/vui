@@ -5,7 +5,8 @@
     "src/main.js",
     "src/superagnet.js",
     "src/emitter.js",
-    "src/reduce.js"
+    "src/reduce.js",
+    "src/request.js"
   ],
   "license": "MIT"
 }

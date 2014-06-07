@@ -4,6 +4,7 @@ coverage.html
 .DS_Store
 node_modules
 *.sock
+*.swp
 test.js
 components
 test/node/fixtures/tmp.json

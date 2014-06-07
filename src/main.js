@@ -1,4 +1,4 @@
-var request = require('./superagnet')
+var request = require('./request')
 
 var Vui = function () {}
 
