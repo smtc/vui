@@ -4,5 +4,8 @@
     "styles": [],
     "templates": ["template.html"],
     "paths": ["src/components"],
-    "local": ["request"]
+    "local": [
+    	"request",
+    	"utils"
+    ]
 }

@@ -1,0 +1,7 @@
+{
+    "name": "utils",
+    "scripts": ["index.js"],
+    "dependencies": {
+        "yyx990803/vue": "*"
+    }
+}

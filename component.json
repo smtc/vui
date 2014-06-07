@@ -12,6 +12,7 @@
     "yyx990803/vue": "*"
   },
   "local": [
+  	"utils",
     "request",
     "select"
   ],

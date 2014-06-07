@@ -1,15 +1,28 @@
-var request = require('request')
+var request = require('request'),
+    utils   = require('utils')
 
 module.exports = {
-    className: 'select',
     template: require('./template.html'),
-    data: {
-        msg: 'abc'
+    replace: true,
+    paramAttributes: ['src', 'placeholder', 'value', 'text'],
+    methods: {
+        toggle: function () {
+            utils.toggleClass(this.$el, 'active')
+        },
+        select: function (item) {
+            this.placeholder = ''
+            this.text = item.text
+            this.value = item.value
+        }
     },
-    paramAttributes: ['src'],
+    data: {
+        options: []
+    },
     created: function () {
+        var self = this
+        utils.addClass(this.$el, 'select')
         request.get(this.src).end(function (res) {
-            console.log(res)
+            self.options = res.body
         })
     }
 }

@@ -4698,6 +4698,27 @@ module.exports = {
 
 }
 });
+require.register("utils/index.js", function(exports, require, module){
+/*
+ * 扩展 vui.utils
+ */
+var utils 	    = require("vue").require('utils')
+
+utils.hasClass = function (el, cls) {
+    var cur = ' ' + el.className + ' '
+    return cur.indexOf(' ' + cls + ' ') >= 0
+}
+
+utils.toggleClass = function (el, cls) {
+    if (utils.hasClass(el, cls))
+        utils.removeClass(el, cls)
+    else
+        utils.addClass(el, cls)
+}
+
+module.exports = utils
+
+});
 require.register("component-emitter/index.js", function(exports, require, module){
 
 /**
@@ -5996,18 +6017,31 @@ module.exports = request
 
 });
 require.register("select/index.js", function(exports, require, module){
-var request = require('request')
+var request = require('request'),
+    utils   = require('utils')
 
 module.exports = {
-    className: 'select',
     template: require('./template.html'),
-    data: {
-        msg: 'abc'
+    replace: true,
+    paramAttributes: ['src', 'placeholder', 'value', 'text'],
+    methods: {
+        toggle: function () {
+            utils.toggleClass(this.$el, 'active')
+        },
+        select: function (item) {
+            this.placeholder = ''
+            this.text = item.text
+            this.value = item.value
+        }
     },
-    paramAttributes: ['src'],
+    data: {
+        options: []
+    },
     created: function () {
+        var self = this
+        utils.addClass(this.$el, 'select')
         request.get(this.src).end(function (res) {
-            console.log(res)
+            self.options = res.body
         })
     }
 }
@@ -6057,8 +6091,10 @@ module.exports = {
 
 
 
+
+
 require.register("select/template.html", function(exports, require, module){
-module.exports = '<div>{{msg + " I\'m component A"}}</div>';
+module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span class="placeholder" ng-show="!text">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");
@@ -6089,6 +6125,36 @@ require.alias("yyx990803-vue/src/directives/view.js", "vui/deps/vue/src/directiv
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/index.js");
 require.alias("yyx990803-vue/src/main.js", "vue/index.js");
 require.alias("yyx990803-vue/src/main.js", "yyx990803-vue/index.js");
+require.alias("utils/index.js", "vui/deps/utils/index.js");
+require.alias("utils/index.js", "utils/index.js");
+require.alias("yyx990803-vue/src/main.js", "utils/deps/vue/src/main.js");
+require.alias("yyx990803-vue/src/emitter.js", "utils/deps/vue/src/emitter.js");
+require.alias("yyx990803-vue/src/config.js", "utils/deps/vue/src/config.js");
+require.alias("yyx990803-vue/src/utils.js", "utils/deps/vue/src/utils.js");
+require.alias("yyx990803-vue/src/fragment.js", "utils/deps/vue/src/fragment.js");
+require.alias("yyx990803-vue/src/compiler.js", "utils/deps/vue/src/compiler.js");
+require.alias("yyx990803-vue/src/viewmodel.js", "utils/deps/vue/src/viewmodel.js");
+require.alias("yyx990803-vue/src/binding.js", "utils/deps/vue/src/binding.js");
+require.alias("yyx990803-vue/src/observer.js", "utils/deps/vue/src/observer.js");
+require.alias("yyx990803-vue/src/directive.js", "utils/deps/vue/src/directive.js");
+require.alias("yyx990803-vue/src/exp-parser.js", "utils/deps/vue/src/exp-parser.js");
+require.alias("yyx990803-vue/src/text-parser.js", "utils/deps/vue/src/text-parser.js");
+require.alias("yyx990803-vue/src/deps-parser.js", "utils/deps/vue/src/deps-parser.js");
+require.alias("yyx990803-vue/src/filters.js", "utils/deps/vue/src/filters.js");
+require.alias("yyx990803-vue/src/transition.js", "utils/deps/vue/src/transition.js");
+require.alias("yyx990803-vue/src/batcher.js", "utils/deps/vue/src/batcher.js");
+require.alias("yyx990803-vue/src/directives/index.js", "utils/deps/vue/src/directives/index.js");
+require.alias("yyx990803-vue/src/directives/if.js", "utils/deps/vue/src/directives/if.js");
+require.alias("yyx990803-vue/src/directives/repeat.js", "utils/deps/vue/src/directives/repeat.js");
+require.alias("yyx990803-vue/src/directives/on.js", "utils/deps/vue/src/directives/on.js");
+require.alias("yyx990803-vue/src/directives/model.js", "utils/deps/vue/src/directives/model.js");
+require.alias("yyx990803-vue/src/directives/with.js", "utils/deps/vue/src/directives/with.js");
+require.alias("yyx990803-vue/src/directives/html.js", "utils/deps/vue/src/directives/html.js");
+require.alias("yyx990803-vue/src/directives/style.js", "utils/deps/vue/src/directives/style.js");
+require.alias("yyx990803-vue/src/directives/partial.js", "utils/deps/vue/src/directives/partial.js");
+require.alias("yyx990803-vue/src/directives/view.js", "utils/deps/vue/src/directives/view.js");
+require.alias("yyx990803-vue/src/main.js", "utils/deps/vue/index.js");
+require.alias("yyx990803-vue/src/main.js", "yyx990803-vue/index.js");
 require.alias("request/index.js", "vui/deps/request/index.js");
 require.alias("request/index.js", "request/index.js");
 require.alias("visionmedia-superagent/lib/client.js", "request/deps/superagent/lib/client.js");
@@ -6108,6 +6174,35 @@ require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter
 require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
 
 require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
+require.alias("utils/index.js", "select/deps/utils/index.js");
+require.alias("yyx990803-vue/src/main.js", "utils/deps/vue/src/main.js");
+require.alias("yyx990803-vue/src/emitter.js", "utils/deps/vue/src/emitter.js");
+require.alias("yyx990803-vue/src/config.js", "utils/deps/vue/src/config.js");
+require.alias("yyx990803-vue/src/utils.js", "utils/deps/vue/src/utils.js");
+require.alias("yyx990803-vue/src/fragment.js", "utils/deps/vue/src/fragment.js");
+require.alias("yyx990803-vue/src/compiler.js", "utils/deps/vue/src/compiler.js");
+require.alias("yyx990803-vue/src/viewmodel.js", "utils/deps/vue/src/viewmodel.js");
+require.alias("yyx990803-vue/src/binding.js", "utils/deps/vue/src/binding.js");
+require.alias("yyx990803-vue/src/observer.js", "utils/deps/vue/src/observer.js");
+require.alias("yyx990803-vue/src/directive.js", "utils/deps/vue/src/directive.js");
+require.alias("yyx990803-vue/src/exp-parser.js", "utils/deps/vue/src/exp-parser.js");
+require.alias("yyx990803-vue/src/text-parser.js", "utils/deps/vue/src/text-parser.js");
+require.alias("yyx990803-vue/src/deps-parser.js", "utils/deps/vue/src/deps-parser.js");
+require.alias("yyx990803-vue/src/filters.js", "utils/deps/vue/src/filters.js");
+require.alias("yyx990803-vue/src/transition.js", "utils/deps/vue/src/transition.js");
+require.alias("yyx990803-vue/src/batcher.js", "utils/deps/vue/src/batcher.js");
+require.alias("yyx990803-vue/src/directives/index.js", "utils/deps/vue/src/directives/index.js");
+require.alias("yyx990803-vue/src/directives/if.js", "utils/deps/vue/src/directives/if.js");
+require.alias("yyx990803-vue/src/directives/repeat.js", "utils/deps/vue/src/directives/repeat.js");
+require.alias("yyx990803-vue/src/directives/on.js", "utils/deps/vue/src/directives/on.js");
+require.alias("yyx990803-vue/src/directives/model.js", "utils/deps/vue/src/directives/model.js");
+require.alias("yyx990803-vue/src/directives/with.js", "utils/deps/vue/src/directives/with.js");
+require.alias("yyx990803-vue/src/directives/html.js", "utils/deps/vue/src/directives/html.js");
+require.alias("yyx990803-vue/src/directives/style.js", "utils/deps/vue/src/directives/style.js");
+require.alias("yyx990803-vue/src/directives/partial.js", "utils/deps/vue/src/directives/partial.js");
+require.alias("yyx990803-vue/src/directives/view.js", "utils/deps/vue/src/directives/view.js");
+require.alias("yyx990803-vue/src/main.js", "utils/deps/vue/index.js");
+require.alias("yyx990803-vue/src/main.js", "yyx990803-vue/index.js");
 require.alias("vui/src/main.js", "vui/index.js");
 if (typeof exports == 'object') {
   module.exports = require('vui');
