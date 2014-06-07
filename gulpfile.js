@@ -16,4 +16,7 @@ gulp.task('default', function () {
         .pipe(gulp.dest('./'))
 })
 
-gulp.watch('./src/*.js', ['default']);
+gulp.task('watch', function () {
+    gulp.watch(['component.json', 'src/*'], ['default'])
+})
+

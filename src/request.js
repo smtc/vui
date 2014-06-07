@@ -1,7 +1,7 @@
 /*
  * superagent，增加了token
  */
-var request 	= require("./superagnet"),
+var request 	= require("superagent"),
     Request     = request.Request,
 	token  		= null
 

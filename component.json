@@ -3,10 +3,13 @@
   "main": "src/main.js",
   "scripts": [
     "src/main.js",
-    "src/superagnet.js",
-    "src/emitter.js",
-    "src/reduce.js",
     "src/request.js"
   ],
+  "paths": [
+    "components"
+  ],
+  "dependencies": {
+    "visionmedia/superagent": "*"
+  },
   "license": "MIT"
 }
