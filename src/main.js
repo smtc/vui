@@ -1,7 +1,14 @@
-var request = require('./request')
+var request = require('./request'),
+    Vue     = require('vue')
 
-var Vui = function () {}
-
-Vui.request = request
-
-module.exports = Vui
+module.exports = {
+    request: request,
+    Vue: Vue,
+    require: function (path) {
+        try {
+            return require('./' + path)
+        } catch (e) {
+            return Vue.require(path)
+        }
+    }
+}

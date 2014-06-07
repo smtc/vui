@@ -9,7 +9,8 @@
     "components"
   ],
   "dependencies": {
-    "visionmedia/superagent": "*"
+    "visionmedia/superagent": "*",
+    "yyx990803/vue": "*"
   },
   "license": "MIT"
 }
