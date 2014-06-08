@@ -23,6 +23,7 @@
     "gulp-rename": "*",
     "gulp-uglify": "*",
     "gulp-component": "*",
+    "gulp-less": "*",
     "gulp": "^3.7.0"
   }
 }

@@ -1,7 +1,9 @@
 var gulp      = require('gulp'),
     component = require('gulp-component'),
-    uglify    = require('gulp-uglify')
-    rename    = require('gulp-rename')
+    uglify    = require('gulp-uglify'),
+    rename    = require('gulp-rename'),
+    less      = require('gulp-less'),
+    minifyCSS = require('gulp-minify-css')
 
 gulp.task('default', function () {
     gulp.src('component.json')
@@ -16,7 +18,16 @@ gulp.task('default', function () {
         .pipe(gulp.dest('./'))
 })
 
+gulp.task('less', function () {
+    gulp.src('docs/css/style.less')
+        .pipe(less())
+        .pipe(gulp.dest('docs/css/'))
+        .pipe(minifyCSS({keepBreaks:true}))
+        .pipe(gulp.dest('docs/css/'))
+})
+
 gulp.task('watch', function () {
     gulp.watch(['component.json', 'src/**/*'], ['default'])
+    gulp.watch(['docs/css/**/*.less'], ['less'])
 })
 

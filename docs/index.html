@@ -1,9 +1,21 @@
 <html>
 <head>
-	<title>test</title>
+	<title>vui docs</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
+
+<div class="sidebar">
+	<div class="list">
+		<h3>UI Example</h3>
+		<ul class="list-unstyled">
+			<li><a href="select.html">select</a></li>
+			<li><a href="table.html">table</a></li>
+		</ul>		
+	</div>
+</div>
+
+<div class="content">
 <form class="form-inline" role="form">
   <div class="form-group">
     <label class="sr-only" for="exampleInputEmail2">Email address</label>
@@ -20,6 +32,7 @@
   </div>
   <button type="submit" class="btn btn-default">Sign in</button>
 </form>
+</div>
 	<script type="text/javascript" src="../vui.js"></script>
 	<script type="text/javascript">
 	vui.request.get('json/request_1.json', function (res) {
