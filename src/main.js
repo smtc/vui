@@ -1,5 +1,6 @@
 var request = require('request'),
-    Vue     = require('vue')
+    Vue     = require('vue'),
+    ui      = require('ui')
 
 
 new Vue({
@@ -13,7 +14,7 @@ new Vue({
     },
 
     components: {
-        select: require('select')
+        select: ui.select
     },
 
     data: {

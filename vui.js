@@ -4700,7 +4700,7 @@ module.exports = {
 });
 require.register("utils/index.js", function(exports, require, module){
 /*
- * 扩展 vui.utils
+ * 
  */
 var hasClassList = 'classList' in document.documentElement
 
@@ -6049,12 +6049,18 @@ function request(method, url) {
 module.exports = request
 
 });
-require.register("select/index.js", function(exports, require, module){
+require.register("ui/index.js", function(exports, require, module){
+module.exports = {
+    select: require('./select')
+}
+
+});
+require.register("ui/select.js", function(exports, require, module){
 var request = require('request'),
     utils   = require('utils')
 
 module.exports = {
-    template: require('./template.html'),
+    template: require('./select.html'),
     replace: true,
     paramAttributes: ['src', 'placeholder', 'value', 'text'],
     methods: {
@@ -6082,7 +6088,8 @@ module.exports = {
 });
 require.register("vui/src/main.js", function(exports, require, module){
 var request = require('request'),
-    Vue     = require('vue')
+    Vue     = require('vue'),
+    ui      = require('ui')
 
 
 new Vue({
@@ -6096,7 +6103,7 @@ new Vue({
     },
 
     components: {
-        select: require('select')
+        select: ui.select
     },
 
     data: {
@@ -6126,7 +6133,7 @@ module.exports = {
 
 
 
-require.register("select/template.html", function(exports, require, module){
+require.register("ui/select.html", function(exports, require, module){
 module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span class="placeholder" ng-show="!text">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
@@ -6170,9 +6177,10 @@ require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter
 require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
 
 require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
-require.alias("select/index.js", "vui/deps/select/index.js");
-require.alias("select/index.js", "select/index.js");
-require.alias("request/index.js", "select/deps/request/index.js");
+require.alias("ui/index.js", "vui/deps/ui/index.js");
+require.alias("ui/select.js", "vui/deps/ui/select.js");
+require.alias("ui/index.js", "ui/index.js");
+require.alias("request/index.js", "ui/deps/request/index.js");
 require.alias("visionmedia-superagent/lib/client.js", "request/deps/superagent/lib/client.js");
 require.alias("visionmedia-superagent/lib/client.js", "request/deps/superagent/index.js");
 require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter/index.js");
@@ -6180,7 +6188,7 @@ require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter
 require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
 
 require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
-require.alias("utils/index.js", "select/deps/utils/index.js");
+require.alias("utils/index.js", "ui/deps/utils/index.js");
 
 require.alias("vui/src/main.js", "vui/index.js");
 if (typeof exports == 'object') {

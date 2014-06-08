@@ -2,7 +2,7 @@ var request = require('request'),
     utils   = require('utils')
 
 module.exports = {
-    template: require('./template.html'),
+    template: require('./select.html'),
     replace: true,
     paramAttributes: ['src', 'placeholder', 'value', 'text'],
     methods: {

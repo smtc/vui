@@ -1,0 +1,16 @@
+{
+    "name": "ui",
+    "scripts": [
+        "index.js",
+        "select.js"
+    ],
+    "styles": [],
+    "templates": [
+        "select.html"
+    ],
+    "paths": ["src/components"],
+    "local": [
+    	"request",
+    	"utils"
+    ]
+}

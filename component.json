@@ -14,7 +14,7 @@
   "local": [
   	"utils",
     "request",
-    "select"
+    "ui"
   ],
   "license": "MIT"
 }

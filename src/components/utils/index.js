@@ -1,5 +1,5 @@
 /*
- * 扩展 vui.utils
+ * 
  */
 var hasClassList = 'classList' in document.documentElement
 
