@@ -8,17 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Lobos/vui.git"
+    "url": "git://github.com/smtc/vui.git"
   },
   "keywords": [
     "vui"
   ],
-  "author": "lobos",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Lobos/vui/issues"
+    "url": "https://github.com/smtc/vui/issues"
   },
-  "homepage": "https://github.com/Lobos/vui",
+  "homepage": "https://github.com/smtc/vui",
   "devDependencies": {
     "gulp-rename": "*",
     "gulp-uglify": "*",

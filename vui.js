@@ -6049,6 +6049,18 @@ function request(method, url) {
 module.exports = request
 
 });
+require.register("route/index.js", function(exports, require, module){
+var utils = require('utils')
+
+var route = module.exports = {
+    getRoute: function () {
+        var path = location.hash.replace(/^#!\/?/, '') || '/'
+        return path
+    }
+
+}
+
+});
 require.register("ui/index.js", function(exports, require, module){
 module.exports = {
     select: require('./select')
@@ -6088,8 +6100,11 @@ module.exports = {
 });
 require.register("vui/src/main.js", function(exports, require, module){
 var request = require('request'),
+    route   = require('route'),
+	utils 	= require('utils'),
+    ui      = require('ui'),
     Vue     = require('vue'),
-    ui      = require('ui')
+    gData  = {}
 
 
 new Vue({
@@ -6106,13 +6121,13 @@ new Vue({
         select: ui.select
     },
 
-    data: {
-    }
+    data: gData
 })
 
 
-module.exports = {
+var vui = module.exports = {
     request: request,
+    utils: utils,
     Vue: Vue,
     require: function (path) {
         try {
@@ -6123,7 +6138,10 @@ module.exports = {
     }
 }
 
+
 });
+
+
 
 
 
@@ -6177,6 +6195,18 @@ require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter
 require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
 
 require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
+require.alias("route/index.js", "vui/deps/route/index.js");
+require.alias("route/index.js", "route/index.js");
+require.alias("request/index.js", "route/deps/request/index.js");
+require.alias("visionmedia-superagent/lib/client.js", "request/deps/superagent/lib/client.js");
+require.alias("visionmedia-superagent/lib/client.js", "request/deps/superagent/index.js");
+require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter/index.js");
+
+require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
+
+require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
+require.alias("utils/index.js", "route/deps/utils/index.js");
+
 require.alias("ui/index.js", "vui/deps/ui/index.js");
 require.alias("ui/select.js", "vui/deps/ui/select.js");
 require.alias("ui/index.js", "ui/index.js");

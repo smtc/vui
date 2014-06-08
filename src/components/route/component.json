@@ -1,0 +1,9 @@
+{
+    "name": "route",
+    "scripts": ["index.js"],
+    "paths": ["src/components"],
+    "local": [
+    	"request",
+    	"utils"
+    ]
+}

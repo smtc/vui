@@ -7,11 +7,18 @@
 
 <div class="sidebar">
 	<div class="list">
-		<h3>UI Example</h3>
+		<h3>VUI Api</h3>
 		<ul class="list-unstyled">
-			<li><a href="select.html">select</a></li>
-			<li><a href="table.html">table</a></li>
-		</ul>		
+			<li><a href="#!/request.html">request</a></li>
+			<li><a href="#!/route.html">route</a></li>
+			<li><a href="#!/utils.html">utils</a></li>
+			<li>
+				ui
+				<ul class="list-unstyled">
+					<li><a href="#!/select.html">select</a></li>
+					<li><a href="#!/table.html">table</a></li>
+				</ul>
+			</li>		
 	</div>
 </div>
 
@@ -34,10 +41,5 @@
 </form>
 </div>
 	<script type="text/javascript" src="../vui.js"></script>
-	<script type="text/javascript">
-	vui.request.get('json/request_1.json', function (res) {
-		console.log(res)
-	})
-	</script>
 </body>
 </html>

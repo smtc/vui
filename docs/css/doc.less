@@ -14,9 +14,25 @@ html, body {
     .list {
         padding: 60px;
         font-size: 18px;
+        li {
+            color: #999;
+        }
 
-        ul {
+        & > ul {
             margin-top: 20px;
+
+            ul {
+                margin-left: 20px;
+                font-size: 16px;
+            }
+        }
+    }
+
+    a {
+        color: #999;
+        text-decoration: none;
+        &:hover {
+            border-bottom: solid 2px #42b983;
         }
     }
 }

@@ -1409,5 +1409,9 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 body,html{height:100%}
 .sidebar{width:300px;position:fixed;left:0;top:0;bottom:0}
 .sidebar .list{padding:60px;font-size:18px}
-.sidebar .list ul{margin-top:20px}
+.sidebar .list li{color:#999}
+.sidebar .list>ul{margin-top:20px}
+.sidebar .list>ul ul{margin-left:20px;font-size:16px}
+.sidebar a{color:#999;text-decoration:none}
+.sidebar a:hover{border-bottom:solid 2px #42b983}
 .content{margin:0 0 0 340px;padding:60px 0;max-width:800px}
