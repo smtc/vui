@@ -1,4 +1,4 @@
-var location = require('route').location
+var location = require('../location')
 
 module.exports = {
     bind: function () {

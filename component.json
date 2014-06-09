@@ -1,22 +1,25 @@
 {
-  "name": "vui",
-  "main": "src/main.js",
-  "scripts": [
-    "src/main.js",
-    "src/directives/href.js"
-  ],
-  "paths": [
-    "components",
-    "src/components"
-  ],
-  "dependencies": {
-    "yyx990803/vue": "*"
-  },
-  "local": [
-  	"utils",
-    "request",
-    "route",
-    "ui"
-  ],
-  "license": "MIT"
+    "name": "vui",
+    "main": "src/main.js",
+    "scripts": [
+        "src/main.js",
+        "src/utils.js",
+        "src/request.js",
+        "src/location.js",
+        "src/route.js",
+        "src/directives/href.js",
+        "src/components/ui/index.js",
+        "src/components/ui/select.js"
+    ],
+    "templates": [
+        "src/components/ui/select.html"
+    ],
+    "paths": [
+        "components"
+    ],
+    "dependencies": {
+        "yyx990803/vue": "*",
+        "visionmedia/superagent": "*"
+    },
+    "license": "MIT"
 }

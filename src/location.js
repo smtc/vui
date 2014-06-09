@@ -1,4 +1,4 @@
-var utils           = require("utils"),
+var utils           = require("./utils"),
     urlParsingNode  = document.createElement("a"),
     originUrl       = urlResolve(window.location.href, true),
     baseUrl         = originUrl.host + originUrl.pathname

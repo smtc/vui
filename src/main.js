@@ -1,9 +1,10 @@
-var request = require('request'),
-    route   = require('route'),
-	utils 	= require('utils'),
-    ui      = require('ui'),
-    Vue     = require('vue'),
-    gData  = {}
+var Vue         = require('vue'),
+    request     = require('./request'),
+    location    = require('./location'),
+    route       = require('./route'),
+	utils       = require('./utils'),
+    ui          = require('./components/ui'),
+    gData       = {}
 
 
 new Vue({

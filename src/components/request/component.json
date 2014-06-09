@@ -1,7 +1,0 @@
-{
-    "name": "request",
-    "scripts": ["index.js"],
-    "dependencies": {
-        "visionmedia/superagent": "*"
-    }
-}
