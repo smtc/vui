@@ -2,7 +2,8 @@
   "name": "vui",
   "main": "src/main.js",
   "scripts": [
-    "src/main.js"
+    "src/main.js",
+    "src/directives/href.js"
   ],
   "paths": [
     "components",

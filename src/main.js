@@ -11,6 +11,7 @@ new Vue({
     el: 'body',
 
     directives: {
+        href: require('./directives/href')
     },
 
     filters: {
@@ -28,6 +29,7 @@ var vui = module.exports = {
     request: request,
     utils: utils,
     Vue: Vue,
+    
     require: function (path) {
         try {
             return require('./' + path)

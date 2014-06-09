@@ -1,9 +1,9 @@
-var utils = require('utils')
+var utils = require('utils'),
+    location = require('./location')
+
 
 var route = module.exports = {
-    getRoute: function () {
-        var path = location.hash.replace(/^#!\/?/, '') || '/'
-        return path
-    }
-
+	location: location
 }
+
+

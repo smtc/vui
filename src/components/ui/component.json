@@ -8,7 +8,7 @@
     "templates": [
         "select.html"
     ],
-    "paths": ["src/components"],
+    "paths": ["", "src/components"],
     "local": [
     	"request",
     	"utils"
