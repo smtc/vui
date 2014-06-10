@@ -1,9 +1,10 @@
-var request = require('request'),
-    route   = require('route'),
-	utils 	= require('utils'),
-    ui      = require('ui'),
-    Vue     = require('vue'),
-    gData  = {}
+var Vue         = require('vue'),
+    request     = require('./request'),
+    location    = require('./location'),
+    route       = require('./route'),
+	utils       = require('./utils'),
+    ui          = require('./components/ui'),
+    gData       = {}
 
 
 new Vue({
@@ -11,6 +12,7 @@ new Vue({
     el: 'body',
 
     directives: {
+        href: require('./directives/href')
     },
 
     filters: {
@@ -28,6 +30,7 @@ var vui = module.exports = {
     request: request,
     utils: utils,
     Vue: Vue,
+    
     require: function (path) {
         try {
             return require('./' + path)

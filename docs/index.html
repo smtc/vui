@@ -9,37 +9,42 @@
 	<div class="list">
 		<h3>VUI Api</h3>
 		<ul class="list-unstyled">
-			<li><a href="#!/request.html">request</a></li>
-			<li><a href="#!/route.html">route</a></li>
-			<li><a href="#!/utils.html">utils</a></li>
+			<li><a v-href="'request.html'">request</a></li>
+			<li><a v-href="route.html">route</a></li>
+			<li><a href="utils.html">utils</a></li>
 			<li>
 				ui
 				<ul class="list-unstyled">
 					<li><a href="#!/select.html">select</a></li>
 					<li><a href="#!/table.html">table</a></li>
 				</ul>
-			</li>		
+			</li>
 	</div>
 </div>
 
 <div class="content">
-<form class="form-inline" role="form">
-  <div class="form-group">
+<div class="form-group">
     <label class="sr-only" for="exampleInputEmail2">Email address</label>
     <div src="json/select.json" class="form-control" placeholder="select test" v-component="select"></div>
   </div>
-  <div class="form-group">
-    <label class="sr-only" for="exampleInputPassword2">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password">
-  </div>
-  <div class="checkbox">
-    <label>
-      <input type="checkbox"> Remember me
-    </label>
-  </div>
-  <button type="submit" class="btn btn-default">Sign in</button>
-</form>
 </div>
+
 	<script type="text/javascript" src="../vui.js"></script>
+	<script type="text/javascript">
+	/*
+	var els = document.querySelectorAll('a'),
+		i = els.length,
+		el;
+
+	while(i--) {
+		el = els[i]
+		el.addEventListener('click', function (event) {
+			event.preventDefault();
+			console.log(this.href)
+		})
+	}
+	*/
+	
+	</script>
 </body>
 </html>
