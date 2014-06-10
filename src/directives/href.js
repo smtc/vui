@@ -1,15 +1,18 @@
 var location = require('../location')
 
 module.exports = {
+    isLiteral: true,
+
     bind: function () {
-        this.el.setAttribute('href', this.el.getAttribute('v-href'))
-        this.el.addEventListener('click', function (event) {
+        var self = this
+        self.el.setAttribute('href', self.expression)
+        self.el.addEventListener('click', function (event) {
             event.preventDefault()
+            location.url(self.expression)
         })
     },
 
-    update: function (value) {
-        if (value)
-            this.el.setAttribute('href', value)
+    unbind: function () {
     }
+
 }

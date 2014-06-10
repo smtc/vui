@@ -9,14 +9,14 @@
 	<div class="list">
 		<h3>VUI Api</h3>
 		<ul class="list-unstyled">
-			<li><a v-href="'request.html'">request</a></li>
+			<li><a v-href="request.html">request</a></li>
 			<li><a v-href="route.html">route</a></li>
-			<li><a href="utils.html">utils</a></li>
+			<li><a v-href="test/utils.html">utils</a></li>
 			<li>
 				ui
 				<ul class="list-unstyled">
-					<li><a href="#!/select.html">select</a></li>
-					<li><a href="#!/table.html">table</a></li>
+					<li><a v-href="select.html">select</a></li>
+					<li><a v-href="/docs">table</a></li>
 				</ul>
 			</li>
 	</div>
@@ -31,6 +31,8 @@
 
 	<script type="text/javascript" src="../vui.js"></script>
 	<script type="text/javascript">
+	vui.Vue.config.debug = true
+
 	/*
 	var els = document.querySelectorAll('a'),
 		i = els.length,

@@ -29,6 +29,8 @@ new Vue({
 var vui = module.exports = {
     request: request,
     utils: utils,
+    route: route,
+    location: location,
     Vue: Vue,
     
     require: function (path) {

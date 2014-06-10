@@ -203,7 +203,7 @@ require.relative = function(parent) {
 
   return localRequire;
 };
-require.register("yyx990803-vue/src/main.js", function(exports, require, module){
+require.register("smtc-vue/src/main.js", function(exports, require, module){
 var config      = require('./config'),
     ViewModel   = require('./viewmodel'),
     utils       = require('./utils'),
@@ -391,7 +391,7 @@ function inheritOptions (child, parent, topLevel) {
 
 module.exports = ViewModel
 });
-require.register("yyx990803-vue/src/emitter.js", function(exports, require, module){
+require.register("smtc-vue/src/emitter.js", function(exports, require, module){
 var slice = [].slice
 
 function Emitter (ctx) {
@@ -490,7 +490,7 @@ EmitterProto.applyEmit = function (event) {
 
 module.exports = Emitter
 });
-require.register("yyx990803-vue/src/config.js", function(exports, require, module){
+require.register("smtc-vue/src/config.js", function(exports, require, module){
 var TextParser = require('./text-parser')
 
 module.exports = {
@@ -511,7 +511,7 @@ Object.defineProperty(module.exports, 'delimiters', {
     }
 })
 });
-require.register("yyx990803-vue/src/utils.js", function(exports, require, module){
+require.register("smtc-vue/src/utils.js", function(exports, require, module){
 var config       = require('./config'),
     toString     = ({}).toString,
     win          = window,
@@ -834,7 +834,7 @@ function enableDebug () {
     }
 }
 });
-require.register("yyx990803-vue/src/fragment.js", function(exports, require, module){
+require.register("smtc-vue/src/fragment.js", function(exports, require, module){
 // string -> DOM conversion
 // wrappers originally from jQuery, scooped from component/domify
 var map = {
@@ -920,7 +920,7 @@ module.exports = function (template) {
     return frag
 }
 });
-require.register("yyx990803-vue/src/compiler.js", function(exports, require, module){
+require.register("smtc-vue/src/compiler.js", function(exports, require, module){
 var Emitter     = require('./emitter'),
     Observer    = require('./observer'),
     config      = require('./config'),
@@ -1959,7 +1959,7 @@ function getRoot (compiler) {
 
 module.exports = Compiler
 });
-require.register("yyx990803-vue/src/viewmodel.js", function(exports, require, module){
+require.register("smtc-vue/src/viewmodel.js", function(exports, require, module){
 var Compiler   = require('./compiler'),
     utils      = require('./utils'),
     transition = require('./transition'),
@@ -2141,7 +2141,7 @@ function query (el) {
 
 module.exports = ViewModel
 });
-require.register("yyx990803-vue/src/binding.js", function(exports, require, module){
+require.register("smtc-vue/src/binding.js", function(exports, require, module){
 var Batcher        = require('./batcher'),
     bindingBatcher = new Batcher(),
     bindingId      = 1
@@ -2246,7 +2246,7 @@ BindingProto.unbind = function () {
 
 module.exports = Binding
 });
-require.register("yyx990803-vue/src/observer.js", function(exports, require, module){
+require.register("smtc-vue/src/observer.js", function(exports, require, module){
 /* jshint proto:true */
 
 var Emitter  = require('./emitter'),
@@ -2694,7 +2694,7 @@ var pub = module.exports = {
     convertKey  : convertKey
 }
 });
-require.register("yyx990803-vue/src/directive.js", function(exports, require, module){
+require.register("smtc-vue/src/directive.js", function(exports, require, module){
 var dirId           = 1,
     ARG_RE          = /^[\w\$-]+$/,
     FILTER_TOKEN_RE = /[^\s'"]+|'[^']+'|"[^"]+"/g,
@@ -2954,7 +2954,7 @@ function escapeQuote (v) {
 
 module.exports = Directive
 });
-require.register("yyx990803-vue/src/exp-parser.js", function(exports, require, module){
+require.register("smtc-vue/src/exp-parser.js", function(exports, require, module){
 var utils           = require('./utils'),
     STR_SAVE_RE     = /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,
     STR_RESTORE_RE  = /"(\d+)"/g,
@@ -3146,7 +3146,7 @@ exports.eval = function (exp, compiler, data) {
     return res
 }
 });
-require.register("yyx990803-vue/src/text-parser.js", function(exports, require, module){
+require.register("smtc-vue/src/text-parser.js", function(exports, require, module){
 var openChar        = '{',
     endChar         = '}',
     ESCAPE_RE       = /[-.*+?^${}()|[\]\/\\]/g,
@@ -3244,7 +3244,7 @@ exports.parseAttr     = parseAttr
 exports.setDelimiters = setDelimiters
 exports.delimiters    = [openChar, endChar]
 });
-require.register("yyx990803-vue/src/deps-parser.js", function(exports, require, module){
+require.register("smtc-vue/src/deps-parser.js", function(exports, require, module){
 var Emitter  = require('./emitter'),
     utils    = require('./utils'),
     Observer = require('./observer'),
@@ -3311,7 +3311,7 @@ module.exports = {
     
 }
 });
-require.register("yyx990803-vue/src/filters.js", function(exports, require, module){
+require.register("smtc-vue/src/filters.js", function(exports, require, module){
 var utils    = require('./utils'),
     get      = utils.get,
     slice    = [].slice,
@@ -3503,7 +3503,7 @@ function stripQuotes (str) {
     }
 }
 });
-require.register("yyx990803-vue/src/transition.js", function(exports, require, module){
+require.register("smtc-vue/src/transition.js", function(exports, require, module){
 var endEvents  = sniffEndEvents(),
     config     = require('./config'),
     // batch enter animations so we only force the layout once
@@ -3733,7 +3733,7 @@ function sniffEndEvents () {
 transition.codes = codes
 transition.sniff = sniffEndEvents
 });
-require.register("yyx990803-vue/src/batcher.js", function(exports, require, module){
+require.register("smtc-vue/src/batcher.js", function(exports, require, module){
 var utils = require('./utils')
 
 function Batcher () {
@@ -3780,7 +3780,7 @@ BatcherProto.reset = function () {
 
 module.exports = Batcher
 });
-require.register("yyx990803-vue/src/directives/index.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/index.js", function(exports, require, module){
 var utils      = require('../utils'),
     config     = require('../config'),
     transition = require('../transition'),
@@ -3911,7 +3911,7 @@ directives.style   = require('./style')
 directives.partial = require('./partial')
 directives.view    = require('./view')
 });
-require.register("yyx990803-vue/src/directives/if.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/if.js", function(exports, require, module){
 var utils    = require('../utils')
 
 /**
@@ -3969,7 +3969,7 @@ module.exports = {
     }
 }
 });
-require.register("yyx990803-vue/src/directives/repeat.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/repeat.js", function(exports, require, module){
 var utils      = require('../utils'),
     config     = require('../config')
 
@@ -4217,7 +4217,7 @@ function indexOf (vms, obj) {
     return -1
 }
 });
-require.register("yyx990803-vue/src/directives/on.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/on.js", function(exports, require, module){
 var utils    = require('../utils')
 
 /**
@@ -4275,7 +4275,7 @@ module.exports = {
     }
 }
 });
-require.register("yyx990803-vue/src/directives/model.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/model.js", function(exports, require, module){
 var utils = require('../utils'),
     isIE9 = navigator.userAgent.indexOf('MSIE 9.0') > 0,
     filter = [].filter
@@ -4451,7 +4451,7 @@ module.exports = {
     }
 }
 });
-require.register("yyx990803-vue/src/directives/with.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/with.js", function(exports, require, module){
 var utils = require('../utils')
 
 /**
@@ -4503,7 +4503,7 @@ module.exports = {
 
 }
 });
-require.register("yyx990803-vue/src/directives/html.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/html.js", function(exports, require, module){
 var utils = require('../utils'),
     slice = [].slice
 
@@ -4546,7 +4546,7 @@ module.exports = {
     }
 }
 });
-require.register("yyx990803-vue/src/directives/style.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/style.js", function(exports, require, module){
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 
 /**
@@ -4588,7 +4588,7 @@ module.exports = {
 
 }
 });
-require.register("yyx990803-vue/src/directives/partial.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/partial.js", function(exports, require, module){
 var utils = require('../utils')
 
 /**
@@ -4640,7 +4640,7 @@ module.exports = {
 
 }
 });
-require.register("yyx990803-vue/src/directives/view.js", function(exports, require, module){
+require.register("smtc-vue/src/directives/view.js", function(exports, require, module){
 /**
  *  Manages a conditional child VM using the
  *  binding's value as the component ID.
@@ -4891,7 +4891,7 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 });
-require.register("visionmedia-superagent/lib/client.js", function(exports, require, module){
+require.register("smtc-superagent/lib/client.js", function(exports, require, module){
 /**
  * Module dependencies.
  */
@@ -5975,6 +5975,8 @@ new Vue({
 var vui = module.exports = {
     request: request,
     utils: utils,
+    route: route,
+    location: location,
     Vue: Vue,
     
     require: function (path) {
@@ -5990,13 +5992,14 @@ var vui = module.exports = {
 });
 require.register("vui/src/utils.js", function(exports, require, module){
 /*
- * 
+ * 工具包，大部分代码来自angularjs
  */
 var hasClassList    = 'classList' in document.documentElement,
     hasOwnProperty  = Object.prototype.hasOwnProperty,
     slice           = [].slice,
     push            = [].push,
-    toString        = Object.prototype.toString
+    toString        = Object.prototype.toString,
+    urlParsingNode  = document.createElement("a")
 
 var utils = module.exports = {
     /**
@@ -7049,89 +7052,6 @@ function encodeUriQuery(val, pctEncodeSpaces) {
         replace(/%20/g, (pctEncodeSpaces ? '%20' : '+'));
 }
 
-extend(utils, {
-    'copy': copy,
-    'extend': extend,
-    'equals': equals,
-    'forEach': forEach,
-    'noop':noop,
-    'bind':bind,
-    'toJson': toJson,
-    'fromJson': fromJson,
-    'identity':identity,
-    'isUndefined': isUndefined,
-    'isDefined': isDefined,
-    'isString': isString,
-    'isFunction': isFunction,
-    'isObject': isObject,
-    'isNumber': isNumber,
-    'isElement': isElement,
-    'isArray': isArray,
-    'isDate': isDate,
-    'lowercase': lowercase,
-    'uppercase': uppercase,
-    'callbacks': {counter: 0}
-});
-
-});
-require.register("vui/src/request.js", function(exports, require, module){
-/*
- * superagent，增加了token
- */
-var request 	= require("superagent"),
-    Request     = request.Request,
-	token  		= null
-
-// 获取token
-function getToken() {
-	token = token == null 
-			? localStorage.getItem("authentication")
-			: token
-	return token
-}
-
-function setToken(t) {
-    if (!t) return
-	token = t
-	localStorage.setItem("authentication" , t)
-}
-
-// 重写 callback，获取token
-Request.prototype.callback = function(err, res){
-  	var fn = this._callback
-  	if (2 == fn.length) return fn(err, res)
-  	if (err) return this.emit('error', err)
-    setToken(res.header.Authentication)
-  	fn(res)
-}
-
-// 重写superagent的request方法，加入oauth
-function request(method, url) {
-    var req
-  	// url first
-  	if (1 == arguments.length || 'function' == typeof url)
-    	req = new Request('GET', method)
-    else
-        req = new Request(method, url)
-
-    if (getToken()) req.set('Authentication', token)
-
-  	// callback
-  	if ('function' == typeof url)
-    	return req.end(url)
-
-  	return req
-}
-
-module.exports = request
-
-});
-require.register("vui/src/location.js", function(exports, require, module){
-var utils           = require("./utils"),
-    urlParsingNode  = document.createElement("a"),
-    originUrl       = urlResolve(window.location.href, true),
-    baseUrl         = originUrl.host + originUrl.pathname
-
 
 /**
  *
@@ -7212,6 +7132,112 @@ function urlResolve(url, base) {
     };
 }
 
+
+////////////////////////////////////////////////////////////////
+//
+function hashCode(obj) {
+    if (obj == null || obj == undefined) obj = ""
+    if (typeof obj != "string") obj = obj.toString()
+
+    var hash = 0, i, chr, len;
+    if (obj.length == 0) return hash;
+    for (i = 0, len = obj.length; i < len; i++) {
+        chr   = obj.charCodeAt(i);
+        hash  = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+
+extend(utils, {
+    'copy': copy,
+    'extend': extend,
+    'equals': equals,
+    'forEach': forEach,
+    'noop':noop,
+    'bind':bind,
+    'toJson': toJson,
+    'fromJson': fromJson,
+    'identity':identity,
+    'isUndefined': isUndefined,
+    'isDefined': isDefined,
+    'isString': isString,
+    'isFunction': isFunction,
+    'isObject': isObject,
+    'isNumber': isNumber,
+    'isElement': isElement,
+    'isArray': isArray,
+    'isDate': isDate,
+    'lowercase': lowercase,
+    'uppercase': uppercase,
+    'urlResolve': urlResolve,
+    'hashCode': hashCode,
+    'callbacks': {counter: 0}
+});
+
+});
+require.register("vui/src/request.js", function(exports, require, module){
+/*
+ * superagent，增加了token
+ */
+var request 	= require("superagent"),
+    Request     = request.Request,
+	token  		= null
+
+// 获取token
+function getToken() {
+	token = token == null 
+			? localStorage.getItem("authentication")
+			: token
+	return token
+}
+
+function setToken(t) {
+    if (!t) return
+	token = t
+	localStorage.setItem("authentication" , t)
+}
+
+// 重写 callback，获取token
+Request.prototype.callback = function(err, res){
+  	var fn = this._callback
+  	if (2 == fn.length) return fn(err, res)
+  	if (err) return this.emit('error', err)
+    setToken(res.header.Authentication)
+  	fn(res)
+}
+
+// 重写superagent的request方法，加入oauth
+function request(method, url) {
+    var req
+  	// url first
+  	if (1 == arguments.length || 'function' == typeof url)
+    	req = new Request('GET', method)
+    else
+        req = new Request(method, url)
+
+    if (getToken()) req.set('Authentication', token)
+
+  	// callback
+  	if ('function' == typeof url)
+    	return req.end(url)
+
+  	return req
+}
+
+module.exports = request
+
+});
+require.register("vui/src/location.js", function(exports, require, module){
+var utils           = require("./utils"),
+    urlResolve      = utils.urlResolve,
+    originUrl       = urlResolve(window.location.href, true),
+    root            = originUrl.pathname,
+    lastBrowserUrl  = originUrl,
+    html5Mode       = false
+
+
 /**
  * Parse a request URL and determine whether this is a same-origin request as the application document.
  *
@@ -7220,20 +7246,100 @@ function urlResolve(url, base) {
  * @returns {boolean} Whether the request is for the same origin as the application document.
  */
 function urlIsSameOrigin(requestUrl) {
-    var parsed = (isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl;
+    var parsed = (isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl
     return (parsed.protocol === originUrl.protocol &&
-            parsed.host === originUrl.host);
+            parsed.host === originUrl.host)
+}
+
+
+function url(url, replace) {
+    // Android Browser BFCache causes location, history reference to become stale.
+    //if (location !== window.location) location = window.location
+    if (history !== window.history) history = window.history
+
+    // setter
+    if (url) {
+        if (lastBrowserUrl == url) return
+        lastBrowserUrl = url
+        if (html5Mode) {
+            if (replace) history.replaceState(null, '', url)
+            else {
+                history.pushState(null, '', url)
+                // Crazy Opera Bug: http://my.opera.com/community/forums/topic.dml?id=1185462
+                //baseElement.attr('href', baseElement.attr('href'))
+            }
+        } else {
+            var c = url.charAt(0)
+            if (c != '/' && c != '.')
+            url = "#!/" + url
+            if (replace)
+                window.location.replace(url)
+            else
+                window.location.href = url
+        }
+        return self
+        // getter
+    } else {
+        // - newLocation is a workaround for an IE7-9 issue with location.replace and location.href
+        //   methods not updating location.href synchronously.
+        // - the replacement is a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=407172
+        url = window.location.href.replace(/%27/g,"'")
+        return url
+    }
+}
+
+
+module.exports = {
+    url: url
 }
 
 
 });
 require.register("vui/src/route.js", function(exports, require, module){
-var utils = require('./utils'),
-    location = require('./location')
+var utils       = require('./utils'),
+    location    = require('./location'),
+    urlResolve  = utils.urlResolve,
+    lastPath    = urlResolve(location.url()).pathname
 
-var route = module.exports = {
+function Route() {
+    this.fns = {}
 }
 
+// basepath 为true时，只验证path部分
+Route.prototype.bind = function (fn, basepath) {
+    if (!fn || typeof fn != "function") return this
+    var hash = utils.hashCode(fn)
+
+    if (this.fns.hasOwnProperty(hash)) return this
+    
+    var f = function (event) {
+        if (basepath) {
+            /////////////            
+        }
+        fn()
+    }
+    window.addEventListener('hashchange', f)
+    this.fns[hash] = f
+    return this
+}
+
+Route.prototype.unbind = function (fn) {
+    var hash = utils.hashCode(fn),
+        fns = this.fns
+
+    utils.forEach(fns, function (f, h) {
+        // 当fn为空或者与fns hash值相等时
+        if (hash == 0 || hash == h) {
+            window.removeEventListener('hashchange', f)
+            delete fns[h]
+        }
+    })
+
+    return this
+}
+
+
+module.exports = new Route()
 
 
 });
@@ -7241,17 +7347,20 @@ require.register("vui/src/directives/href.js", function(exports, require, module
 var location = require('../location')
 
 module.exports = {
+    isLiteral: true,
+
     bind: function () {
-        this.el.setAttribute('href', this.el.getAttribute('v-href'))
-        this.el.addEventListener('click', function (event) {
+        var self = this
+        self.el.setAttribute('href', self.expression)
+        self.el.addEventListener('click', function (event) {
             event.preventDefault()
+            location.url(self.expression)
         })
     },
 
-    update: function (value) {
-        if (value)
-            this.el.setAttribute('href', value)
+    unbind: function () {
     }
+
 }
 
 });
@@ -7302,43 +7411,43 @@ module.exports = {
 require.register("vui/src/components/ui/select.html", function(exports, require, module){
 module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span class="placeholder" ng-show="!text">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>';
 });
-require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
-require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");
-require.alias("yyx990803-vue/src/config.js", "vui/deps/vue/src/config.js");
-require.alias("yyx990803-vue/src/utils.js", "vui/deps/vue/src/utils.js");
-require.alias("yyx990803-vue/src/fragment.js", "vui/deps/vue/src/fragment.js");
-require.alias("yyx990803-vue/src/compiler.js", "vui/deps/vue/src/compiler.js");
-require.alias("yyx990803-vue/src/viewmodel.js", "vui/deps/vue/src/viewmodel.js");
-require.alias("yyx990803-vue/src/binding.js", "vui/deps/vue/src/binding.js");
-require.alias("yyx990803-vue/src/observer.js", "vui/deps/vue/src/observer.js");
-require.alias("yyx990803-vue/src/directive.js", "vui/deps/vue/src/directive.js");
-require.alias("yyx990803-vue/src/exp-parser.js", "vui/deps/vue/src/exp-parser.js");
-require.alias("yyx990803-vue/src/text-parser.js", "vui/deps/vue/src/text-parser.js");
-require.alias("yyx990803-vue/src/deps-parser.js", "vui/deps/vue/src/deps-parser.js");
-require.alias("yyx990803-vue/src/filters.js", "vui/deps/vue/src/filters.js");
-require.alias("yyx990803-vue/src/transition.js", "vui/deps/vue/src/transition.js");
-require.alias("yyx990803-vue/src/batcher.js", "vui/deps/vue/src/batcher.js");
-require.alias("yyx990803-vue/src/directives/index.js", "vui/deps/vue/src/directives/index.js");
-require.alias("yyx990803-vue/src/directives/if.js", "vui/deps/vue/src/directives/if.js");
-require.alias("yyx990803-vue/src/directives/repeat.js", "vui/deps/vue/src/directives/repeat.js");
-require.alias("yyx990803-vue/src/directives/on.js", "vui/deps/vue/src/directives/on.js");
-require.alias("yyx990803-vue/src/directives/model.js", "vui/deps/vue/src/directives/model.js");
-require.alias("yyx990803-vue/src/directives/with.js", "vui/deps/vue/src/directives/with.js");
-require.alias("yyx990803-vue/src/directives/html.js", "vui/deps/vue/src/directives/html.js");
-require.alias("yyx990803-vue/src/directives/style.js", "vui/deps/vue/src/directives/style.js");
-require.alias("yyx990803-vue/src/directives/partial.js", "vui/deps/vue/src/directives/partial.js");
-require.alias("yyx990803-vue/src/directives/view.js", "vui/deps/vue/src/directives/view.js");
-require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/index.js");
-require.alias("yyx990803-vue/src/main.js", "vue/index.js");
-require.alias("yyx990803-vue/src/main.js", "yyx990803-vue/index.js");
-require.alias("visionmedia-superagent/lib/client.js", "vui/deps/superagent/lib/client.js");
-require.alias("visionmedia-superagent/lib/client.js", "vui/deps/superagent/index.js");
-require.alias("visionmedia-superagent/lib/client.js", "superagent/index.js");
-require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter/index.js");
+require.alias("smtc-vue/src/main.js", "vui/deps/vue/src/main.js");
+require.alias("smtc-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");
+require.alias("smtc-vue/src/config.js", "vui/deps/vue/src/config.js");
+require.alias("smtc-vue/src/utils.js", "vui/deps/vue/src/utils.js");
+require.alias("smtc-vue/src/fragment.js", "vui/deps/vue/src/fragment.js");
+require.alias("smtc-vue/src/compiler.js", "vui/deps/vue/src/compiler.js");
+require.alias("smtc-vue/src/viewmodel.js", "vui/deps/vue/src/viewmodel.js");
+require.alias("smtc-vue/src/binding.js", "vui/deps/vue/src/binding.js");
+require.alias("smtc-vue/src/observer.js", "vui/deps/vue/src/observer.js");
+require.alias("smtc-vue/src/directive.js", "vui/deps/vue/src/directive.js");
+require.alias("smtc-vue/src/exp-parser.js", "vui/deps/vue/src/exp-parser.js");
+require.alias("smtc-vue/src/text-parser.js", "vui/deps/vue/src/text-parser.js");
+require.alias("smtc-vue/src/deps-parser.js", "vui/deps/vue/src/deps-parser.js");
+require.alias("smtc-vue/src/filters.js", "vui/deps/vue/src/filters.js");
+require.alias("smtc-vue/src/transition.js", "vui/deps/vue/src/transition.js");
+require.alias("smtc-vue/src/batcher.js", "vui/deps/vue/src/batcher.js");
+require.alias("smtc-vue/src/directives/index.js", "vui/deps/vue/src/directives/index.js");
+require.alias("smtc-vue/src/directives/if.js", "vui/deps/vue/src/directives/if.js");
+require.alias("smtc-vue/src/directives/repeat.js", "vui/deps/vue/src/directives/repeat.js");
+require.alias("smtc-vue/src/directives/on.js", "vui/deps/vue/src/directives/on.js");
+require.alias("smtc-vue/src/directives/model.js", "vui/deps/vue/src/directives/model.js");
+require.alias("smtc-vue/src/directives/with.js", "vui/deps/vue/src/directives/with.js");
+require.alias("smtc-vue/src/directives/html.js", "vui/deps/vue/src/directives/html.js");
+require.alias("smtc-vue/src/directives/style.js", "vui/deps/vue/src/directives/style.js");
+require.alias("smtc-vue/src/directives/partial.js", "vui/deps/vue/src/directives/partial.js");
+require.alias("smtc-vue/src/directives/view.js", "vui/deps/vue/src/directives/view.js");
+require.alias("smtc-vue/src/main.js", "vui/deps/vue/index.js");
+require.alias("smtc-vue/src/main.js", "vue/index.js");
+require.alias("smtc-vue/src/main.js", "smtc-vue/index.js");
+require.alias("smtc-superagent/lib/client.js", "vui/deps/superagent/lib/client.js");
+require.alias("smtc-superagent/lib/client.js", "vui/deps/superagent/index.js");
+require.alias("smtc-superagent/lib/client.js", "superagent/index.js");
+require.alias("component-emitter/index.js", "smtc-superagent/deps/emitter/index.js");
 
-require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
+require.alias("component-reduce/index.js", "smtc-superagent/deps/reduce/index.js");
 
-require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
+require.alias("smtc-superagent/lib/client.js", "smtc-superagent/index.js");
 require.alias("vui/src/main.js", "vui/index.js");
 if (typeof exports == 'object') {
   module.exports = require('vui');
