@@ -1112,8 +1112,9 @@ function encodeUriQuery(val, pctEncodeSpaces) {
  *   | pathname      | The pathname, beginning with "/"
  *
  */
-function urlResolve(url, base) {
-    var href = url;
+function urlResolve(url, fixHash) {
+    var href = url,
+        pathname
 
     if (utils.msie) {
         // Normalize before parse.  Refer Implementation Notes on why this is
@@ -1123,6 +1124,15 @@ function urlResolve(url, base) {
     }
 
     urlParsingNode.setAttribute('href', href);
+
+    if (fixHash && urlParsingNode.href.indexOf('#!/') > 0) {
+        pathname = urlParsingNode.pathname;
+        var end = pathname.lastIndexOf('/');
+        pathname = pathname.substr(0, end+1);
+        href = pathname + urlParsingNode.hash.substr(3);
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+    }
 
     // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
     return {

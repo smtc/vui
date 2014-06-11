@@ -16,7 +16,9 @@ Route.prototype.bind = function (fn, basepath) {
     
     var f = function (event) {
         if (basepath) {
-            /////////////            
+            var url = urlResolve(location.url(), true)
+            if (url.pathname == lastPath) return this
+            lastPath = url.pathname
         }
         fn()
     }
@@ -25,6 +27,7 @@ Route.prototype.bind = function (fn, basepath) {
     return this
 }
 
+// fn 为空时删除所有绑定事件
 Route.prototype.unbind = function (fn) {
     var hash = utils.hashCode(fn),
         fns = this.fns

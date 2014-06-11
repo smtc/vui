@@ -7105,8 +7105,9 @@ function encodeUriQuery(val, pctEncodeSpaces) {
  *   | pathname      | The pathname, beginning with "/"
  *
  */
-function urlResolve(url, base) {
-    var href = url;
+function urlResolve(url, fixHash) {
+    var href = url,
+        pathname
 
     if (utils.msie) {
         // Normalize before parse.  Refer Implementation Notes on why this is
@@ -7116,6 +7117,15 @@ function urlResolve(url, base) {
     }
 
     urlParsingNode.setAttribute('href', href);
+
+    if (fixHash && urlParsingNode.href.indexOf('#!/') > 0) {
+        pathname = urlParsingNode.pathname;
+        var end = pathname.lastIndexOf('/');
+        pathname = pathname.substr(0, end+1);
+        href = pathname + urlParsingNode.hash.substr(3);
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+    }
 
     // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
     return {
@@ -7314,7 +7324,9 @@ Route.prototype.bind = function (fn, basepath) {
     
     var f = function (event) {
         if (basepath) {
-            /////////////            
+            var url = urlResolve(location.url(), true)
+            if (url.pathname == lastPath) return this
+            lastPath = url.pathname
         }
         fn()
     }
@@ -7323,6 +7335,7 @@ Route.prototype.bind = function (fn, basepath) {
     return this
 }
 
+// fn 为空时删除所有绑定事件
 Route.prototype.unbind = function (fn) {
     var hash = utils.hashCode(fn),
         fns = this.fns
