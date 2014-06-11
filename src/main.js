@@ -1,6 +1,6 @@
 var Vue         = require('vue'),
     request     = require('./request'),
-    location    = require('./location'),
+    _location    = require('./location'),
     route       = require('./route'),
 	utils       = require('./utils'),
     ui          = require('./components/ui'),
@@ -26,11 +26,11 @@ new Vue({
 })
 
 
-var vui = module.exports = {
+module.exports = {
     request: request,
     utils: utils,
     route: route,
-    location: location,
+    location: _location,
     Vue: Vue,
     
     require: function (path) {

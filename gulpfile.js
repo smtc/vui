@@ -3,6 +3,7 @@ var gulp      = require('gulp'),
     uglify    = require('gulp-uglify'),
     rename    = require('gulp-rename'),
     less      = require('gulp-less'),
+    jshint    = require('gulp-jshint'),
     minifyCSS = require('gulp-minify-css')
 
 gulp.task('default', function () {
@@ -31,3 +32,8 @@ gulp.task('watch', function () {
     gulp.watch(['docs/css/**/*.less'], ['less'])
 })
 
+gulp.task('lint',function() {
+    return gulp.src('src/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'));
+});

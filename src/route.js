@@ -1,7 +1,7 @@
 var utils       = require('./utils'),
-    location    = require('./location'),
+    _location    = require('./location'),
     urlResolve  = utils.urlResolve,
-    lastPath    = urlResolve(location.url()).pathname
+    lastPath    = urlResolve(_location.url()).pathname
 
 function Route() {
     this.fns = {}
@@ -9,15 +9,15 @@ function Route() {
 
 // basepath 为true时，只验证path部分
 Route.prototype.bind = function (fn, basepath) {
-    if (!fn || typeof fn != "function") return this
+    if (!fn || typeof fn !== "function") return this
     var hash = utils.hashCode(fn)
 
     if (this.fns.hasOwnProperty(hash)) return this
     
-    var f = function (event) {
+    var f = function () {
         if (basepath) {
-            var url = urlResolve(location.url(), true)
-            if (url.pathname == lastPath) return this
+            var url = urlResolve(_location.url(), true)
+            if (url.pathname === lastPath) return this
             lastPath = url.pathname
         }
         fn()
@@ -34,7 +34,7 @@ Route.prototype.unbind = function (fn) {
 
     utils.forEach(fns, function (f, h) {
         // 当fn为空或者与fns hash值相等时
-        if (hash == 0 || hash == h) {
+        if (hash === 0 || hash === h) {
             window.removeEventListener('hashchange', f)
             delete fns[h]
         }

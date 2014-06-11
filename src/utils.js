@@ -2,11 +2,19 @@
  * 工具包，大部分代码来自angularjs
  */
 var hasClassList    = 'classList' in document.documentElement,
-    hasOwnProperty  = Object.prototype.hasOwnProperty,
+    hasOwnProp      = Object.prototype.hasOwnProperty,
     slice           = [].slice,
-    push            = [].push,
+    //push            = [].push,
     toString        = Object.prototype.toString,
-    urlParsingNode  = document.createElement("a")
+    urlParsingNode  = document.createElement("a"),
+    uid             = ['0', '0', '0']
+ 
+
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, ''); 
+  }
+}
 
 var utils = module.exports = {
     /**
@@ -206,10 +214,10 @@ function forEachSorted(obj, iterator, context) {
  * when using forEach the params are value, key, but it is often useful to have key, value.
  * @param {function(string, *)} iteratorFn
  * @returns {function(*, string)}
- */
 function reverseParams(iteratorFn) {
     return function(value, key) { iteratorFn(key, value); };
 }
+ */
 
 /**
  * A consistent way of creating unique IDs in angular. The ID is a sequence of alpha numeric
@@ -330,7 +338,7 @@ function identity($) {return $;}
 identity.$inject = [];
 
 
-function valueFn(value) {return function() {return value;};}
+//function valueFn(value) {return function() {return value;};}
 
 /**
  * @ngdoc function
@@ -496,22 +504,6 @@ function isBoolean(value) {
     return typeof value === 'boolean';
 }
 
-
-var trim = (function() {
-    // native trim is way faster: http://jsperf.com/angular-trim-test
-    // but IE doesn't have it... :-(
-    // TODO: we should move this into IE/ES5 polyfill
-    if (!String.prototype.trim) {
-        return function(value) {
-            return isString(value) ? value.replace(/^\s\s*/, '').replace(/\s\s*$/, '') : value;
-        };
-    }
-    return function(value) {
-        return isString(value) ? value.trim() : value;
-    };
-})();
-
-
 /**
  * @ngdoc function
  * @name utils.isElement
@@ -552,8 +544,6 @@ if (msie < 9) {
         return element.nodeName ? element.nodeName : element[0].nodeName;
     };
 }
-*/
-
 
 function map(obj, iterator, context) {
     var results = [];
@@ -563,6 +553,7 @@ function map(obj, iterator, context) {
     return results;
 }
 
+*/
 
 /**
  * @description
@@ -590,8 +581,7 @@ function size(obj, ownPropsOnly) {
     return count;
 }
 
-
-function includes(array, obj) {
+function contains(array, obj) {
     return indexOf(array, obj) != -1;
 }
 
@@ -611,6 +601,7 @@ function arrayRemove(array, value) {
     return value;
 }
 
+/*
 function isLeafNode (node) {
     if (node) {
         switch (node.nodeName) {
@@ -622,6 +613,7 @@ function isLeafNode (node) {
     }
     return false;
 }
+*/
 
 /**
  * @ngdoc function
@@ -681,8 +673,7 @@ $scope.reset();
 */
 function copy(source, destination, stackSource, stackDest) {
     if (isWindow(source) || isScope(source)) {
-        throw ngMinErr('cpws',
-                "Can't copy! Making copies of Window or Scope instances is not supported.");
+        throw "Can't copy! Making copies of Window or Scope instances is not supported.";
     }
 
     if (!destination) {
@@ -699,8 +690,7 @@ function copy(source, destination, stackSource, stackDest) {
             }
         }
     } else {
-        if (source === destination) throw ngMinErr('cpi',
-                "Can't copy! Source and destination are identical.");
+        if (source === destination) throw "Can't copy! Source and destination are identical.";
 
         stackSource = stackSource || [];
         stackDest = stackDest || [];
@@ -758,7 +748,7 @@ function shallowCopy(src, dst) {
         dst = dst || {};
 
         for (var key in src) {
-            if (hasOwnProperty.call(src, key) && !(key.charAt(0) === '$' && key.charAt(1) === '$')) {
+            if (hasOwnProp.call(src, key) && !(key.charAt(0) === '$' && key.charAt(1) === '$')) {
                 dst[key] = src[key];
             }
         }
@@ -836,17 +826,6 @@ function equals(o1, o2) {
     return false;
 }
 
-
-function csp() {
-    return (document.securityPolicy && document.securityPolicy.isActive) ||
-        (document.querySelector &&
-         !!(document.querySelector('[ng-csp]') || document.querySelector('[data-ng-csp]')));
-}
-
-
-function concat(array1, array2, index) {
-    return array1.concat(slice.call(array2, index));
-}
 
 function sliceArgs(args, startIndex) {
     return slice.call(args, startIndex || 0);
@@ -1153,29 +1132,44 @@ function urlResolve(url, fixHash) {
 ////////////////////////////////////////////////////////////////
 //
 function hashCode(obj) {
-    if (obj == null || obj == undefined) obj = ""
-    if (typeof obj != "string") obj = obj.toString()
+    if (null === obj || undefined === obj) obj = ""
+    if ("string" !== typeof obj) obj = obj.toString()
 
+    /*
     var hash = 0, i, chr, len;
-    if (obj.length == 0) return hash;
+    if (obj.length === 0) return hash;
     for (i = 0, len = obj.length; i < len; i++) {
         chr   = obj.charCodeAt(i);
         hash  = ((hash << 5) - hash) + chr;
         hash |= 0; // Convert to 32bit integer
     }
     return hash;
+    */
+    var res = 0,
+        len = obj.length
+    for (var i = 0; i < len; i++) {
+        res = res * 31 + obj.charCodeAt(i)
+    }
+    return res
 }
 
 
 extend(utils, {
     'copy': copy,
+    'shallowCopy': shallowCopy,
+    'size': size,
     'extend': extend,
+    'inherit': inherit,
     'equals': equals,
+    'contains': contains,
     'forEach': forEach,
+    'forEachSorted': forEachSorted,
     'noop':noop,
     'bind':bind,
+    'toBoolean': toBoolean,
     'toJson': toJson,
     'fromJson': fromJson,
+    'arrayRemove': arrayRemove,
     'identity':identity,
     'isUndefined': isUndefined,
     'isDefined': isDefined,
@@ -1186,9 +1180,18 @@ extend(utils, {
     'isElement': isElement,
     'isArray': isArray,
     'isDate': isDate,
+    'isFile': isFile,
+    'isBlob': isBlob,
+    'isBoolean': isBoolean,
     'lowercase': lowercase,
     'uppercase': uppercase,
     'urlResolve': urlResolve,
     'hashCode': hashCode,
+    'makeMap': makeMap,
+    'toKeyValue': toKeyValue,
+    'parseKeyValue': parseKeyValue,
+    'nextUid': nextUid,
+    'encodeUriQuery': encodeUriQuery,
+    'encodeUriSegment': encodeUriSegment,
     'callbacks': {counter: 0}
 });

@@ -5946,7 +5946,7 @@ module.exports = request;
 require.register("vui/src/main.js", function(exports, require, module){
 var Vue         = require('vue'),
     request     = require('./request'),
-    location    = require('./location'),
+    _location    = require('./location'),
     route       = require('./route'),
 	utils       = require('./utils'),
     ui          = require('./components/ui'),
@@ -5972,11 +5972,11 @@ new Vue({
 })
 
 
-var vui = module.exports = {
+module.exports = {
     request: request,
     utils: utils,
     route: route,
-    location: location,
+    location: _location,
     Vue: Vue,
     
     require: function (path) {
@@ -5995,11 +5995,13 @@ require.register("vui/src/utils.js", function(exports, require, module){
  * 工具包，大部分代码来自angularjs
  */
 var hasClassList    = 'classList' in document.documentElement,
-    hasOwnProperty  = Object.prototype.hasOwnProperty,
+    hasOwnProp      = Object.prototype.hasOwnProperty,
     slice           = [].slice,
     push            = [].push,
     toString        = Object.prototype.toString,
-    urlParsingNode  = document.createElement("a")
+    urlParsingNode  = document.createElement("a"),
+    uid             = ['0', '0', '0']
+    
 
 var utils = module.exports = {
     /**
@@ -6674,8 +6676,7 @@ $scope.reset();
 */
 function copy(source, destination, stackSource, stackDest) {
     if (isWindow(source) || isScope(source)) {
-        throw ngMinErr('cpws',
-                "Can't copy! Making copies of Window or Scope instances is not supported.");
+        throw "Can't copy! Making copies of Window or Scope instances is not supported.";
     }
 
     if (!destination) {
@@ -6692,8 +6693,7 @@ function copy(source, destination, stackSource, stackDest) {
             }
         }
     } else {
-        if (source === destination) throw ngMinErr('cpi',
-                "Can't copy! Source and destination are identical.");
+        if (source === destination) throw "Can't copy! Source and destination are identical.";
 
         stackSource = stackSource || [];
         stackDest = stackDest || [];
@@ -6751,7 +6751,7 @@ function shallowCopy(src, dst) {
         dst = dst || {};
 
         for (var key in src) {
-            if (hasOwnProperty.call(src, key) && !(key.charAt(0) === '$' && key.charAt(1) === '$')) {
+            if (hasOwnProp.call(src, key) && !(key.charAt(0) === '$' && key.charAt(1) === '$')) {
                 dst[key] = src[key];
             }
         }
@@ -7146,17 +7146,25 @@ function urlResolve(url, fixHash) {
 ////////////////////////////////////////////////////////////////
 //
 function hashCode(obj) {
-    if (obj == null || obj == undefined) obj = ""
-    if (typeof obj != "string") obj = obj.toString()
+    if (null === obj || undefined === obj) obj = ""
+    if ("string" !== typeof obj) obj = obj.toString()
 
+    /*
     var hash = 0, i, chr, len;
-    if (obj.length == 0) return hash;
+    if (obj.length === 0) return hash;
     for (i = 0, len = obj.length; i < len; i++) {
         chr   = obj.charCodeAt(i);
         hash  = ((hash << 5) - hash) + chr;
         hash |= 0; // Convert to 32bit integer
     }
     return hash;
+    */
+    var res = 0,
+        len = str.length
+    for (var i = 0; i < len; i++) {
+        res = res * 31 + str.charCodeAt(i)
+    }
+    return res
 }
 
 
@@ -7197,7 +7205,7 @@ var request 	= require("superagent"),
 
 // 获取token
 function getToken() {
-	token = token == null 
+	token = token === null 
 			? localStorage.getItem("authentication")
 			: token
 	return token
@@ -7212,7 +7220,7 @@ function setToken(t) {
 // 重写 callback，获取token
 Request.prototype.callback = function(err, res){
   	var fn = this._callback
-  	if (2 == fn.length) return fn(err, res)
+  	if (2 === fn.length) return fn(err, res)
   	if (err) return this.emit('error', err)
     setToken(res.header.Authentication)
   	fn(res)
@@ -7222,7 +7230,7 @@ Request.prototype.callback = function(err, res){
 function request(method, url) {
     var req
   	// url first
-  	if (1 == arguments.length || 'function' == typeof url)
+  	if (1 === arguments.length || 'function' === typeof url)
     	req = new Request('GET', method)
     else
         req = new Request(method, url)
@@ -7230,7 +7238,7 @@ function request(method, url) {
     if (getToken()) req.set('Authentication', token)
 
   	// callback
-  	if ('function' == typeof url)
+  	if ('function' === typeof url)
     	return req.end(url)
 
   	return req
@@ -7241,9 +7249,9 @@ module.exports = request
 });
 require.register("vui/src/location.js", function(exports, require, module){
 var utils           = require("./utils"),
-    urlResolve      = utils.urlResolve,
-    originUrl       = urlResolve(window.location.href, true),
-    root            = originUrl.pathname,
+    hrefResolve      = utils.hrefResolve,
+    originUrl       = hrefResolve(window.location.href, true),
+    //root            = originUrl.pathname,
     lastBrowserUrl  = originUrl,
     html5Mode       = false
 
@@ -7251,50 +7259,49 @@ var utils           = require("./utils"),
 /**
  * Parse a request URL and determine whether this is a same-origin request as the application document.
  *
- * @param {string|object} requestUrl The url of the request as a string that will be resolved
+ * @param {string|object} requestUrl The href of the request as a string that will be resolved
  * or a parsed URL object.
  * @returns {boolean} Whether the request is for the same origin as the application document.
  */
-function urlIsSameOrigin(requestUrl) {
-    var parsed = (isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl
+function hrefIsSameOrigin(requestUrl) {
+    var parsed = (utils.isString(requestUrl)) ? hrefResolve(requestUrl) : requestUrl
     return (parsed.protocol === originUrl.protocol &&
             parsed.host === originUrl.host)
 }
 
 
-function url(url, replace) {
+function url(href, replace) {
     // Android Browser BFCache causes location, history reference to become stale.
     //if (location !== window.location) location = window.location
     if (history !== window.history) history = window.history
 
     // setter
-    if (url) {
-        if (lastBrowserUrl == url) return
-        lastBrowserUrl = url
+    if (href) {
+        if (lastBrowserUrl === href) return
+        lastBrowserUrl = href
         if (html5Mode) {
-            if (replace) history.replaceState(null, '', url)
+            if (replace) history.replaceState(null, '', href)
             else {
-                history.pushState(null, '', url)
+                history.pushState(null, '', href)
                 // Crazy Opera Bug: http://my.opera.com/community/forums/topic.dml?id=1185462
                 //baseElement.attr('href', baseElement.attr('href'))
             }
         } else {
-            var c = url.charAt(0)
-            if (c != '/' && c != '.')
-            url = "#!/" + url
+            var c = href.charAt(0)
+            if (c !== '/' && c !== '.') href = "#!/" + href
             if (replace)
-                window.location.replace(url)
+                window.location.replace(href)
             else
-                window.location.href = url
+                window.location.href = href
         }
-        return self
+        return this
         // getter
     } else {
         // - newLocation is a workaround for an IE7-9 issue with location.replace and location.href
         //   methods not updating location.href synchronously.
         // - the replacement is a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=407172
-        url = window.location.href.replace(/%27/g,"'")
-        return url
+        href = window.location.href.replace(/%27/g,"'")
+        return href
     }
 }
 
@@ -7307,9 +7314,9 @@ module.exports = {
 });
 require.register("vui/src/route.js", function(exports, require, module){
 var utils       = require('./utils'),
-    location    = require('./location'),
+    _location    = require('./location'),
     urlResolve  = utils.urlResolve,
-    lastPath    = urlResolve(location.url()).pathname
+    lastPath    = urlResolve(_location.url()).pathname
 
 function Route() {
     this.fns = {}
@@ -7317,15 +7324,15 @@ function Route() {
 
 // basepath 为true时，只验证path部分
 Route.prototype.bind = function (fn, basepath) {
-    if (!fn || typeof fn != "function") return this
+    if (!fn || typeof fn !== "function") return this
     var hash = utils.hashCode(fn)
 
     if (this.fns.hasOwnProperty(hash)) return this
     
-    var f = function (event) {
+    var f = function () {
         if (basepath) {
-            var url = urlResolve(location.url(), true)
-            if (url.pathname == lastPath) return this
+            var url = urlResolve(_location.url(), true)
+            if (url.pathname === lastPath) return this
             lastPath = url.pathname
         }
         fn()
@@ -7342,7 +7349,7 @@ Route.prototype.unbind = function (fn) {
 
     utils.forEach(fns, function (f, h) {
         // 当fn为空或者与fns hash值相等时
-        if (hash == 0 || hash == h) {
+        if (hash === 0 || hash === h) {
             window.removeEventListener('hashchange', f)
             delete fns[h]
         }
@@ -7357,7 +7364,7 @@ module.exports = new Route()
 
 });
 require.register("vui/src/directives/href.js", function(exports, require, module){
-var location = require('../location')
+var _location = require('../location')
 
 module.exports = {
     isLiteral: true,
@@ -7367,7 +7374,7 @@ module.exports = {
         self.el.setAttribute('href', self.expression)
         self.el.addEventListener('click', function (event) {
             event.preventDefault()
-            location.url(self.expression)
+            _location.url(self.expression)
         })
     },
 

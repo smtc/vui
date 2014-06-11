@@ -7,7 +7,7 @@ var request 	= require("superagent"),
 
 // 获取token
 function getToken() {
-	token = token == null 
+	token = token === null 
 			? localStorage.getItem("authentication")
 			: token
 	return token
@@ -22,7 +22,7 @@ function setToken(t) {
 // 重写 callback，获取token
 Request.prototype.callback = function(err, res){
   	var fn = this._callback
-  	if (2 == fn.length) return fn(err, res)
+  	if (2 === fn.length) return fn(err, res)
   	if (err) return this.emit('error', err)
     setToken(res.header.Authentication)
   	fn(res)
@@ -32,7 +32,7 @@ Request.prototype.callback = function(err, res){
 function request(method, url) {
     var req
   	// url first
-  	if (1 == arguments.length || 'function' == typeof url)
+  	if (1 === arguments.length || 'function' === typeof url)
     	req = new Request('GET', method)
     else
         req = new Request(method, url)
@@ -40,7 +40,7 @@ function request(method, url) {
     if (getToken()) req.set('Authentication', token)
 
   	// callback
-  	if ('function' == typeof url)
+  	if ('function' === typeof url)
     	return req.end(url)
 
   	return req
