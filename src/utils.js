@@ -11,9 +11,9 @@ var hasClassList    = 'classList' in document.documentElement,
  
 
 if(typeof String.prototype.trim !== 'function') {
-  String.prototype.trim = function() {
-    return this.replace(/^\s+|\s+$/g, ''); 
-  }
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, ''); 
+    }
 }
 
 var utils = module.exports = {

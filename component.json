@@ -18,8 +18,8 @@
         "components"
     ],
     "dependencies": {
-        "smtc/vue": "*",
-        "smtc/superagent": "*"
+        "yyx990803/vue": "^0.10.5",
+        "visionmedia/superagent": "^0.18.0"
     },
     "license": "MIT"
 }

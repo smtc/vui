@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="mocha.css">
+    </head>
+    <body>
+        <div id="mocha"></div>
+
+        <!-- include test utilities -->
+        <script src="../node_modules/chai/chai.js"></script>
+        <script src="../node_modules/mocha/mocha.js"></script>
+        <script src="../vui.js"></script>
+        <script>
+            mocha.setup('bdd')
+            var should  = chai.should(),
+                expect  = chai.expect
+        </script>
+        <script>
+            describe('vui.main', function () {
+                it('vui is an object', function () {
+                    expect(vui).to.be.a('object')
+                });
+                it('vui.require is a function', function () {
+                    expect(vui.require).to.be.a('function')
+                });
+            });
+        </script>
+
+        <!-- specs -->
+        <script src="specs/location.js"></script>
+
+        <script>
+            if (window.mochaPhantomJS) {
+                mochaPhantomJS.run();
+            } else {
+                mocha.run();
+            }
+        </script>
+
+    </body>
+</html>

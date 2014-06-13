@@ -1,6 +1,6 @@
 var utils           = require("./utils"),
-    hrefResolve      = utils.hrefResolve,
-    originUrl       = hrefResolve(window.location.href, true),
+    urlResolve      = utils.urlResolve,
+    originUrl       = urlResolve(window.location.href, true),
     //root            = originUrl.pathname,
     lastBrowserUrl  = originUrl,
     html5Mode       = false
@@ -14,7 +14,7 @@ var utils           = require("./utils"),
  * @returns {boolean} Whether the request is for the same origin as the application document.
  */
 function hrefIsSameOrigin(requestUrl) {
-    var parsed = (utils.isString(requestUrl)) ? hrefResolve(requestUrl) : requestUrl
+    var parsed = (utils.isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl
     return (parsed.protocol === originUrl.protocol &&
             parsed.host === originUrl.host)
 }

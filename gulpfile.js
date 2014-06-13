@@ -1,10 +1,18 @@
-var gulp      = require('gulp'),
-    component = require('gulp-component'),
-    uglify    = require('gulp-uglify'),
-    rename    = require('gulp-rename'),
-    less      = require('gulp-less'),
-    jshint    = require('gulp-jshint'),
-    minifyCSS = require('gulp-minify-css')
+var gulp            = require('gulp'),
+    component       = require('gulp-component'),
+    uglify          = require('gulp-uglify'),
+    rename          = require('gulp-rename'),
+    less            = require('gulp-less'),
+    jshint          = require('gulp-jshint'),
+    util            = require('gulp-util'),
+    mocha           = require('gulp-mocha'),
+    minifyCSS       = require('gulp-minify-css'),
+    mochaPhantomJS  = require('gulp-mocha-phantomjs')
+
+var paths = {
+  scripts: ['src/**/*.js', 'test/**/*.js'],
+  tests: 'test/**/*.js'
+}
 
 gulp.task('default', function () {
     gulp.src('component.json')
@@ -33,7 +41,13 @@ gulp.task('watch', function () {
 })
 
 gulp.task('lint',function() {
-    return gulp.src('src/**/*.js')
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'));
+    return gulp.src(paths.scripts)
+        .pipe(jshint())
+        .pipe(jshint.reporter('default'));
+});
+
+gulp.task('test',function() {
+    return gulp
+        .src("test/index.html")
+        .pipe(mochaPhantomJS({reporter: 'spec'}))
 });

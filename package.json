@@ -19,11 +19,17 @@
   },
   "homepage": "https://github.com/smtc/vui",
   "devDependencies": {
-    "gulp": "^3.7.0",
+    "chai": "*",
+    "gulp": "*",
     "gulp-component": "*",
     "gulp-jshint": "*",
     "gulp-less": "*",
+    "gulp-mocha": "*",
+    "gulp-mocha-phantomjs": "*",
     "gulp-rename": "*",
-    "gulp-uglify": "*"
+    "gulp-uglify": "*",
+    "gulp-util": "*",
+    "mocha": "*",
+    "should": "*"
   }
 }
