@@ -15,6 +15,9 @@ var paths = {
 }
 
 gulp.task('default', function () {
+})
+
+gulp.task('build', function () {
     gulp.src('component.json')
         .pipe(component({
             standalone: true
@@ -36,8 +39,9 @@ gulp.task('less', function () {
 })
 
 gulp.task('watch', function () {
-    gulp.watch(['component.json', 'src/**/*'], ['default'])
+    gulp.watch(['component.json', 'src/**/*'], ['build'])
     gulp.watch(['docs/css/**/*.less'], ['less'])
+    gulp.watch(['test/**/*.*'], ['test'])
 })
 
 gulp.task('lint',function() {
@@ -51,3 +55,8 @@ gulp.task('test',function() {
         .src("test/index.html")
         .pipe(mochaPhantomJS({reporter: 'spec'}))
 });
+
+gulp.task('autotest', function () {
+    gulp.watch(['test/**/*.*'], ['test'])
+})
+

@@ -7,7 +7,7 @@ var hasClassList    = 'classList' in document.documentElement,
     //push            = [].push,
     toString        = Object.prototype.toString,
     urlParsingNode  = document.createElement("a"),
-    uid             = ['0', '0', '0']
+    uid             = ['0', '0', '0', '0']
  
 
 if(typeof String.prototype.trim !== 'function') {
@@ -250,6 +250,8 @@ function nextUid() {
 }
 
 
+
+
 /**
  * Set or clear the hashkey for an object.
  * @param obj object
@@ -469,6 +471,7 @@ function isFunction(value){return typeof value === 'function';}
  * @returns {boolean} True if `value` is a `RegExp`.
  */
 function isRegExp(value) {
+    if (!value) return false;
     return toString.call(value) === '[object RegExp]';
 }
 
@@ -1135,7 +1138,6 @@ function hashCode(obj) {
     if (null === obj || undefined === obj) obj = ""
     if ("string" !== typeof obj) obj = obj.toString()
 
-    /*
     var hash = 0, i, chr, len;
     if (obj.length === 0) return hash;
     for (i = 0, len = obj.length; i < len; i++) {
@@ -1144,13 +1146,6 @@ function hashCode(obj) {
         hash |= 0; // Convert to 32bit integer
     }
     return hash;
-    */
-    var res = 0,
-        len = obj.length
-    for (var i = 0; i < len; i++) {
-        res = res * 31 + obj.charCodeAt(i)
-    }
-    return res
 }
 
 
