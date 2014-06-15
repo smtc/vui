@@ -1,9 +1,11 @@
-var utils           = require("./utils"),
-    urlResolve      = utils.urlResolve,
-    originUrl       = urlResolve(window.location.href, true),
-    //root            = originUrl.pathname,
-    lastBrowserUrl  = originUrl,
-    html5Mode       = false
+var utils            = require("./utils"),
+    urlResolve       = utils.urlResolve,
+    encodeUriSegment = utils.encodeUriSegment,
+    lastBrowserUrl   = originUrl,
+    html5Mode        = false,
+    originUrl        = urlResolve(window.location.href, true),
+    isUndefined      = utils.isUndefined,
+    _location
 
 
 /**
@@ -20,9 +22,34 @@ function hrefIsSameOrigin(requestUrl) {
 }
 
 
+/**
+ * Encode path using encodeUriSegment, ignoring forward slashes
+ *
+ * @param {string} path Path to encode
+ * @returns {string}
+ */
+function encodePath(path) {
+    var segments = path.split('/'),
+        i = segments.length
+
+    while (i--) {
+        segments[i] = encodeUriSegment(segments[i])
+    }
+
+    return segments.join('/')
+}
+
+
+
+function setMode(mode) {
+    html5Mode = 'html5' === mode ? true : false
+    return _location
+}
+
+
 function url(href, replace) {
-    // Android Browser BFCache causes location, history reference to become stale.
-    //if (location !== window.location) location = window.location
+    // Android Browser BFCache causes _location, history reference to become stale.
+    //if (_location !== window.location) _location = window.location
     if (history !== window.history) history = window.history
 
     // setter
@@ -44,19 +71,71 @@ function url(href, replace) {
             else
                 window.location.href = href
         }
-        return this
+        return _location
         // getter
     } else {
-        // - newLocation is a workaround for an IE7-9 issue with location.replace and location.href
-        //   methods not updating location.href synchronously.
+        // - newLocation is a workaround for an IE7-9 issue with _location.replace and _location.href
+        //   methods not updating _location.href synchronously.
         // - the replacement is a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=407172
-        href = window.location.href.replace(/%27/g,"'")
-        return href
+        return window.location.href.replace(/%27/g,"'")
     }
 }
 
+// create url
+function compose(raw) {
+    var search = raw.search,
+        hash = raw.hash,
+        path,
+        end
 
-module.exports = {
+    if (html5Mode)
+        end = raw.pathname
+    else {
+        path = urlResolve(url()).pathname
+        path = path.slice(0, path.lastIndexOf('/') + 1)
+        end = raw.pathname.replace(path, '')
+    }
+
+    end = encodePath(end)
+
+    return url(end + (search ? '?' + search : '') + (hash ? '#' + encodeUriSegment(hash) : ''))
+}
+
+function search(query, value) {
+    var raw = urlResolve(url(), !html5Mode),
+        _search = utils.parseKeyValue(raw.search)
+
+    switch(arguments.length) {
+        case 0:
+            return utils.parseKeyValue(raw.search)
+        case 1:
+            if (utils.isString(query))
+                query = utils.toKeyValue(query)
+            _search = query
+        default:
+            if (null === value || isUndefined(value))
+                delete _search[query]
+            else
+                _search[query] = value
+    }
+    raw.search = utils.toKeyValue(_search)
+    return compose(raw)
+}
+
+function hash(value) {
+    var raw = urlResolve(url(), !html5Mode)
+    if (arguments.length === 0)
+        return raw.hash
+
+    raw.hash = value
+    return compose(raw)
+}
+
+
+_location = module.exports = {
+    setMode: setMode,
+    search: search,
+    hash: hash,
     url: url
 }
 

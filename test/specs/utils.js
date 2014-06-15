@@ -231,7 +231,7 @@ describe('vui.utils', function(){
         for(var i=0;i<100;i++) 
             uid = utils.nextUid()
 
-        uid.should.eql('002S')
+        uid.should.eql('A02S')
     })
 
 })

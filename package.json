@@ -27,6 +27,7 @@
     "gulp-mocha": "*",
     "gulp-mocha-phantomjs": "*",
     "gulp-rename": "*",
+    "gulp-shell": "*",
     "gulp-uglify": "*",
     "gulp-util": "*",
     "mocha": "*",

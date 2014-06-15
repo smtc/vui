@@ -7,10 +7,11 @@ var gulp            = require('gulp'),
     util            = require('gulp-util'),
     mocha           = require('gulp-mocha'),
     minifyCSS       = require('gulp-minify-css'),
+    shell           = require('gulp-shell'),
     mochaPhantomJS  = require('gulp-mocha-phantomjs')
 
 var paths = {
-  scripts: ['src/**/*.js', 'test/**/*.js'],
+  scripts: ['src/**/*.js'],
   tests: 'test/**/*.js'
 }
 
@@ -39,7 +40,7 @@ gulp.task('less', function () {
 })
 
 gulp.task('watch', function () {
-    gulp.watch(['component.json', 'src/**/*'], ['build'])
+    gulp.watch(['component.json', 'src/**/*'], ['build', 'test'])
     gulp.watch(['docs/css/**/*.less'], ['less'])
     gulp.watch(['test/**/*.*'], ['test'])
 })
@@ -48,13 +49,17 @@ gulp.task('lint',function() {
     return gulp.src(paths.scripts)
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
-});
+})
 
-gulp.task('test',function() {
-    return gulp
-        .src("test/index.html")
-        .pipe(mochaPhantomJS({reporter: 'spec'}))
-});
+/*
+gulp.task('test', function() {
+    return gulp.src('test/index.html')
+        .pipe(mochaPhantomJS())
+})
+*/
+gulp.task('test', shell.task([
+   'mocha-phantomjs -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false http://localhost/test/index.html'             
+]))
 
 gulp.task('autotest', function () {
     gulp.watch(['test/**/*.*'], ['test'])

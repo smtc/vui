@@ -7,7 +7,7 @@ var hasClassList    = 'classList' in document.documentElement,
     //push            = [].push,
     toString        = Object.prototype.toString,
     urlParsingNode  = document.createElement("a"),
-    uid             = ['0', '0', '0', '0']
+    uid             = ['A', '0', '0', '0']
  
 
 if(typeof String.prototype.trim !== 'function') {
