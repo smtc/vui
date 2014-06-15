@@ -4568,11 +4568,13 @@ module.exports = {
     update: function (value) {
         var prop = this.prop
         if (prop) {
-            var isImportant = value.slice(-10) === '!important'
-                ? 'important'
-                : ''
-            if (isImportant) {
-                value = value.slice(0, -10).trim()
+            if (value){
+                var isImportant = value.slice(-10) === '!important'
+                    ? 'important'
+                    : ''
+                if (isImportant) {
+                    value = value.slice(0, -10).trim()
+                }
             }
             this.el.style.setProperty(prop, value, isImportant)
             if (this.prefixed) {
@@ -7198,6 +7200,7 @@ function getToken() {
 	token = token === null 
 			? localStorage.getItem("authentication")
 			: token
+    console.log(token)
 	return token
 }
 
@@ -7212,12 +7215,13 @@ Request.prototype.callback = function(err, res){
   	var fn = this._callback
   	if (2 === fn.length) return fn(err, res)
   	if (err) return this.emit('error', err)
-    setToken(res.header.Authentication)
+    setToken(res.header.authentication)
   	fn(res)
 }
 
 // 重写superagent的request方法，加入oauth
 function request(method, url) {
+    console.log(url)
     var req
   	// url first
   	if (1 === arguments.length || 'function' === typeof url)
@@ -7225,7 +7229,7 @@ function request(method, url) {
     else
         req = new Request(method, url)
 
-    if (getToken()) req.set('Authentication', token)
+    if (getToken()) req.set('authentication', token)
 
   	// callback
   	if ('function' === typeof url)

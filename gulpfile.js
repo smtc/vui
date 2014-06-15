@@ -5,10 +5,12 @@ var gulp            = require('gulp'),
     less            = require('gulp-less'),
     jshint          = require('gulp-jshint'),
     util            = require('gulp-util'),
-    mocha           = require('gulp-mocha'),
     minifyCSS       = require('gulp-minify-css'),
     shell           = require('gulp-shell'),
-    mochaPhantomJS  = require('gulp-mocha-phantomjs')
+    //mocha           = require('gulp-mocha'),
+    //mochaPhantomJS  = require('gulp-mocha-phantomjs'),
+    server          = require('./server'),
+    serverPort      = 5000
 
 var paths = {
   scripts: ['src/**/*.js'],
@@ -16,6 +18,11 @@ var paths = {
 }
 
 gulp.task('default', function () {
+})
+
+gulp.task('server', function () {
+    gulp.watch(['component.json', 'src/**/*'], ['build'])
+    server.listen(serverPort)
 })
 
 gulp.task('build', function () {
@@ -40,6 +47,7 @@ gulp.task('less', function () {
 })
 
 gulp.task('watch', function () {
+    server.listen(serverPort)
     gulp.watch(['component.json', 'src/**/*'], ['build', 'test'])
     gulp.watch(['docs/css/**/*.less'], ['less'])
     gulp.watch(['test/**/*.*'], ['test'])
@@ -56,10 +64,16 @@ gulp.task('test', function() {
     return gulp.src('test/index.html')
         .pipe(mochaPhantomJS())
 })
-*/
 gulp.task('test', shell.task([
-   'mocha-phantomjs -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false http://localhost/test/index.html'             
+   'mocha-phantomjs -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false http://localhost:8000/test/index.html'             
 ]))
+*/
+gulp.task('test', function() {
+    server.listen(serverPort)
+    return gulp.src('')
+        .pipe(shell('mocha-phantomjs -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false http://localhost:5000/test/index.html'))
+})
+
 
 gulp.task('autotest', function () {
     gulp.watch(['test/**/*.*'], ['test'])
