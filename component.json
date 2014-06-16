@@ -4,7 +4,6 @@
     "scripts": [
         "src/main.js",
         "src/utils.js",
-        "src/request.js",
         "src/location.js",
         "src/route.js",
         "src/directives/href.js",
@@ -19,7 +18,7 @@
     ],
     "dependencies": {
         "yyx990803/vue": "*",
-        "visionmedia/superagent": "*"
+        "smtc/superagent": "*"
     },
     "license": "MIT"
 }

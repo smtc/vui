@@ -1,6 +1,6 @@
 describe('vui.request', function () {
     this.timeout(5000)
-    var request = vui.require('request')
+    var request = vui.request
 
     it('get', function (done) {
         //console.log(vui.utils.urlResolve('json/request.json').href)
@@ -23,6 +23,7 @@ describe('vui.request', function () {
         }
 
         function s2() {
+            localStorage.getItem('Authentication').should.eql('abcdefg')
             request.post('/api/oauth/test')
                 .end(function (res) {
                     res.body.status.should.eql(1)

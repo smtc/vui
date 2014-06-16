@@ -4893,13 +4893,30 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 });
-require.register("visionmedia-superagent/lib/client.js", function(exports, require, module){
+require.register("smtc-superagent/lib/client.js", function(exports, require, module){
 /**
  * Module dependencies.
  */
 
 var Emitter = require('emitter');
 var reduce = require('reduce');
+
+var Authentication = "Authentication",
+    token = null;
+
+// 获取token
+function getToken() {
+	token = token === null 
+			? localStorage.getItem(Authentication)
+			: token
+	return token
+}
+
+function setToken(t) {
+    if (!t) return
+	token = t
+	localStorage.setItem(Authentication, t)
+}
 
 /**
  * Root reference for iframes.
@@ -5677,6 +5694,7 @@ Request.prototype.callback = function(err, res){
   var fn = this._callback;
   if (2 == fn.length) return fn(err, res);
   if (err) return this.emit('error', err);
+  setToken(res.header[Authentication] || res.header[Authentication.toLowerCase()]);
   fn(res);
 };
 
@@ -5820,17 +5838,20 @@ request.Request = Request;
  */
 
 function request(method, url) {
-  // callback
-  if ('function' == typeof url) {
-    return new Request('GET', method).end(url);
-  }
-
+  var req
   // url first
-  if (1 == arguments.length) {
-    return new Request('GET', method);
-  }
+  if (1 === arguments.length || 'function' === typeof url)
+  	req = new Request('GET', method)
+  else
+    req = new Request(method, url)
 
-  return new Request(method, url);
+  if (getToken()) req.set(Authentication, token)
+
+  // callback
+  if ('function' === typeof url)
+   	return req.end(url)
+
+  return req
 }
 
 /**
@@ -5941,13 +5962,12 @@ request.put = function(url, data, fn){
 /**
  * Expose `request`.
  */
-
 module.exports = request;
 
 });
 require.register("vui/src/main.js", function(exports, require, module){
 var Vue         = require('vue'),
-    request     = require('./request'),
+    request     = require('superagent'),
     _location    = require('./location'),
     route       = require('./route'),
 	utils       = require('./utils'),
@@ -7187,60 +7207,6 @@ extend(utils, {
 });
 
 });
-require.register("vui/src/request.js", function(exports, require, module){
-/*
- * superagent，增加了token
- */
-var request 	= require("superagent"),
-    Request     = request.Request,
-	token  		= null
-
-// 获取token
-function getToken() {
-	token = token === null 
-			? localStorage.getItem("authentication")
-			: token
-    console.log(token)
-	return token
-}
-
-function setToken(t) {
-    if (!t) return
-	token = t
-	localStorage.setItem("authentication" , t)
-}
-
-// 重写 callback，获取token
-Request.prototype.callback = function(err, res){
-  	var fn = this._callback
-  	if (2 === fn.length) return fn(err, res)
-  	if (err) return this.emit('error', err)
-    setToken(res.header.authentication)
-  	fn(res)
-}
-
-// 重写superagent的request方法，加入oauth
-function request(method, url) {
-    console.log(url)
-    var req
-  	// url first
-  	if (1 === arguments.length || 'function' === typeof url)
-    	req = new Request('GET', method)
-    else
-        req = new Request(method, url)
-
-    if (getToken()) req.set('authentication', token)
-
-  	// callback
-  	if ('function' === typeof url)
-    	return req.end(url)
-
-  	return req
-}
-
-module.exports = request
-
-});
 require.register("vui/src/location.js", function(exports, require, module){
 var utils            = require("./utils"),
     urlResolve       = utils.urlResolve,
@@ -7465,7 +7431,7 @@ module.exports = {
 
 });
 require.register("vui/src/components/ui/select.js", function(exports, require, module){
-var request = require('../../request'),
+var request = require('superagent'),
     utils   = require('../../utils')
 
 module.exports = {
@@ -7533,14 +7499,14 @@ require.alias("yyx990803-vue/src/directives/view.js", "vui/deps/vue/src/directiv
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/index.js");
 require.alias("yyx990803-vue/src/main.js", "vue/index.js");
 require.alias("yyx990803-vue/src/main.js", "yyx990803-vue/index.js");
-require.alias("visionmedia-superagent/lib/client.js", "vui/deps/superagent/lib/client.js");
-require.alias("visionmedia-superagent/lib/client.js", "vui/deps/superagent/index.js");
-require.alias("visionmedia-superagent/lib/client.js", "superagent/index.js");
-require.alias("component-emitter/index.js", "visionmedia-superagent/deps/emitter/index.js");
+require.alias("smtc-superagent/lib/client.js", "vui/deps/superagent/lib/client.js");
+require.alias("smtc-superagent/lib/client.js", "vui/deps/superagent/index.js");
+require.alias("smtc-superagent/lib/client.js", "superagent/index.js");
+require.alias("component-emitter/index.js", "smtc-superagent/deps/emitter/index.js");
 
-require.alias("component-reduce/index.js", "visionmedia-superagent/deps/reduce/index.js");
+require.alias("component-reduce/index.js", "smtc-superagent/deps/reduce/index.js");
 
-require.alias("visionmedia-superagent/lib/client.js", "visionmedia-superagent/index.js");
+require.alias("smtc-superagent/lib/client.js", "smtc-superagent/index.js");
 require.alias("vui/src/main.js", "vui/index.js");
 if (typeof exports == 'object') {
   module.exports = require('vui');

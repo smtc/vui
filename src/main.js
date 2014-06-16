@@ -1,5 +1,5 @@
 var Vue         = require('vue'),
-    request     = require('./request'),
+    request     = require('superagent'),
     _location    = require('./location'),
     route       = require('./route'),
 	utils       = require('./utils'),

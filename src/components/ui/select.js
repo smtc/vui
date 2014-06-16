@@ -1,4 +1,4 @@
-var request = require('../../request'),
+var request = require('superagent'),
     utils   = require('../../utils')
 
 module.exports = {

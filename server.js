@@ -1,14 +1,15 @@
-var express = require('express'),  
-    app     = express(),
-    isStart = false 
+var express         = require('express'),  
+    app             = express(),
+    Authentication  = "Authentication",
+    isStart         = false 
   
 app.get('/api/oauth/test', function (req, res) {
-    res.set('authentication', 'abcdefg')
+    res.set(Authentication, 'abcdefg')
     res.send({ status: 1 })
 })
 
 app.post('/api/oauth/test', function (req, res) {
-    var auth = req.get('authentication')
+    var auth = req.get(Authentication)
 
     if (auth)
         res.send({ status: 1, auth: auth })
