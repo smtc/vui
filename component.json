@@ -6,6 +6,7 @@
         "src/utils.js",
         "src/location.js",
         "src/route.js",
+        "src/request.js",
         "src/directives/href.js",
         "src/components/ui/index.js",
         "src/components/ui/select.js"

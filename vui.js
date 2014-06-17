@@ -5966,13 +5966,14 @@ module.exports = request;
 
 });
 require.register("vui/src/main.js", function(exports, require, module){
-var Vue         = require('vue'),
-    request     = require('superagent'),
-    _location    = require('./location'),
-    route       = require('./route'),
-	utils       = require('./utils'),
-    ui          = require('./components/ui'),
-    gData       = {}
+var Vue             = require('vue'),
+    request         = require('./request'),
+    _location       = require('./location'),
+    route           = require('./route'),
+	utils           = require('./utils'),
+    ui              = require('./components/ui'),
+    templateCache   = {},
+    $data          = {}
 
 
 new Vue({
@@ -5990,7 +5991,8 @@ new Vue({
         select: ui.select
     },
 
-    data: gData
+    data: $data
+
 })
 
 
@@ -5998,6 +6000,7 @@ module.exports = {
     request: request,
     utils: utils,
     route: route,
+    $data: $data,
     location: _location,
     Vue: Vue,
     
@@ -7352,39 +7355,44 @@ _location = module.exports = {
 
 });
 require.register("vui/src/route.js", function(exports, require, module){
-var utils       = require('./utils'),
-    _location    = require('./location'),
+var Vue         = require('vue'),
+    utils       = require('./utils'),
+    _location   = require('./location'),
     urlResolve  = utils.urlResolve,
-    lastPath    = urlResolve(_location.url()).pathname
+    request     = require('./request'),
+    lastPath    = urlResolve(_location.url()).pathname,
+    fns         = {},
+    components  = {}
 
-function Route() {
-    this.fns = {}
+function route(fn) {
+    route.bind(function () {
+        getComponent(fn)
+    }, true)
 }
 
 // basepath 为true时，只验证path部分
-Route.prototype.bind = function (fn, basepath) {
+route.bind = function (fn, basepath) {
     if (!fn || typeof fn !== "function") return this
     var hash = utils.hashCode(fn)
 
-    if (this.fns.hasOwnProperty(hash)) return this
+    if (fns.hasOwnProperty(hash)) return this
     
-    var f = function () {
-        if (basepath) {
-            var url = urlResolve(_location.url(), true)
-            if (url.pathname === lastPath) return this
-            lastPath = url.pathname
+    var self = this,
+        f = function () {
+            if (basepath) {
+                var url = urlResolve(_location.url(), true)
+                if (url.pathname === lastPath) return this
+                lastPath = url.pathname
+            }
+            fn()
         }
-        fn()
-    }
     window.addEventListener('hashchange', f)
-    this.fns[hash] = f
-    return this
+    fns[hash] = f
 }
 
 // fn 为空时删除所有绑定事件
-Route.prototype.unbind = function (fn) {
-    var hash = utils.hashCode(fn),
-        fns = this.fns
+route.unbind = function (fn) {
+    var hash = utils.hashCode(fn)
 
     utils.forEach(fns, function (f, h) {
         // 当fn为空或者与fns hash值相等时
@@ -7393,13 +7401,31 @@ Route.prototype.unbind = function (fn) {
             delete fns[h]
         }
     })
-
-    return this
 }
 
+function getComponent(fn) {
+    var path = utils.urlResolve(_location.url(), true).pathname
+    if (!components[path]) {
+        components[path] = true
+        request.get(path)
+            .end(function (res) {
+                Vue.component(path, {
+                    template: res.text
+                })
+                fn(path)
+            })
+    } else {
+        fn(path)
+    }
+}
 
-module.exports = new Route()
+module.exports = route
 
+
+});
+require.register("vui/src/request.js", function(exports, require, module){
+// 暂时先用superagent
+module.exports = require('superagent')
 
 });
 require.register("vui/src/directives/href.js", function(exports, require, module){
@@ -7431,7 +7457,7 @@ module.exports = {
 
 });
 require.register("vui/src/components/ui/select.js", function(exports, require, module){
-var request = require('superagent'),
+var request = require('../../request'),
     utils   = require('../../utils')
 
 module.exports = {

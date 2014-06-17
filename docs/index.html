@@ -11,42 +11,25 @@
 		<ul class="list-unstyled">
 			<li><a v-href="request.html">request</a></li>
 			<li><a v-href="route.html">route</a></li>
-			<li><a v-href="test/utils.html">utils</a></li>
+			<li><a v-href="utils.html">utils</a></li>
 			<li>
 				ui
 				<ul class="list-unstyled">
 					<li><a v-href="select.html">select</a></li>
-					<li><a v-href="/docs">table</a></li>
+					<li><a v-href="table.html">table</a></li>
 				</ul>
 			</li>
 	</div>
 </div>
 
-<div class="content">
-<div class="form-group">
-    <label class="sr-only" for="exampleInputEmail2">Email address</label>
-    <div src="json/select.json" class="form-control" placeholder="select test" v-component="select"></div>
-  </div>
-</div>
+<div class="content" v-view="view"></div>
 
-	<script type="text/javascript" src="../vui.js"></script>
-	<script type="text/javascript">
-	vui.Vue.config.debug = true
+<script type="text/javascript" src="../vui.js"></script>
+<script type="text/javascript">
+    vui.route.bind(function () {
+        vui.$data.view = path
+    })
+</script>
 
-	/*
-	var els = document.querySelectorAll('a'),
-		i = els.length,
-		el;
-
-	while(i--) {
-		el = els[i]
-		el.addEventListener('click', function (event) {
-			event.preventDefault();
-			console.log(this.href)
-		})
-	}
-	*/
-	
-	</script>
 </body>
 </html>

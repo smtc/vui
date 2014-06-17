@@ -1,10 +1,11 @@
-var Vue         = require('vue'),
-    request     = require('superagent'),
-    _location    = require('./location'),
-    route       = require('./route'),
-	utils       = require('./utils'),
-    ui          = require('./components/ui'),
-    gData       = {}
+var Vue             = require('vue'),
+    request         = require('./request'),
+    _location       = require('./location'),
+    route           = require('./route'),
+	utils           = require('./utils'),
+    ui              = require('./components/ui'),
+    templateCache   = {},
+    $data          = {}
 
 
 new Vue({
@@ -22,7 +23,8 @@ new Vue({
         select: ui.select
     },
 
-    data: gData
+    data: $data
+
 })
 
 
@@ -30,6 +32,7 @@ module.exports = {
     request: request,
     utils: utils,
     route: route,
+    $data: $data,
     location: _location,
     Vue: Vue,
     
