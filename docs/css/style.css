@@ -1406,6 +1406,8 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .select .dropdown-menu li a:hover{color:#fff;background-color:#428bca}
 .select.active .dropdown-menu{display:block}
 .select .caret{position:absolute;right:10px;top:14px}
+.pageinfo{margin:20px;display:inline-block;vertical-align:middle}
+.pagination{vertical-align:middle}
 body,html{height:100%}
 .sidebar{width:300px;position:fixed;left:0;top:0;bottom:0}
 .sidebar .list{padding:60px;font-size:18px}

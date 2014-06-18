@@ -5971,7 +5971,6 @@ var Vue             = require('vue'),
     _location       = require('./location'),
     route           = require('./route'),
 	utils           = require('./utils'),
-    ui              = require('./components/ui'),
     templateCache   = {},
     $data          = {}
 
@@ -5988,7 +5987,10 @@ new Vue({
     },
 
     components: {
-        select: ui.select
+        scope: require('./components/scope'),
+        select: require('./components/select'),
+        page: require('./components/page'),
+        pagination: require('./components/pagination')
     },
 
     data: $data
@@ -7364,10 +7366,13 @@ var Vue         = require('vue'),
     fns         = {},
     components  = {}
 
-function route(fn) {
+function route(fn, init) {
     route.bind(function () {
         getComponent(fn)
     }, true)
+    if (init) {
+        getComponent(fn)
+    }
 }
 
 // basepath 为true时，只验证path部分
@@ -7449,16 +7454,21 @@ module.exports = {
 }
 
 });
-require.register("vui/src/components/ui/index.js", function(exports, require, module){
-
+require.register("vui/src/components/scope.js", function(exports, require, module){
+// 先占个位置
 module.exports = {
-    select: require('./select')
+    methods: {
+    },
+    data: {
+    },
+    created: function () {
+    }
 }
 
 });
-require.register("vui/src/components/ui/select.js", function(exports, require, module){
-var request = require('../../request'),
-    utils   = require('../../utils')
+require.register("vui/src/components/select.js", function(exports, require, module){
+var request = require('../request'),
+    utils   = require('../utils')
 
 module.exports = {
     template: require('./select.html'),
@@ -7487,14 +7497,143 @@ module.exports = {
 }
 
 });
+require.register("vui/src/components/page.js", function(exports, require, module){
+var request   = require('../request'),
+    utils     = require('../utils'),
+    _location = require('../location'),
+    forEach   = utils.forEach
+
+
+function getSearch(pager, filters, sort) {
+    var search = {},
+        txt = ""
+
+    forEach({p:pager, f:filters, s:sort}, function (obj, pre) {
+        if (!obj) return
+        forEach(obj, function (v, k) {
+            if (undefined !== v && '' !== v) search[pre + '.' + k] = v
+        })
+    })
+
+    txt = utils.toKeyValue(search)
+    return {
+        obj: search,
+        txt: txt ? "?" + txt : ""
+    }
+}
+
+
+module.exports = {
+    paramAttributes: ['src', 'delay'],
+    methods: {
+        search: function (fs) {
+            if (fs === null) this.filters = {}
+            this.pager.page = 1
+            this.update()
+        },
+        update: function () {
+            var self = this,
+                search = getSearch(this.pager, this.filters, this.sort),
+                url = this.currentUrl = this.src + search.txt
+
+            _location.search(search.obj)
+
+            request.get(url)
+                .end(function (res) {
+                    self.data = res.body.data
+                    self.total = res.body.total
+                })
+        }
+    },
+    data: {
+        data: [],
+        filters: {},
+        pager: {
+            page: 1,
+            size: 20
+        },
+        total: 0,
+        sort: {}
+    },
+    created: function () {
+        var search = utils.parseKeyValue(utils.urlResolve(_location.url(), true).search) || {},
+            self = this
+        
+        forEach(search, function (v, k) {
+            switch (k) {
+                case 'p.page':
+                    self.pager.page = parseInt(v)
+                    break
+                case 'p.size':
+                    self.pager.size = parseInt(v)
+                    break
+            }
+        })
+
+        if (!this.delay) this.update()
+    },
+    ready: function () {
+        this.$watch('pager', this.update)
+    }
+}
+
+});
+require.register("vui/src/components/pagination.js", function(exports, require, module){
+var utils = require('../utils')
+
+module.exports = {
+    template: require('./pagination.html'),
+    replace: true,
+    methods: {
+        compose: function () {
+            var page = this.page,
+                size = this.size,
+                step = this.step,
+                max = this.max = Math.ceil(this.total / size)
+
+            this.pages = []
+            for (var i = 1; i <= max; i++) {
+                if (i === 1 || i === max || Math.abs(i-page) < 5)
+                    this.pages.push(i)
+            }
+
+        },
+        change: function (page) {
+            this.page = page
+            this.compose()
+        }
+    },
+    data: {
+        page: 1,
+        size: 20,
+        total: 0,
+        step: 5,
+        max: 1,
+        pages: []
+    },
+    created: function () {
+        this.compose()
+    },
+    ready: function () {
+        var self = this
+        this.$watch('total', function () {
+            self.compose()
+        })
+    }
+}
+
+});
 
 
 
 
 
 
-require.register("vui/src/components/ui/select.html", function(exports, require, module){
+require.register("vui/src/components/select.html", function(exports, require, module){
 module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span class="placeholder" ng-show="!text">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>';
+});
+require.register("vui/src/components/pagination.html", function(exports, require, module){
+module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");

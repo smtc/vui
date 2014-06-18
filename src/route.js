@@ -7,10 +7,13 @@ var Vue         = require('vue'),
     fns         = {},
     components  = {}
 
-function route(fn) {
+function route(fn, init) {
     route.bind(function () {
         getComponent(fn)
     }, true)
+    if (init) {
+        getComponent(fn)
+    }
 }
 
 // basepath 为true时，只验证path部分

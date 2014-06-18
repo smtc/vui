@@ -1,4 +1,4 @@
 [
-{ "text": "s1", "value": "1" },
-{ "text": "s2", "value": "2" }
+{ "text": "s1", "value": 1 },
+{ "text": "s2", "value": 2 }
 ]

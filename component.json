@@ -8,11 +8,14 @@
         "src/route.js",
         "src/request.js",
         "src/directives/href.js",
-        "src/components/ui/index.js",
-        "src/components/ui/select.js"
+        "src/components/scope.js",
+        "src/components/select.js",
+        "src/components/page.js",
+        "src/components/pagination.js"
     ],
     "templates": [
-        "src/components/ui/select.html"
+        "src/components/select.html",
+        "src/components/pagination.html"
     ],
     "paths": [
         "components"

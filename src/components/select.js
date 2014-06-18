@@ -1,5 +1,5 @@
-var request = require('../../request'),
-    utils   = require('../../utils')
+var request = require('../request'),
+    utils   = require('../utils')
 
 module.exports = {
     template: require('./select.html'),

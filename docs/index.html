@@ -19,6 +19,7 @@
 					<li><a v-href="table.html">table</a></li>
 				</ul>
 			</li>
+        </ul>
 	</div>
 </div>
 
@@ -26,9 +27,10 @@
 
 <script type="text/javascript" src="../vui.js"></script>
 <script type="text/javascript">
-    vui.route.bind(function () {
-        vui.$data.view = path
-    })
+    vui.route(function (path) {
+        if (path.charAt(path.length-1) !== '/')
+            vui.$data.view = path
+    }, true)
 </script>
 
 </body>

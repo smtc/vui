@@ -3,7 +3,6 @@ var Vue             = require('vue'),
     _location       = require('./location'),
     route           = require('./route'),
 	utils           = require('./utils'),
-    ui              = require('./components/ui'),
     templateCache   = {},
     $data          = {}
 
@@ -20,7 +19,10 @@ new Vue({
     },
 
     components: {
-        select: ui.select
+        scope: require('./components/scope'),
+        select: require('./components/select'),
+        page: require('./components/page'),
+        pagination: require('./components/pagination')
     },
 
     data: $data
