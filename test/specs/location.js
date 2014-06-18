@@ -16,6 +16,13 @@ describe('vui.location', function(){
         url().should.contain('#!/test.html')
     })
 
+    it('node', function () {
+        var node = _location.node(true)
+        node.pathname.should.eql('/test/test.html')         
+        node = _location.node()
+        node.pathname.should.eql('/test/index.html')         
+    })
+
     it('search', function () {
         var foo
 

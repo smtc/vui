@@ -18,7 +18,7 @@ function route(fn, init) {
 
 // basepath 为true时，只验证path部分
 route.bind = function (fn, basepath) {
-    if (!fn || typeof fn !== "function") return this
+    if (!fn) return this
     var hash = utils.hashCode(fn)
 
     if (fns.hasOwnProperty(hash)) return this
@@ -30,7 +30,10 @@ route.bind = function (fn, basepath) {
                 if (url.pathname === lastPath) return this
                 lastPath = url.pathname
             }
-            fn()
+            if ("function" === typeof fn)
+                fn()
+            else
+                fn[0].call(fn[1])
         }
     window.addEventListener('hashchange', f)
     fns[hash] = f
@@ -42,7 +45,7 @@ route.unbind = function (fn) {
 
     utils.forEach(fns, function (f, h) {
         // 当fn为空或者与fns hash值相等时
-        if (hash === 0 || hash === h) {
+        if (hash == 0 || hash == h) {
             window.removeEventListener('hashchange', f)
             delete fns[h]
         }

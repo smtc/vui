@@ -74,11 +74,15 @@ function url(href, replace) {
         return _location
         // getter
     } else {
-        // - newLocation is a workaround for an IE7-9 issue with _location.replace and _location.href
+        // - newL)cation is a workaround for an IE7-9 issue with _location.replace and _location.href
         //   methods not updating _location.href synchronously.
         // - the replacement is a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=407172
         return window.location.href.replace(/%27/g,"'")
     }
+}
+
+function node(fixHash) {
+    return urlResolve(url(), fixHash)
 }
 
 // create url
@@ -136,6 +140,7 @@ _location = module.exports = {
     setMode: setMode,
     search: search,
     hash: hash,
-    url: url
+    url: url,
+    node: node
 }
 

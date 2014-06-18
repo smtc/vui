@@ -7289,11 +7289,15 @@ function url(href, replace) {
         return _location
         // getter
     } else {
-        // - newLocation is a workaround for an IE7-9 issue with _location.replace and _location.href
+        // - newL)cation is a workaround for an IE7-9 issue with _location.replace and _location.href
         //   methods not updating _location.href synchronously.
         // - the replacement is a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=407172
         return window.location.href.replace(/%27/g,"'")
     }
+}
+
+function node(fixHash) {
+    return urlResolve(url(), fixHash)
 }
 
 // create url
@@ -7351,7 +7355,8 @@ _location = module.exports = {
     setMode: setMode,
     search: search,
     hash: hash,
-    url: url
+    url: url,
+    node: node
 }
 
 
@@ -7377,7 +7382,7 @@ function route(fn, init) {
 
 // basepath 为true时，只验证path部分
 route.bind = function (fn, basepath) {
-    if (!fn || typeof fn !== "function") return this
+    if (!fn) return this
     var hash = utils.hashCode(fn)
 
     if (fns.hasOwnProperty(hash)) return this
@@ -7389,7 +7394,10 @@ route.bind = function (fn, basepath) {
                 if (url.pathname === lastPath) return this
                 lastPath = url.pathname
             }
-            fn()
+            if ("function" === typeof fn)
+                fn()
+            else
+                fn[0].call(fn[1])
         }
     window.addEventListener('hashchange', f)
     fns[hash] = f
@@ -7401,7 +7409,7 @@ route.unbind = function (fn) {
 
     utils.forEach(fns, function (f, h) {
         // 当fn为空或者与fns hash值相等时
-        if (hash === 0 || hash === h) {
+        if (hash == 0 || hash == h) {
             window.removeEventListener('hashchange', f)
             delete fns[h]
         }
@@ -7501,7 +7509,9 @@ require.register("vui/src/components/page.js", function(exports, require, module
 var request   = require('../request'),
     utils     = require('../utils'),
     _location = require('../location'),
-    forEach   = utils.forEach
+    route     = require('../route'),
+    forEach   = utils.forEach,
+    basepath  = _location.node(true).pathname
 
 
 function getSearch(pager, filters, sort) {
@@ -7522,9 +7532,15 @@ function getSearch(pager, filters, sort) {
     }
 }
 
+function routeChange() {
+    // 如果路径不等于基础路径，忽略route
+    if (_location.node(true).pathname === basepath)
+        this.init()
+}
+
 
 module.exports = {
-    paramAttributes: ['src', 'delay'],
+    paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
         search: function (fs) {
             if (fs === null) this.filters = {}
@@ -7536,13 +7552,35 @@ module.exports = {
                 search = getSearch(this.pager, this.filters, this.sort),
                 url = this.currentUrl = this.src + search.txt
 
-            _location.search(search.obj)
+            if (this.routeChange)
+                _location.search(search.obj)
 
             request.get(url)
                 .end(function (res) {
                     self.data = res.body.data
                     self.total = res.body.total
                 })
+        },
+        init: function () {
+            var search = utils.parseKeyValue(_location.node(true).search) || {},
+                self = this,
+                size = this.$el.getAttribute("size")
+
+            try {
+                if (size) 
+                    this.pager.size = parseInt(size)
+            } catch (e) {}
+            
+            forEach(search, function (v, k) {
+                switch (k) {
+                    case 'p.page':
+                        self.pager.page = parseInt(v)
+                        break
+                    case 'p.size':
+                        self.pager.size = parseInt(v)
+                        break
+                }
+            })
         }
     },
     data: {
@@ -7556,24 +7594,19 @@ module.exports = {
         sort: {}
     },
     created: function () {
-        var search = utils.parseKeyValue(utils.urlResolve(_location.url(), true).search) || {},
-            self = this
-        
-        forEach(search, function (v, k) {
-            switch (k) {
-                case 'p.page':
-                    self.pager.page = parseInt(v)
-                    break
-                case 'p.size':
-                    self.pager.size = parseInt(v)
-                    break
-            }
-        })
-
+        basepath = _location.node(true).pathname
+        this.init()
         if (!this.delay) this.update()
     },
     ready: function () {
         this.$watch('pager', this.update)
+        if (this.routeChange)
+            route.bind([routeChange, this])
+    },
+    beforeDestroy: function () {
+        console.log('destroy')
+        if (this.routeChange)
+            route.unbind([routeChange, this])
     }
 }
 
