@@ -62,6 +62,11 @@ module.exports = {
                 if (size) 
                     this.pager.size = parseInt(size)
             } catch (e) {}
+
+            function setFilter(v, k) {
+                if (k.indexOf('f.') !== 0) return
+                self.filters[k.slice(2)] = v
+            }
             
             forEach(search, function (v, k) {
                 switch (k) {
@@ -71,8 +76,14 @@ module.exports = {
                     case 'p.size':
                         self.pager.size = parseInt(v)
                         break
+                    default:
+                        setFilter(v, k)
+                        break
                 }
             })
+        },
+        destroy: function () {
+            this.$destroy()
         }
     },
     data: {
