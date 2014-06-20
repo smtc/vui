@@ -5,17 +5,20 @@
         "src/main.js",
         "src/utils.js",
         "src/location.js",
+        "src/node.js",
         "src/route.js",
         "src/request.js",
         "src/directives/href.js",
         "src/components/scope.js",
         "src/components/select.js",
+        "src/components/openbox.js",
         "src/components/page.js",
         "src/components/pagination.js"
     ],
     "templates": [
         "src/components/select.html",
-        "src/components/pagination.html"
+        "src/components/pagination.html",
+        "src/components/openbox.html"
     ],
     "paths": [
         "components"

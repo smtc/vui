@@ -30,10 +30,7 @@ route.bind = function (fn, basepath) {
                 if (url.pathname === lastPath) return this
                 lastPath = url.pathname
             }
-            if ("function" === typeof fn)
-                fn()
-            else
-                fn[0].call(fn[1])
+            fn()
         }
     window.addEventListener('hashchange', f)
     fns[hash] = f

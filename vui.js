@@ -5971,13 +5971,18 @@ var Vue             = require('vue'),
     _location       = require('./location'),
     route           = require('./route'),
 	utils           = require('./utils'),
+    openbox         = require('./components/openbox'),
     templateCache   = {},
-    $data          = {}
+    $data           = {}
 
 
 new Vue({
 
     el: 'body',
+
+    methods: {
+        openbox: openbox
+    },
 
     directives: {
         href: require('./directives/href')
@@ -5987,10 +5992,10 @@ new Vue({
     },
 
     components: {
-        scope: require('./components/scope'),
-        select: require('./components/select'),
         page: require('./components/page'),
-        pagination: require('./components/pagination')
+        pagination: require('./components/pagination'),
+        scope: require('./components/scope'),
+        select: require('./components/select')
     },
 
     data: $data
@@ -6004,6 +6009,7 @@ module.exports = {
     route: route,
     $data: $data,
     location: _location,
+    openbox: openbox,
     Vue: Vue,
     
     require: function (path) {
@@ -7361,6 +7367,25 @@ _location = module.exports = {
 
 
 });
+require.register("vui/src/node.js", function(exports, require, module){
+
+
+function isDescendant(parent, child) {
+     var node = child.parentNode;
+     while (node != null) {
+         if (node == parent) {
+             return true;
+         }
+         node = node.parentNode;
+     }
+     return false;
+}
+
+module.exports = {
+    isDescendant: isDescendant
+}
+
+});
 require.register("vui/src/route.js", function(exports, require, module){
 var Vue         = require('vue'),
     utils       = require('./utils'),
@@ -7394,10 +7419,7 @@ route.bind = function (fn, basepath) {
                 if (url.pathname === lastPath) return this
                 lastPath = url.pathname
             }
-            if ("function" === typeof fn)
-                fn()
-            else
-                fn[0].call(fn[1])
+            fn()
         }
     window.addEventListener('hashchange', f)
     fns[hash] = f
@@ -7503,6 +7525,54 @@ module.exports = {
         })
     }
 }
+
+});
+require.register("vui/src/components/openbox.js", function(exports, require, module){
+var Vue   = require('vue'),
+    utils = require('../utils')
+
+/*
+ * show: default -false 创建时是否显示
+ * callback: [function, this] 关闭时回调方法
+ */
+
+function openbox(opts) {
+    var callback = opts.callback,
+        vm = new Vue({
+            template: require('./openbox.html'),
+            replace: true,
+            methods: {
+                show: function () {
+                    utils.addClass(this.$el, 'open')
+                    var box = this.$el.querySelector('.openbox-content')
+                    box.style.width = this.width
+                    //box.style.marginLeft = -(box.offsetWidth / 2) 
+                    //box.style.marginTop = 0 - (box.offsetHeight / 2) - 40
+                },
+                close: function (suc, e) {
+                    var box = this.$el.querySelector('.openbox-content')
+                    console.log(e.target == box)
+                    console.log(box.hasChildNodes(e.target))
+                    if (e.target == box || box.hasChildNodes(e.target)) return
+                    if (callback) callback(this.$data)
+                    this.$destroy()
+                }
+            },
+            data: {
+                title: opts.title,
+                width: opts.width || 600
+            },
+            created: function () {
+                document.body.appendChild(this.$el)
+            }
+        })   
+
+    if (opts.show) vm.show()
+    return vm
+}
+
+
+module.exports = openbox
 
 });
 require.register("vui/src/components/page.js", function(exports, require, module){
@@ -7612,12 +7682,13 @@ module.exports = {
     ready: function () {
         this.$watch('pager', this.update)
         if (this.routeChange)
-            route.bind([routeChange, this])
+            //route.bind([routeChange, this])
+            route.bind(routeChange.bind(this))
     },
     beforeDestroy: function () {
-        console.log('destroy')
         if (this.routeChange)
-            route.unbind([routeChange, this])
+            //route.unbind([routeChange, this])
+            route.unbind(routeChange.bind(this))
     }
 }
 
@@ -7678,6 +7749,9 @@ module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span clas
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
+});
+require.register("vui/src/components/openbox.html", function(exports, require, module){
+module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:close(false, $event)">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false, $event)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body">\n            </div>\n            <div class="openbox-footer">\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");

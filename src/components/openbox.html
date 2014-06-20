@@ -1,0 +1,16 @@
+<div class="openbox">
+    <div class="openbox-backdrop"></div>
+    <div class="openbox-inner" v-on="click:close(false, $event)">
+        <div class="openbox-content">
+            <a href="script:;" class="close" v-on="click:close(false, $event)">&times;</a>
+            <div class="openbox-header" v-if="title">
+                <h3 v-text="title"></h3>
+            </div>
+            <div class="openbox-body">
+            </div>
+            <div class="openbox-footer">
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1408,6 +1408,15 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .select .caret{position:absolute;right:10px;top:14px}
 .pageinfo{margin:20px;display:inline-block;vertical-align:middle}
 .pagination{vertical-align:middle}
+.openbox{display:none}
+.openbox,.openbox-inner{position:fixed;top:0;right:0;bottom:0;left:0;outline:0}
+.openbox-inner.open,.openbox.open{display:block}
+.openbox-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1040;background-color:#000;opacity:.3;filter:alpha(opacity=30)}
+.openbox-inner{overflow:auto;overflow-y:scroll;z-index:1050;-webkit-overflow-scrolling:touch}
+.openbox-content{position:relative;margin:60px auto;background-color:#fff;border:1px solid #999;border:1px solid rgba(0,0,0,.2);z-index:1050;border-radius:6px}
+.openbox-content .close{position:absolute;right:10px;top:10px}
+.openbox-header{padding:0 20px 10px;border-bottom:1px solid rgba(0,0,0,.2)}
+.openbox-body{padding:20px;min-width:600px}
 body,html{height:100%}
 .sidebar{width:300px;position:fixed;left:0;top:0;bottom:0}
 .sidebar .list{padding:60px;font-size:18px}
