@@ -1,6 +1,6 @@
 var utils            = require("./utils"),
-    urlResolve       = utils.urlResolve,
     encodeUriSegment = utils.encodeUriSegment,
+    urlResolve       = require('./node').urlResolve,
     lastBrowserUrl   = originUrl,
     html5Mode        = false,
     originUrl        = urlResolve(window.location.href, true),

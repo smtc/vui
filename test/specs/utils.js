@@ -133,33 +133,6 @@ describe('vui.utils', function(){
         hash.should.equal(1450575459)
     })
 
-    it('element class', function () {
-        var el  = document.createElement('div'),
-            cls = 'active'
-
-        function _testTrue() {
-            utils.hasClass(el, cls).should.be.true
-            el.className.should.contain(cls)
-        }
-
-        function _testFalse() {
-            utils.hasClass(el, cls).should.not.be.true
-            el.className.should.not.contain(cls)
-        }
-
-        el.className = 'test'
-        _testFalse()
-        utils.addClass(el, cls)
-        _testTrue()
-        utils.removeClass(el, cls)
-        _testFalse()
-        utils.toggleClass(el, cls)
-        _testTrue()
-        utils.toggleClass(el, cls)
-        _testFalse()
-    })
-
-
     it('judge', function () {
         var el  = document.createElement('div')
         function _test(fn, t) {
@@ -234,4 +207,42 @@ describe('vui.utils', function(){
         uid.should.eql('A02S')
     })
 
+    ////////////////////////////////////////////////////////////////////
+    // ./node
+
+    it('element class', function () {
+        var el  = document.createElement('div'),
+            cls = 'active'
+
+        function _testTrue() {
+            utils.hasClass(el, cls).should.be.true
+            el.className.should.contain(cls)
+        }
+
+        function _testFalse() {
+            utils.hasClass(el, cls).should.not.be.true
+            el.className.should.not.contain(cls)
+        }
+
+        el.className = 'test'
+        _testFalse()
+        utils.addClass(el, cls)
+        _testTrue()
+        utils.removeClass(el, cls)
+        _testFalse()
+        utils.toggleClass(el, cls)
+        _testTrue()
+        utils.toggleClass(el, cls)
+        _testFalse()
+    })
+
+    it('element isDescendant', function () {
+        var parent  = document.createElement('div'),
+            child = document.createElement('div')
+
+        utils.isDescendant(parent, child).should.be.false
+
+        parent.appendChild(child) 
+        utils.isDescendant(parent, child).should.be.true
+    })
 })

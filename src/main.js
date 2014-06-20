@@ -3,6 +3,7 @@ var Vue             = require('vue'),
     _location       = require('./location'),
     route           = require('./route'),
 	utils           = require('./utils'),
+    node            = require('./node'),
     openbox         = require('./components/openbox'),
     templateCache   = {},
     $data           = {}

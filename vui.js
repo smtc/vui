@@ -5971,6 +5971,7 @@ var Vue             = require('vue'),
     _location       = require('./location'),
     route           = require('./route'),
 	utils           = require('./utils'),
+    node            = require('./node'),
     openbox         = require('./components/openbox'),
     templateCache   = {},
     $data           = {}
@@ -6027,65 +6028,13 @@ require.register("vui/src/utils.js", function(exports, require, module){
 /*
  * 工具包，大部分代码来自angularjs
  */
-var hasClassList    = 'classList' in document.documentElement,
-    hasOwnProp      = Object.prototype.hasOwnProperty,
+var hasOwnProp      = Object.prototype.hasOwnProperty,
     slice           = [].slice,
     //push            = [].push,
     toString        = Object.prototype.toString,
-    urlParsingNode  = document.createElement("a"),
+    node            = require('./node'),
     uid             = ['A', '0', '0', '0']
  
-
-if(typeof String.prototype.trim !== 'function') {
-    String.prototype.trim = function() {
-        return this.replace(/^\s+|\s+$/g, ''); 
-    }
-}
-
-var utils = module.exports = {
-    /**
-     *  add class for IE9
-     *  uses classList if available
-     */
-    addClass: function (el, cls) {
-        if (hasClassList) {
-            el.classList.add(cls)
-        } else {
-            var cur = ' ' + el.className + ' '
-            if (cur.indexOf(' ' + cls + ' ') < 0) {
-                el.className = (cur + cls).trim()
-            }
-        }
-    },
-
-    /**
-     *  remove class for IE9
-     */
-    removeClass: function (el, cls) {
-        if (hasClassList) {
-            el.classList.remove(cls)
-        } else {
-            var cur = ' ' + el.className + ' ',
-                tar = ' ' + cls + ' '
-            while (cur.indexOf(tar) >= 0) {
-                cur = cur.replace(tar, ' ')
-            }
-            el.className = cur.trim()
-        }
-    },
-
-    hasClass: function (el, cls) {
-        var cur = ' ' + el.className + ' '
-        return cur.indexOf(' ' + cls + ' ') >= 0
-    },
-
-    toggleClass: function (el, cls) {
-        if (utils.hasClass(el, cls))
-            utils.removeClass(el, cls)
-        else
-            utils.addClass(el, cls)
-    }
-}
 
 ////////////////////////////////////
 //copy from angularjs
@@ -6132,14 +6081,6 @@ if ('i' !== 'I'.toLowerCase()) {
 }
 
 
-/**
- * IE 11 changed the format of the UserAgent string.
- * See http://msdn.microsoft.com/en-us/library/ms537503.aspx
- */
-var msie = int((/msie (\d+)/.exec(lowercase(navigator.userAgent)) || [])[1]);
-if (isNaN(msie)) {
-    msie = int((/trident\/.*; rv:(\d+)/.exec(lowercase(navigator.userAgent)) || [])[1]);
-}
 
 /**
  * @private
@@ -7068,94 +7009,6 @@ function encodeUriQuery(val, pctEncodeSpaces) {
 }
 
 
-/**
- *
- * Implementation Notes for non-IE browsers
- * ----------------------------------------
- * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
- * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
- * URL will be resolved into an absolute URL in the context of the application document.
- * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
- * properties are all populated to reflect the normalized URL.  This approach has wide
- * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
- * http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
- *
- * Implementation Notes for IE
- * ---------------------------
- * IE >= 8 and <= 10 normalizes the URL when assigned to the anchor node similar to the other
- * browsers.  However, the parsed components will not be set if the URL assigned did not specify
- * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
- * work around that by performing the parsing in a 2nd step by taking a previously normalized
- * URL (e.g. by assigning to a.href) and assigning it a.href again.  This correctly populates the
- * properties such as protocol, hostname, port, etc.
- *
- * IE7 does not normalize the URL when assigned to an anchor node.  (Apparently, it does, if one
- * uses the inner HTML approach to assign the URL as part of an HTML snippet -
- * http://stackoverflow.com/a/472729)  However, setting img[src] does normalize the URL.
- * Unfortunately, setting img[src] to something like "javascript:foo" on IE throws an exception.
- * Since the primary usage for normalizing URLs is to sanitize such URLs, we can't use that
- * method and IE < 8 is unsupported.
- *
- * References:
- *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
- *   http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
- *   http://url.spec.whatwg.org/#urlutils
- *   https://github.com/angular/angular.js/pull/2902
- *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
- *
- * @function
- * @param {string} url The URL to be parsed.
- * @description Normalizes and parses a URL.
- * @returns {object} Returns the normalized URL as a dictionary.
- *
- *   | member name   | Description    |
- *   |---------------|----------------|
- *   | href          | A normalized version of the provided URL if it was not an absolute URL |
- *   | protocol      | The protocol including the trailing colon                              |
- *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
- *   | search        | The search params, minus the question mark                             |
- *   | hash          | The hash string, minus the hash symbol
- *   | hostname      | The hostname
- *   | port          | The port, without ":"
- *   | pathname      | The pathname, beginning with "/"
- *
- */
-function urlResolve(url, fixHash) {
-    var href = url,
-        pathname
-
-    if (utils.msie) {
-        // Normalize before parse.  Refer Implementation Notes on why this is
-        // done in two steps on IE.
-        urlParsingNode.setAttribute("href", href);
-        href = urlParsingNode.href;
-    }
-
-    urlParsingNode.setAttribute('href', href);
-
-    if (fixHash && urlParsingNode.href.indexOf('#!/') > 0) {
-        pathname = urlParsingNode.pathname;
-        var end = pathname.lastIndexOf('/');
-        pathname = pathname.substr(0, end+1);
-        href = pathname + urlParsingNode.hash.substr(3);
-        urlParsingNode.setAttribute('href', href);
-        href = urlParsingNode.href;
-    }
-
-    // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-    return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-        host: urlParsingNode.host,
-        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-        hostname: urlParsingNode.hostname,
-        port: urlParsingNode.port,
-        pathname: (urlParsingNode.pathname.charAt(0) === '/')
-            ? urlParsingNode.pathname
-            : '/' + urlParsingNode.pathname
-    };
-}
 
 
 ////////////////////////////////////////////////////////////////
@@ -7174,8 +7027,8 @@ function hashCode(obj) {
     return hash;
 }
 
-
-extend(utils, {
+// 合并 ./node
+module.exports = extend({
     'copy': copy,
     'shallowCopy': shallowCopy,
     'size': size,
@@ -7206,7 +7059,6 @@ extend(utils, {
     'isBoolean': isBoolean,
     'lowercase': lowercase,
     'uppercase': uppercase,
-    'urlResolve': urlResolve,
     'hashCode': hashCode,
     'makeMap': makeMap,
     'toKeyValue': toKeyValue,
@@ -7215,13 +7067,13 @@ extend(utils, {
     'encodeUriQuery': encodeUriQuery,
     'encodeUriSegment': encodeUriSegment,
     'callbacks': {counter: 0}
-});
+}, node)
 
 });
 require.register("vui/src/location.js", function(exports, require, module){
 var utils            = require("./utils"),
-    urlResolve       = utils.urlResolve,
     encodeUriSegment = utils.encodeUriSegment,
+    urlResolve       = require('./node').urlResolve,
     lastBrowserUrl   = originUrl,
     html5Mode        = false,
     originUrl        = urlResolve(window.location.href, true),
@@ -7368,7 +7220,158 @@ _location = module.exports = {
 
 });
 require.register("vui/src/node.js", function(exports, require, module){
+var hasClassList    = 'classList' in document.documentElement,
+    urlParsingNode  = document.createElement("a")
 
+
+/**
+ * IE 11 changed the format of the UserAgent string.
+ * See http://msdn.microsoft.com/en-us/library/ms537503.aspx
+ */
+var msie = parseInt((/msie (\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1]);
+if (isNaN(msie)) {
+    msie = parseInt((/trident\/.*; rv:(\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1]);
+}
+
+/**
+ *
+ * Implementation Notes for non-IE browsers
+ * ----------------------------------------
+ * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
+ * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
+ * URL will be resolved into an absolute URL in the context of the application document.
+ * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
+ * properties are all populated to reflect the normalized URL.  This approach has wide
+ * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
+ * http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
+ *
+ * Implementation Notes for IE
+ * ---------------------------
+ * IE >= 8 and <= 10 normalizes the URL when assigned to the anchor node similar to the other
+ * browsers.  However, the parsed components will not be set if the URL assigned did not specify
+ * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
+ * work around that by performing the parsing in a 2nd step by taking a previously normalized
+ * URL (e.g. by assigning to a.href) and assigning it a.href again.  This correctly populates the
+ * properties such as protocol, hostname, port, etc.
+ *
+ * IE7 does not normalize the URL when assigned to an anchor node.  (Apparently, it does, if one
+ * uses the inner HTML approach to assign the URL as part of an HTML snippet -
+ * http://stackoverflow.com/a/472729)  However, setting img[src] does normalize the URL.
+ * Unfortunately, setting img[src] to something like "javascript:foo" on IE throws an exception.
+ * Since the primary usage for normalizing URLs is to sanitize such URLs, we can't use that
+ * method and IE < 8 is unsupported.
+ *
+ * References:
+ *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
+ *   http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
+ *   http://url.spec.whatwg.org/#urlutils
+ *   https://github.com/angular/angular.js/pull/2902
+ *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
+ *
+ * @function
+ * @param {string} url The URL to be parsed.
+ * @description Normalizes and parses a URL.
+ * @returns {object} Returns the normalized URL as a dictionary.
+ *
+ *   | member name   | Description    |
+ *   |---------------|----------------|
+ *   | href          | A normalized version of the provided URL if it was not an absolute URL |
+ *   | protocol      | The protocol including the trailing colon                              |
+ *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
+ *   | search        | The search params, minus the question mark                             |
+ *   | hash          | The hash string, minus the hash symbol
+ *   | hostname      | The hostname
+ *   | port          | The port, without ":"
+ *   | pathname      | The pathname, beginning with "/"
+ *
+ */
+function urlResolve(url, fixHash) {
+    var href = url,
+        pathname
+
+    if (msie) {
+        // Normalize before parse.  Refer Implementation Notes on why this is
+        // done in two steps on IE.
+        urlParsingNode.setAttribute("href", href);
+        href = urlParsingNode.href;
+    }
+
+    urlParsingNode.setAttribute('href', href);
+
+    if (fixHash && urlParsingNode.href.indexOf('#!/') > 0) {
+        pathname = urlParsingNode.pathname;
+        var end = pathname.lastIndexOf('/');
+        pathname = pathname.substr(0, end+1);
+        href = pathname + urlParsingNode.hash.substr(3);
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+    }
+
+    // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+    return {
+        href: urlParsingNode.href,
+        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+        host: urlParsingNode.host,
+        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+        hostname: urlParsingNode.hostname,
+        port: urlParsingNode.port,
+        pathname: (urlParsingNode.pathname.charAt(0) === '/')
+            ? urlParsingNode.pathname
+            : '/' + urlParsingNode.pathname
+    };
+}
+
+
+if(typeof String.prototype.trim !== 'function') {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, ''); 
+    }
+}
+
+
+/**
+ *  add class for IE9
+ *  uses classList if available
+ */
+function addClass(el, cls) {
+    if (hasClassList) {
+        el.classList.add(cls)
+    } else {
+        var cur = ' ' + el.className + ' '
+        if (cur.indexOf(' ' + cls + ' ') < 0) {
+            el.className = (cur + cls).trim()
+        }
+    }
+}
+
+/**
+ *  remove class for IE9
+ */
+function removeClass(el, cls) {
+    if (hasClassList) {
+        el.classList.remove(cls)
+    } else {
+        var cur = ' ' + el.className + ' ',
+            tar = ' ' + cls + ' '
+        while (cur.indexOf(tar) >= 0) {
+            cur = cur.replace(tar, ' ')
+        }
+        el.className = cur.trim()
+    }
+}
+
+function hasClass(el, cls) {
+    var cur = ' ' + el.className + ' '
+    return cur.indexOf(' ' + cls + ' ') >= 0
+}
+
+function toggleClass(el, cls) {
+    if (hasClass(el, cls))
+        removeClass(el, cls)
+    else
+        addClass(el, cls)
+}
 
 function isDescendant(parent, child) {
      var node = child.parentNode;
@@ -7382,15 +7385,21 @@ function isDescendant(parent, child) {
 }
 
 module.exports = {
-    isDescendant: isDescendant
+    isDescendant: isDescendant,
+    addClass: addClass,
+    hasClass: hasClass,
+    removeClass: removeClass,
+    toggleClass: toggleClass,
+    urlResolve: urlResolve
 }
 
 });
 require.register("vui/src/route.js", function(exports, require, module){
 var Vue         = require('vue'),
     utils       = require('./utils'),
+    node        = require('./node'),
     _location   = require('./location'),
-    urlResolve  = utils.urlResolve,
+    urlResolve  = node.urlResolve,
     request     = require('./request'),
     lastPath    = urlResolve(_location.url()).pathname,
     fns         = {},
@@ -7528,8 +7537,9 @@ module.exports = {
 
 });
 require.register("vui/src/components/openbox.js", function(exports, require, module){
-var Vue   = require('vue'),
-    utils = require('../utils')
+var Vue     = require('vue'),
+    utils   = require('../utils'),
+    request = require('../request')
 
 /*
  * show: default -false 创建时是否显示
@@ -7546,24 +7556,56 @@ function openbox(opts) {
                     utils.addClass(this.$el, 'open')
                     var box = this.$el.querySelector('.openbox-content')
                     box.style.width = this.width
-                    //box.style.marginLeft = -(box.offsetWidth / 2) 
-                    //box.style.marginTop = 0 - (box.offsetHeight / 2) - 40
                 },
-                close: function (suc, e) {
+                bgclose: function (e) {
                     var box = this.$el.querySelector('.openbox-content')
-                    console.log(e.target == box)
-                    console.log(box.hasChildNodes(e.target))
-                    if (e.target == box || box.hasChildNodes(e.target)) return
-                    if (callback) callback(this.$data)
+                    if (e.target == box || utils.isDescendant(box, e.target)) return
+                    this.close()
+                },
+                close: function (suc) {
+                    if (suc && callback) callback(this.modals)
+                    console.log(this.modals)
                     this.$destroy()
+                },
+                getContent: function () {
+                    if (this.src) {
+                        request.get(this.src)
+                            .end(function (res) {
+                                this.content = res.text
+                            }.bind(this))             
+                    }
                 }
             },
             data: {
                 title: opts.title,
-                width: opts.width || 600
+                width: opts.width || 600,
+                modals: {}
             },
             created: function () {
                 document.body.appendChild(this.$el)
+                var self = this
+                if (opts.btns) {
+                    self.btns = []
+                    utils.forEach(opts.btns, function (btn) {
+                        if (typeof btn === 'string') {
+                            switch(btn) {
+                                case 'close':
+                                    self.btns.push({ text: '关 闭', type:'default', fn: self.close.bind(self) })
+                                    break
+                                case 'ok':
+                                    self.btns.push({ text: '确 定', type:'primary', fn: self.close.bind(self, true) })
+                                    break
+                            }
+                        } else {
+                            self.btns.push(btn)
+                        }
+                    })
+                }
+
+                this.$watch('src', function () {
+                    self.getContent()
+                })
+                this.src = opts.src
             }
         })   
 
@@ -7751,7 +7793,7 @@ require.register("vui/src/components/pagination.html", function(exports, require
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:close(false, $event)">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false, $event)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body">\n            </div>\n            <div class="openbox-footer">\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-html="content"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");
