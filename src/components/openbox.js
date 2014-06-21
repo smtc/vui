@@ -1,6 +1,7 @@
 var Vue     = require('vue'),
     utils   = require('../utils'),
-    request = require('../request')
+    request = require('../request'),
+    route   = require('../route')
 
 /*
  * show: default -false 创建时是否显示
@@ -9,7 +10,8 @@ var Vue     = require('vue'),
 
 function openbox(opts) {
     var callback = opts.callback,
-        vm = new Vue({
+
+        Openbox = Vue.extend({
             template: require('./openbox.html'),
             replace: true,
             methods: {
@@ -25,22 +27,16 @@ function openbox(opts) {
                 },
                 close: function (suc) {
                     if (suc && callback) callback(this.modals)
-                    console.log(this.modals)
                     this.$destroy()
                 },
-                getContent: function () {
-                    if (this.src) {
-                        request.get(this.src)
-                            .end(function (res) {
-                                this.content = res.text
-                            }.bind(this))             
-                    }
+                getComponent: function () {
                 }
             },
             data: {
                 title: opts.title,
                 width: opts.width || 600,
-                modals: {}
+                modals: {},
+                src: opts.src
             },
             created: function () {
                 document.body.appendChild(this.$el)
@@ -64,14 +60,34 @@ function openbox(opts) {
                 }
 
                 this.$watch('src', function () {
-                    self.getContent()
-                })
-                this.src = opts.src
-            }
-        })   
+                    route.getComponent(this.src, function () {
+                        this.content = this.src
+                    }.bind(this))
+                }.bind(this))
+            },
 
+            ready: function () {
+            }
+        }),
+
+        vm = new Openbox()
+
+    /*
+    function createComponent(src) {
+        request.getTemplate(src).end(function (temp) {
+            Vue.component(src, {
+                template: temp
+            })
+
+            vm.content = src
+        })
+    }
+
+    createComponent(opts.src)
+    */
     if (opts.show) vm.show()
-    return vm
+   
+    //return vm
 }
 
 

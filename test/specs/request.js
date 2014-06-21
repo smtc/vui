@@ -12,6 +12,22 @@ describe('vui.request', function () {
             })
     })
 
+    it('getTemplate', function (done) {
+        request.getTemplate('/api/template')
+            .end(function(template) {
+                template.should.contain('1234')
+                done()
+            })
+    })
+
+    it('getTemplate2', function (done) {
+        request.getTemplate('/api/template')
+            .end(function(template) {
+                template.should.contain('1234')
+                done()
+            })
+    })
+
     it('oauth', function (done) {
         function s1() {
             request.get('/api/oauth/test')

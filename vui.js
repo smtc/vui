@@ -4568,13 +4568,11 @@ module.exports = {
     update: function (value) {
         var prop = this.prop
         if (prop) {
-            if (value){
-                var isImportant = value.slice(-10) === '!important'
-                    ? 'important'
-                    : ''
-                if (isImportant) {
-                    value = value.slice(0, -10).trim()
-                }
+            var isImportant = value.slice(-10) === '!important'
+                ? 'important'
+                : ''
+            if (isImportant) {
+                value = value.slice(0, -10).trim()
             }
             this.el.style.setProperty(prop, value, isImportant)
             if (this.prefixed) {
@@ -7406,6 +7404,11 @@ var Vue         = require('vue'),
     components  = {}
 
 function route(fn, init) {
+    function getComponent(fn) {
+        var path = utils.urlResolve(_location.url(), true).pathname
+        route.getComponent(path, fn)
+    }
+
     route.bind(function () {
         getComponent(fn)
     }, true)
@@ -7413,6 +7416,7 @@ function route(fn, init) {
         getComponent(fn)
     }
 }
+
 
 // basepath 为true时，只验证path部分
 route.bind = function (fn, basepath) {
@@ -7447,14 +7451,15 @@ route.unbind = function (fn) {
     })
 }
 
-function getComponent(fn) {
-    var path = utils.urlResolve(_location.url(), true).pathname
+
+route.getComponent = function (path, fn) {
     if (!components[path]) {
         components[path] = true
-        request.get(path)
-            .end(function (res) {
+
+        request.getTemplate(path)
+            .end(function (template) {
                 Vue.component(path, {
-                    template: res.text
+                    template: template
                 })
                 fn(path)
             })
@@ -7469,7 +7474,43 @@ module.exports = route
 });
 require.register("vui/src/request.js", function(exports, require, module){
 // 暂时先用superagent
-module.exports = require('superagent')
+
+var request       = require('superagent'),
+    utils         = require('./utils'),
+    templateCache = {}
+
+// 从缓存中读取
+function Template(src) {
+    this.template = templateCache[src]
+}
+    
+Template.prototype.end = function (fn) {
+    fn(this.template)
+}
+
+
+// 从服务器读取
+function TemplateRequest(src) {
+    this.req = request.get(src)
+    this.src = src
+}
+
+TemplateRequest.prototype.end = function (fn) {
+    this.req.end(function (res) {
+        fn(res.text)
+        templateCache[this.src] = res.text
+    }.bind(this))
+}
+
+
+request.getTemplate = function (src) {
+    if (templateCache[src]) 
+        return new Template(src)
+    else
+        return new TemplateRequest(src)
+}
+
+module.exports = request
 
 });
 require.register("vui/src/directives/href.js", function(exports, require, module){
@@ -7539,7 +7580,8 @@ module.exports = {
 require.register("vui/src/components/openbox.js", function(exports, require, module){
 var Vue     = require('vue'),
     utils   = require('../utils'),
-    request = require('../request')
+    request = require('../request'),
+    route   = require('../route')
 
 /*
  * show: default -false 创建时是否显示
@@ -7548,7 +7590,8 @@ var Vue     = require('vue'),
 
 function openbox(opts) {
     var callback = opts.callback,
-        vm = new Vue({
+
+        Openbox = Vue.extend({
             template: require('./openbox.html'),
             replace: true,
             methods: {
@@ -7564,22 +7607,16 @@ function openbox(opts) {
                 },
                 close: function (suc) {
                     if (suc && callback) callback(this.modals)
-                    console.log(this.modals)
                     this.$destroy()
                 },
-                getContent: function () {
-                    if (this.src) {
-                        request.get(this.src)
-                            .end(function (res) {
-                                this.content = res.text
-                            }.bind(this))             
-                    }
+                getComponent: function () {
                 }
             },
             data: {
                 title: opts.title,
                 width: opts.width || 600,
-                modals: {}
+                modals: {},
+                src: opts.src
             },
             created: function () {
                 document.body.appendChild(this.$el)
@@ -7603,14 +7640,34 @@ function openbox(opts) {
                 }
 
                 this.$watch('src', function () {
-                    self.getContent()
-                })
-                this.src = opts.src
-            }
-        })   
+                    route.getComponent(this.src, function () {
+                        this.content = this.src
+                    }.bind(this))
+                }.bind(this))
+            },
 
+            ready: function () {
+            }
+        }),
+
+        vm = new Openbox()
+
+    /*
+    function createComponent(src) {
+        request.getTemplate(src).end(function (temp) {
+            Vue.component(src, {
+                template: temp
+            })
+
+            vm.content = src
+        })
+    }
+
+    createComponent(opts.src)
+    */
     if (opts.show) vm.show()
-    return vm
+   
+    //return vm
 }
 
 
@@ -7623,7 +7680,8 @@ var request   = require('../request'),
     _location = require('../location'),
     route     = require('../route'),
     forEach   = utils.forEach,
-    basepath  = _location.node(true).pathname
+    basepath  = _location.node(true).pathname,
+    log       = require('vue').require('utils').log
 
 
 function getSearch(pager, filters, sort) {
@@ -7678,6 +7736,11 @@ module.exports = {
                 self = this,
                 size = this.$el.getAttribute("size")
 
+            this.pager = {
+                page: 1,
+                size: 20
+            }
+
             try {
                 if (size) 
                     this.pager.size = parseInt(size)
@@ -7709,15 +7772,11 @@ module.exports = {
     data: {
         data: [],
         filters: {},
-        pager: {
-            page: 1,
-            size: 20
-        },
+        pager: {},
         total: 0,
         sort: {}
     },
     created: function () {
-        basepath = _location.node(true).pathname
         this.init()
         if (!this.delay) this.update()
     },
@@ -7746,7 +7805,7 @@ module.exports = {
             var page = this.page,
                 size = this.size,
                 step = this.step,
-                max = this.max = Math.ceil(this.total / size)
+                max  = this.max = Math.ceil(this.total / size)
 
             this.pages = []
             for (var i = 1; i <= max; i++) {
@@ -7793,7 +7852,7 @@ require.register("vui/src/components/pagination.html", function(exports, require
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-html="content"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, modals:modals"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");

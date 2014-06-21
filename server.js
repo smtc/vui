@@ -17,6 +17,13 @@ app.post('/api/oauth/test', function (req, res) {
         res.send({ status: 0, msg: 'oauth is not found' })
 })
 
+app.get('/api/template', function (req, res) {
+    var temp = '<div>1234</div>'
+    setTimeout(function () {
+        res.send(temp)
+    }, 2000)  
+})
+
 function listen(path, port) {
     if (isStart) return
     isStart = true

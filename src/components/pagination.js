@@ -8,7 +8,7 @@ module.exports = {
             var page = this.page,
                 size = this.size,
                 step = this.step,
-                max = this.max = Math.ceil(this.total / size)
+                max  = this.max = Math.ceil(this.total / size)
 
             this.pages = []
             for (var i = 1; i <= max; i++) {

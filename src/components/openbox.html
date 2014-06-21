@@ -6,7 +6,7 @@
             <div class="openbox-header" v-if="title">
                 <h3 v-text="title"></h3>
             </div>
-            <div class="openbox-body" v-html="content"></div>
+            <div class="openbox-body" v-view="content" v-with="src:src, modals:modals"></div>
             <div class="openbox-footer">
                 <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>
             </div>

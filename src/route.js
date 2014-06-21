@@ -9,6 +9,11 @@ var Vue         = require('vue'),
     components  = {}
 
 function route(fn, init) {
+    function getComponent(fn) {
+        var path = utils.urlResolve(_location.url(), true).pathname
+        route.getComponent(path, fn)
+    }
+
     route.bind(function () {
         getComponent(fn)
     }, true)
@@ -16,6 +21,7 @@ function route(fn, init) {
         getComponent(fn)
     }
 }
+
 
 // basepath 为true时，只验证path部分
 route.bind = function (fn, basepath) {
@@ -50,14 +56,15 @@ route.unbind = function (fn) {
     })
 }
 
-function getComponent(fn) {
-    var path = utils.urlResolve(_location.url(), true).pathname
+
+route.getComponent = function (path, fn) {
     if (!components[path]) {
         components[path] = true
-        request.get(path)
-            .end(function (res) {
+
+        request.getTemplate(path)
+            .end(function (template) {
                 Vue.component(path, {
-                    template: res.text
+                    template: template
                 })
                 fn(path)
             })

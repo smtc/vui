@@ -3,7 +3,8 @@ var request   = require('../request'),
     _location = require('../location'),
     route     = require('../route'),
     forEach   = utils.forEach,
-    basepath  = _location.node(true).pathname
+    basepath  = _location.node(true).pathname,
+    log       = require('vue').require('utils').log
 
 
 function getSearch(pager, filters, sort) {
@@ -58,6 +59,11 @@ module.exports = {
                 self = this,
                 size = this.$el.getAttribute("size")
 
+            this.pager = {
+                page: 1,
+                size: 20
+            }
+
             try {
                 if (size) 
                     this.pager.size = parseInt(size)
@@ -89,15 +95,11 @@ module.exports = {
     data: {
         data: [],
         filters: {},
-        pager: {
-            page: 1,
-            size: 20
-        },
+        pager: {},
         total: 0,
         sort: {}
     },
     created: function () {
-        basepath = _location.node(true).pathname
         this.init()
         if (!this.delay) this.update()
     },
