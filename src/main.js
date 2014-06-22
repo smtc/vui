@@ -9,7 +9,7 @@ var Vue             = require('vue'),
     $data           = {}
 
 
-new Vue({
+var vm = new Vue({
 
     el: 'body',
 
@@ -44,6 +44,7 @@ module.exports = {
     location: _location,
     openbox: openbox,
     Vue: Vue,
+    vm: vm,
     
     require: function (path) {
         try {

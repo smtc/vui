@@ -5975,7 +5975,7 @@ var Vue             = require('vue'),
     $data           = {}
 
 
-new Vue({
+var vm = new Vue({
 
     el: 'body',
 
@@ -6010,6 +6010,7 @@ module.exports = {
     location: _location,
     openbox: openbox,
     Vue: Vue,
+    vm: vm,
     
     require: function (path) {
         try {
@@ -7538,8 +7539,12 @@ require.register("vui/src/components/scope.js", function(exports, require, modul
 // 先占个位置
 module.exports = {
     methods: {
+        set: function (modal) {
+            this.modal = modal
+        }
     },
     data: {
+        modal: {}
     },
     created: function () {
     }
@@ -7606,7 +7611,7 @@ function openbox(opts) {
                     this.close()
                 },
                 close: function (suc) {
-                    if (suc && callback) callback(this.modals)
+                    if (suc && callback) callback(this.modal)
                     this.$destroy()
                 },
                 getComponent: function () {
@@ -7615,7 +7620,7 @@ function openbox(opts) {
             data: {
                 title: opts.title,
                 width: opts.width || 600,
-                modals: {},
+                modal: {},
                 src: opts.src
             },
             created: function () {
@@ -7652,22 +7657,9 @@ function openbox(opts) {
 
         vm = new Openbox()
 
-    /*
-    function createComponent(src) {
-        request.getTemplate(src).end(function (temp) {
-            Vue.component(src, {
-                template: temp
-            })
-
-            vm.content = src
-        })
-    }
-
-    createComponent(opts.src)
-    */
     if (opts.show) vm.show()
    
-    //return vm
+    return vm
 }
 
 
@@ -7852,7 +7844,7 @@ require.register("vui/src/components/pagination.html", function(exports, require
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, modals:modals"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, modal:modal"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");

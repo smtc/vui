@@ -26,7 +26,7 @@ function openbox(opts) {
                     this.close()
                 },
                 close: function (suc) {
-                    if (suc && callback) callback(this.modals)
+                    if (suc && callback) callback(this.modal)
                     this.$destroy()
                 },
                 getComponent: function () {
@@ -35,7 +35,7 @@ function openbox(opts) {
             data: {
                 title: opts.title,
                 width: opts.width || 600,
-                modals: {},
+                modal: {},
                 src: opts.src
             },
             created: function () {
@@ -72,22 +72,9 @@ function openbox(opts) {
 
         vm = new Openbox()
 
-    /*
-    function createComponent(src) {
-        request.getTemplate(src).end(function (temp) {
-            Vue.component(src, {
-                template: temp
-            })
-
-            vm.content = src
-        })
-    }
-
-    createComponent(opts.src)
-    */
     if (opts.show) vm.show()
    
-    //return vm
+    return vm
 }
 
 
