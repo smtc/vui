@@ -11,11 +11,16 @@ module.exports = {
             utils.toggleClass(this.$el, 'active')
         },
         select: function (item) {
-            this.placeholder = ''
+            //this.placeholder = ''
             this.text = item.text
-            this.value = item.value
+            if (item.value != this.value)
+                this.value = item.value
         },
         setValue: function (value) {
+            if (undefined === value) {
+                this.text = null
+            }
+
             forEach(this.options, function (item) {
                 if (value == item.value)
                     this.select(item)
@@ -30,6 +35,12 @@ module.exports = {
         utils.addClass(this.$el, 'select')
         request.get(this.src).end(function (res) {
             self.options = res.body
+            self.setValue(self.value)
+        })
+    },
+    ready: function () {
+        var self = this
+        self.$watch('value', function () {
             self.setValue(self.value)
         })
     }

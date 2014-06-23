@@ -7567,11 +7567,16 @@ module.exports = {
             utils.toggleClass(this.$el, 'active')
         },
         select: function (item) {
-            this.placeholder = ''
+            //this.placeholder = ''
             this.text = item.text
-            this.value = item.value
+            if (item.value != this.value)
+                this.value = item.value
         },
         setValue: function (value) {
+            if (undefined === value) {
+                this.text = null
+            }
+
             forEach(this.options, function (item) {
                 if (value == item.value)
                     this.select(item)
@@ -7586,6 +7591,12 @@ module.exports = {
         utils.addClass(this.$el, 'select')
         request.get(this.src).end(function (res) {
             self.options = res.body
+            self.setValue(self.value)
+        })
+    },
+    ready: function () {
+        var self = this
+        self.$watch('value', function () {
             self.setValue(self.value)
         })
     }
@@ -7853,7 +7864,7 @@ module.exports = {
 
 
 require.register("vui/src/components/select.html", function(exports, require, module){
-module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span class="placeholder" ng-show="!text">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>';
+module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';

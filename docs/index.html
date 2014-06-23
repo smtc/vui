@@ -2,6 +2,7 @@
 <head>
 	<title>vui docs</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/prettify.css">
 </head>
 <body>
 
@@ -13,7 +14,7 @@
 			<li><a v-href="route.html">route</a></li>
 			<li><a v-href="utils.html">utils</a></li>
 			<li>
-				ui
+                ui
 				<ul class="list-unstyled">
 					<li><a v-href="openbox.html">openbox</a></li>
 					<li><a v-href="select.html">select</a></li>
@@ -27,11 +28,17 @@
 <div class="content" v-view="view"></div>
 
 <script type="text/javascript" src="../vui.js"></script>
-<script type="text/javascript" src="docs.js"></script>
+<script type="text/javascript" src="js/docs.js"></script>
+<script type="text/javascript" src="js/prettify.js"></script>
 <script type="text/javascript">
     vui.route(function (path) {
         if (path.charAt(path.length-1) !== '/')
             vui.$data.view = path
+
+        // 延时等component 执行完
+        setTimeout(function () {
+            prettyPrint()
+        }, 500)
     }, true)
 </script>
 

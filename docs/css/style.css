@@ -107,7 +107,7 @@ a.bg-info:hover{background-color:#afd9ee}
 a.bg-warning:hover{background-color:#f7ecb5}
 .bg-danger{background-color:#f2dede}
 a.bg-danger:hover{background-color:#e4b9b9}
-.page-header{padding-bottom:9px;margin:40px 0 20px;border-bottom:1px solid #eee}
+.page-header{padding-bottom:9px;margin:40px 0 20px}
 ol,ul{margin-top:0;margin-bottom:10px}
 ol ol,ol ul,ul ol,ul ul{margin-bottom:0}
 .list-unstyled{padding-left:0;list-style:none}
@@ -1428,3 +1428,17 @@ body,html{height:100%}
 .sidebar a{color:#999;text-decoration:none}
 .sidebar a:hover{border-bottom:solid 2px #42b983}
 .content{margin:0 0 0 340px;padding:50px 0;max-width:800px}
+.page-header{border-bottom:1px solid #eee;margin-top:10px}
+.bs-callout{margin:20px 0;padding:20px;border-left:3px solid #eee}
+.bs-callout h4{margin-top:0;margin-bottom:5px}
+.bs-callout p:last-child{margin-bottom:0}
+.bs-callout code{background-color:#fff;border-radius:3px}
+.bs-callout-danger{background-color:#fdf7f7;border-color:#d9534f}
+.bs-callout-danger h4{color:#d9534f}
+.bs-callout-warning{background-color:#fcf8f2;border-color:#f0ad4e}
+.bs-callout-warning h4{color:#f0ad4e}
+.bs-callout-info{background-color:#f4f8fa;border-color:#5bc0de}
+.bs-callout-info h4{color:#5bc0de}
+.bs-example{position:relative;padding:45px 15px 15px;margin:0 0 15px;margin-left:0;margin-right:0;background-color:#fff;border:solid 1px #ddd;border-radius:4px 4px 0 0}
+.bs-example:after{content:"Example";position:absolute;top:15px;left:15px;font-size:12px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:1px}
+.bs-example+pre{margin:-15px 0 15px;padding:15px;border-radius:0;border:1px solid #ddd;border-top-width:0}
