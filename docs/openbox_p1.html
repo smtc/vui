@@ -1,6 +1,7 @@
 <div>
-    {{src}}
-    h123456
+    <div v-on="load:model.url=src">load: {{src}}</div>
+    model.name: <input v-model="model.name" />
+    {{model}}
 
     <br />
     <a href="script:;" v-on="click: src='openbox_p2.html'">p2</a>

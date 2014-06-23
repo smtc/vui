@@ -11,6 +11,13 @@ var Vue     = require('vue'),
 function openbox(opts) {
     var callback = opts.callback,
 
+        data = utils.extend({
+            title: opts.title,
+            width: opts.width || 600,
+            model: { name:1235 },
+            src: opts.src
+        }, opts.data),
+
         Openbox = Vue.extend({
             template: require('./openbox.html'),
             replace: true,
@@ -26,18 +33,13 @@ function openbox(opts) {
                     this.close()
                 },
                 close: function (suc) {
-                    if (suc && callback) callback(this.modal)
+                    if (suc && callback) callback(this.model)
                     this.$destroy()
                 },
                 getComponent: function () {
                 }
             },
-            data: {
-                title: opts.title,
-                width: opts.width || 600,
-                modal: {},
-                src: opts.src
-            },
+            data: data,
             created: function () {
                 document.body.appendChild(this.$el)
                 var self = this

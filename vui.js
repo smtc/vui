@@ -4568,11 +4568,13 @@ module.exports = {
     update: function (value) {
         var prop = this.prop
         if (prop) {
-            var isImportant = value.slice(-10) === '!important'
-                ? 'important'
-                : ''
-            if (isImportant) {
-                value = value.slice(0, -10).trim()
+            if (value){
+                var isImportant = value.slice(-10) === '!important'
+                    ? 'important'
+                    : ''
+                if (isImportant) {
+                    value = value.slice(0, -10).trim()
+                }
             }
             this.el.style.setProperty(prop, value, isImportant)
             if (this.prefixed) {
@@ -7596,6 +7598,13 @@ var Vue     = require('vue'),
 function openbox(opts) {
     var callback = opts.callback,
 
+        data = utils.extend({
+            title: opts.title,
+            width: opts.width || 600,
+            model: { name:1235 },
+            src: opts.src
+        }, opts.data),
+
         Openbox = Vue.extend({
             template: require('./openbox.html'),
             replace: true,
@@ -7611,18 +7620,13 @@ function openbox(opts) {
                     this.close()
                 },
                 close: function (suc) {
-                    if (suc && callback) callback(this.modal)
+                    if (suc && callback) callback(this.model)
                     this.$destroy()
                 },
                 getComponent: function () {
                 }
             },
-            data: {
-                title: opts.title,
-                width: opts.width || 600,
-                modal: {},
-                src: opts.src
-            },
+            data: data,
             created: function () {
                 document.body.appendChild(this.$el)
                 var self = this
@@ -7844,7 +7848,7 @@ require.register("vui/src/components/pagination.html", function(exports, require
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, modal:modal"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");

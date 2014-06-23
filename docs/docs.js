@@ -1,34 +1,26 @@
 (function () {
-    var Vue = vui.require('vue'),
-
-        Openbox = Vue.extend({
-            methods: {
-                open: function () {
-                    vui.openbox({
-                        show: true,
-                        width: 900,
-                        src: 'openbox_p1.html',
-                        title: 'Openbox',
-                        btns: ['ok', 'close'],
-                        callback: function (modal) {
-                            this.modal = modal
-                        }.bind(this)
-                    })
-                }
-            },
-            data: {
-                modal: {}
+    vui.Vue.component('openbox-example', {
+        methods: {
+            open: function (url) {
+                vui.openbox({
+                    show: true,
+                    width: 900,
+                    src: url,
+                    title: 'Openbox',
+                    btns: ['ok', 'close'],
+                    data: { 
+                        model: vui.utils.copy(this.model)
+                    },
+                    callback: function (model) {
+                        this.model = model
+                    }.bind(this)
+                })
             }
-        })
-
-
-    new Vue({
-        el: 'body',
-
-        components: {
-            'openboxExample': Openbox
+        },
+        data: {
+            model: {
+                name: 'openbox callback test'
+            }
         }
-        
     })
-
-})
+})()

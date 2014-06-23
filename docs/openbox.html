@@ -1,9 +1,11 @@
-<div id="openbox" v-component="openboxExample">
-<h3>Openbox</h3>
+<div id="openbox" v-component="openbox-example">
+    <h3>Openbox</h3>
 
-<button type="button" v-on="click: open()">test</button>
+    <a href="javascript:;" v-on="click: open('openbox_p1.html')">openbox page 1</a>
+    <br />
+    <a href="javascript:;" v-on="click: open('openbox_p2.html')">openbox page 2</a>
 
-<div>
-    {{modal.name}}
-</div>
+    <div>
+        model: {{model}}
+    </div>
 </div>
