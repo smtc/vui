@@ -3,6 +3,7 @@
 
     <form class="form-inline" v-on="submit:search">
         <label class="form-group"><input class="form-control" placeholder="名称" v-model="filters.name" /></label>
+        <label class="form-group"><div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"></div></label>
         <label class="form-group"><button class="btn btn-primary">确定</button></label>
         <label class="form-group"><button v-on="click:search(null)" class="btn btn-default">重置</button></label>
     </form>

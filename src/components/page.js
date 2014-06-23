@@ -64,6 +64,9 @@ module.exports = {
                 size: 20
             }
 
+            this.filters = {}
+            this.sort = {}
+
             try {
                 if (size) 
                     this.pager.size = parseInt(size)
