@@ -7737,7 +7737,7 @@ module.exports = {
                 search = getSearch(this.pager, this.filters, this.sort),
                 url = this.currentUrl = this.src + search.txt
 
-            if (this.routeChange)
+            if (this.routeChange && this.routeChange === 'true')
                 _location.search(search.obj)
 
             request.get(url)
@@ -7748,8 +7748,7 @@ module.exports = {
         },
         init: function () {
             var search = utils.parseKeyValue(_location.node(true).search) || {},
-                self = this,
-                size = this.$el.getAttribute("size")
+                self = this
 
             this.pager = {
                 page: 1,
@@ -7758,11 +7757,6 @@ module.exports = {
 
             this.filters = {}
             this.sort = {}
-
-            try {
-                if (size) 
-                    this.pager.size = parseInt(size)
-            } catch (e) {}
 
             function setFilter(v, k) {
                 if (k.indexOf('f.') !== 0) return
@@ -7782,6 +7776,11 @@ module.exports = {
                         break
                 }
             })
+
+            try {
+                var size = this.$el.getAttribute("size")
+                if (size) this.pager.size = parseInt(size)
+            } catch (e) {}
         },
         destroy: function () {
             this.$destroy()
