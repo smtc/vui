@@ -1,6 +1,28 @@
 <div v-component="scope">
-    <h3>Select</h3>
-    <form class="form-inline row" role="form">
+    <h1 class="page-header">下拉选择组件</h1>
+    
+    <p>模拟select元素的组件</p>
+
+    <br />
+
+    <h3>单选框</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>v-component="select"</h4>
+        <pre class="prettyprint">&lt;div src="json/select.json" placeholder="select price" v-component="select" v-with="value:price"&gt;&lt;/div&gt;</pre>
+        <h4>参数</h4>
+        <p>
+            src - 获取数据的地址。<br />
+            placeholder - 提示信息。<br />
+            value - 选中值。<br />
+        </p>
+        <p><span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span></p>
+    </div>
+
+    <br />
+
+    <h3>Example</h3>
+<div class="bs-example bs-example-type">
+    <form class="form-inline" role="form">
         <div class="form-group">
             <div src="json/select.json" class="form-control" style="width:160px" placeholder="select price" v-component="select" v-with="value:price"></div>
         </div>
@@ -14,4 +36,20 @@
             <span> = {{price * number}}</span>
         </div>
     </form>
-</section>
+</div>
+<pre class="prettyprint" v-pre>
+&lt;form class="form-inline" role="form"&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div src="json/select.json" class="form-control" style="width:160px" placeholder="select price" v-component="select" v-with="value:price"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;span&gt; X &lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div src="json/select.json" class="form-control" style="width:160px" placeholder="select number" v-component="select" v-with="value:number"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;span&gt; = {{price * number}}&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/form&gt;</pre>
+</div>

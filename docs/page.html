@@ -3,6 +3,9 @@
 
     <p>页面显示组件。</p>
 
+    <br />
+
+    <h3>数据展示</h3>
     <div class="bs-callout bs-callout-info">
         <h4>v-component="page"</h4>
         <pre class="prettyprint">&lt;ELEMENTTAG src="json/tablelist.json" delay="true" routeChange="true" size="10" v-component="page"&gt;</pre>
@@ -15,6 +18,9 @@
         </p>
     </div>
 
+    <br />
+
+    <h3>分页</h3>
     <div class="bs-callout bs-callout-info">
         <h4>v-component="pagination"</h4>
         <pre class="prettyprint">&lt;ELEMENTTAG v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"&gt;</pre>
@@ -25,7 +31,7 @@
             total - 记录总数。<br />
         </p>
         <p>
-            <span class="text-info">使用v-with同步参数</span>
+        <span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span>
         </p>
     </div>
 
