@@ -1038,6 +1038,5 @@ module.exports = extend({
     'parseKeyValue': parseKeyValue,
     'nextUid': nextUid,
     'encodeUriQuery': encodeUriQuery,
-    'encodeUriSegment': encodeUriSegment,
-    'callbacks': {counter: 0}
+    'encodeUriSegment': encodeUriSegment
 }, node)
