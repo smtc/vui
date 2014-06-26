@@ -1408,6 +1408,7 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .date .date-picker .inner .today{background-color:#5bc0de;color:#fff;border-color:#46b8da}
 .date .date-picker .inner .week{color:#000}
 .date .date-picker .inner .gray{color:#ccc}
+.date.up .date-picker{top:auto;bottom:35px}
 .treeview .icon{width:15px}
 .treeview ul{padding-left:18px}
 .treeview label{font-weight:400;margin:0;display:block;line-height:22px}
