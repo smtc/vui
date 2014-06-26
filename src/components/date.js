@@ -166,6 +166,9 @@ module.exports = {
         this.draw()
         this.changeYear(0)
 
+        if (this.$el.getAttribute('up') === 'true')
+            this.pickerUp = true
+
         // 点击页面空白关闭
         this.$closeHandle = function (event) {
             if (utils.isDescendant(self.$el, event.target))

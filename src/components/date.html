@@ -1,7 +1,7 @@
 <div v-on="click:open()">
     <span class="date-text" v-text="date"></span>
     <i class="icon icon-calendar"></i>
-    <div class="date-picker">
+    <div class="date-picker" v-class="date-picker-up: pickerUp">
         <div class="header">
             <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>
             <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>
