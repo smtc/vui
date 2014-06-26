@@ -1390,6 +1390,24 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .icon-vimeo-square:before{content:"\f194"}
 .icon-try:before,.icon-turkish-lira:before{content:"\f195"}
 .icon-plus-square-o:before{content:"\f196"}
+.date{width:160px;position:relative;cursor:pointer;display:inline-block}
+.date .date-text{height:15px;display:inline-block}
+.date .icon-calendar{position:absolute;right:8px;top:8px}
+.date.active .date-picker{display:inline-block}
+.date .date-picker{display:none;border:solid 1px #e3e3e3;background-color:#f5f5f5;border-radius:3px;padding:3px;width:280px;position:absolute;top:35px;left:0;-webkit-box-shadow:0 6px 12px rgba(0,0,0,.175);box-shadow:0 6px 12px rgba(0,0,0,.175)}
+.date .date-picker .header{height:30px;line-height:30px;text-align:center}
+.date .date-picker .header .handle{padding:4px 6px;color:#777;display:inline-block;border:solid 1px #ddd;background-color:#fff;border-radius:3px}
+.date .date-picker .header .year{padding:0;width:208px;font-size:16px;color:#000;border:none;background:0 0;text-decoration:none}
+.date .date-picker .inner{padding:2px;text-align:center}
+.date .date-picker .inner button,.date .date-picker .inner div{width:36px;padding:4px 0;margin:1px;color:#777;font-size:14px;text-align:center;display:inline-block}
+.date .date-picker .inner .day,.date .date-picker .inner .month,.date .date-picker .inner .year{border:solid 1px #ddd;background-color:#fff;border-radius:3px}
+.date .date-picker .inner .day:hover,.date .date-picker .inner .month:hover,.date .date-picker .inner .year:hover{background-color:#ddd;color:#000}
+.date .date-picker .inner .day:active,.date .date-picker .inner .month:active,.date .date-picker .inner .year:active{background-color:#5bc0de;color:#fff;border-color:#46b8da}
+.date .date-picker .inner .year{width:51px;padding:6px 0}
+.date .date-picker .inner .month{width:86px;padding:6px 0}
+.date .date-picker .inner .today{background-color:#5bc0de;color:#fff;border-color:#46b8da}
+.date .date-picker .inner .week{color:#000}
+.date .date-picker .inner .gray{color:#ccc}
 .treeview .icon{width:15px}
 .treeview ul{padding-left:18px}
 .treeview label{font-weight:400;margin:0;display:block;line-height:22px}

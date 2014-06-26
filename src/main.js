@@ -25,6 +25,7 @@ var vm = new Vue({
     },
 
     components: {
+        date: require('./components/date'),
         page: require('./components/page'),
         pagination: require('./components/pagination'),
         scope: require('./components/scope'),

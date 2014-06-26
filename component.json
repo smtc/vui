@@ -13,12 +13,14 @@
         "src/components/select.js",
         "src/components/openbox.js",
         "src/components/page.js",
-        "src/components/pagination.js"
+        "src/components/pagination.js",
+        "src/components/date.js"
     ],
     "templates": [
         "src/components/select.html",
+        "src/components/openbox.html",
         "src/components/pagination.html",
-        "src/components/openbox.html"
+        "src/components/date.html"
     ],
     "paths": [
         "components"
