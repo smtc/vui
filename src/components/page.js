@@ -3,8 +3,7 @@ var request   = require('../request'),
     _location = require('../location'),
     route     = require('../route'),
     forEach   = utils.forEach,
-    basepath  = _location.node(true).pathname,
-    log       = require('vue').require('utils').log
+    basepath  = _location.node(true).pathname
 
 
 function getSearch(pager, filters, sort) {

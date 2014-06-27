@@ -315,6 +315,30 @@ vui.utils.nextUid()
 
     <br />
 
+    <h3>substitute</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>utils.substitute(str, obj)</h4>
+        <p>用指定object格式化字符串</p>
+        <h4>参数</h4>
+        <p>
+            str(string) - 模板字符串，使用'{}'标识名称<br />
+            obj(object)
+        </p>
+        <h4>返回值</h4>
+        <p>
+            string
+        </p>
+
+    </div>
+<pre class="prettyprint">
+var obj = { a:1, b:2 },
+    str = '{a}!={b}'
+var c = utils.substitute(str, obj)
+// 1!=2
+</pre>
+
+    <br />
+
     <h3>encodeUriSegment</h3>
     <div class="bs-callout bs-callout-info">
         <h4>utils.encodeUriSegment(str)</h4>

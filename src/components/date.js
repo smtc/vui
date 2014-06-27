@@ -1,11 +1,5 @@
 var utils = require('../utils')
 
-function maxDate(year, month) {
-    var timestamp = new Date(year, month+1, -1),
-        date = new Date(timestamp)
-    return date
-}
-
 function pad(v) {
     v = v.toString()
     if (v.length === 1)

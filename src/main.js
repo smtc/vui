@@ -25,11 +25,12 @@ var vm = new Vue({
     },
 
     components: {
-        date: require('./components/date'),
-        page: require('./components/page'),
-        pagination: require('./components/pagination'),
-        scope: require('./components/scope'),
-        select: require('./components/select')
+        'date': require('./components/date'),
+        'form-control': require('./components/form-control'),
+        'page': require('./components/page'),
+        'pagination': require('./components/pagination'),
+        'scope': require('./components/scope'),
+        'select': require('./components/select')
     },
 
     data: $data

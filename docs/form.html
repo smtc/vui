@@ -1,0 +1,26 @@
+<div>
+    <h1 class="page-header">表单及验证</h1>
+
+    <p></p>
+
+    <h3>Example</h3>
+
+    <div class="bs-example bs-example-type">
+        <form class="form-horizontal" role="form">
+            <form-control label="Email" type="email" name="email" v-with="value:model.email"></form-control>
+            <form-control label="密码" col="2,5" type="password" name="password" v-with="value:model.password"></form-control>
+            <form-control label="日期" col="2,4" type="date" name="start" v-with="value:model.date"></form-control>
+            <form-control text="checkbox" type="checkbox" name="checkbox" v-with="value:model.checkbox"></form-control>
+            <form-control label="选择" src="json/select.json" col="2,4" type="select" v-with="value:model.select"></form-control>
+            <form-control label="文本框" type="textarea" rows="6" v-with="value:model.textarea"></form-control>
+
+            <form-control>
+                <button class="btn btn-primary" type="button">提 交</button>
+                <button class="btn btn-default" v-on="click:model={}" type="button">重 置</button>
+            </form-control>
+        </form>
+
+        {{model}}
+    </div>
+
+</div>

@@ -207,6 +207,14 @@ describe('vui.utils', function(){
         uid.should.eql('A02S')
     })
 
+    it('string substitute', function () {
+        var obj = { a:1, b:2 },
+            str = '{a}!={b}'
+
+        var c = utils.substitute(str, obj)
+        c.should.eql('1!=2')
+    })
+
     ////////////////////////////////////////////////////////////////////
     // ./node
 

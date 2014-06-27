@@ -1,5 +1,3 @@
-var utils = require('../utils')
-
 module.exports = {
     template: require('./pagination.html'),
     replace: true,
@@ -7,7 +5,6 @@ module.exports = {
         compose: function () {
             var page = this.page,
                 size = this.size,
-                step = this.step,
                 max  = this.max = Math.ceil(this.total / size)
 
             this.pages = []

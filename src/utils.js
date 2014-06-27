@@ -1000,6 +1000,15 @@ function hashCode(obj) {
     return hash;
 }
 
+
+function substitute(str, obj) {
+    return str.replace((/\\?\{([^{}]+)\}/g), function(match, name){
+        if (match.charAt(0) == '\\') return match.slice(1);
+        return (obj[name] != null) ? obj[name] : '';
+    })
+}
+
+
 // 合并 ./node
 module.exports = extend({
     'copy': copy,
@@ -1038,5 +1047,6 @@ module.exports = extend({
     'parseKeyValue': parseKeyValue,
     'nextUid': nextUid,
     'encodeUriQuery': encodeUriQuery,
-    'encodeUriSegment': encodeUriSegment
+    'encodeUriSegment': encodeUriSegment,
+    'substitute': substitute
 }, node)

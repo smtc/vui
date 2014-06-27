@@ -1,6 +1,6 @@
 var Vue     = require('vue'),
     utils   = require('../utils'),
-    request = require('../request'),
+    //request = require('../request'),
     route   = require('../route')
 
 /*
@@ -29,7 +29,7 @@ function openbox(opts) {
                 },
                 bgclose: function (e) {
                     var box = this.$el.querySelector('.openbox-content')
-                    if (e.target == box || utils.isDescendant(box, e.target)) return
+                    if (e.target === box || utils.isDescendant(box, e.target)) return
                     this.close()
                 },
                 close: function (suc) {

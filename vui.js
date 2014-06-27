@@ -5993,11 +5993,12 @@ var vm = new Vue({
     },
 
     components: {
-        date: require('./components/date'),
-        page: require('./components/page'),
-        pagination: require('./components/pagination'),
-        scope: require('./components/scope'),
-        select: require('./components/select')
+        'date': require('./components/date'),
+        'form-control': require('./components/form-control'),
+        'page': require('./components/page'),
+        'pagination': require('./components/pagination'),
+        'scope': require('./components/scope'),
+        'select': require('./components/select')
     },
 
     data: $data
@@ -7029,6 +7030,15 @@ function hashCode(obj) {
     return hash;
 }
 
+
+function substitute(str, obj) {
+    return str.replace((/\\?\{([^{}]+)\}/g), function(match, name){
+        if (match.charAt(0) == '\\') return match.slice(1);
+        return (obj[name] != null) ? obj[name] : '';
+    })
+}
+
+
 // 合并 ./node
 module.exports = extend({
     'copy': copy,
@@ -7067,7 +7077,8 @@ module.exports = extend({
     'parseKeyValue': parseKeyValue,
     'nextUid': nextUid,
     'encodeUriQuery': encodeUriQuery,
-    'encodeUriSegment': encodeUriSegment
+    'encodeUriSegment': encodeUriSegment,
+    'substitute': substitute
 }, node)
 
 });
@@ -7537,333 +7548,8 @@ module.exports = {
 }
 
 });
-require.register("vui/src/components/scope.js", function(exports, require, module){
-// 先占个位置
-module.exports = {
-    methods: {
-        set: function (modal) {
-            this.modal = modal
-        }
-    },
-    data: {
-        modal: {}
-    },
-    created: function () {
-    }
-}
-
-});
-require.register("vui/src/components/select.js", function(exports, require, module){
-var request = require('../request'),
-    utils   = require('../utils'),
-    forEach = utils.forEach
-
-module.exports = {
-    template: require('./select.html'),
-    replace: true,
-    paramAttributes: ['src', 'placeholder'],
-    methods: {
-        toggle: function () {
-            utils.toggleClass(this.$el, 'active')
-        },
-        select: function (item) {
-            //this.placeholder = ''
-            this.text = item.text
-            if (item.value != this.value)
-                this.value = item.value
-        },
-        setValue: function (value) {
-            if (undefined === value) {
-                this.text = null
-            }
-
-            forEach(this.options, function (item) {
-                if (value == item.value)
-                    this.select(item)
-            }.bind(this))
-        }
-    },
-    data: {
-        options: []
-    },
-    created: function () {
-        var self = this
-        utils.addClass(this.$el, 'select')
-        request.get(this.src).end(function (res) {
-            self.options = res.body
-            self.setValue(self.value)
-        })
-    },
-    ready: function () {
-        var self = this
-        self.$watch('value', function () {
-            self.setValue(self.value)
-        })
-    }
-}
-
-});
-require.register("vui/src/components/openbox.js", function(exports, require, module){
-var Vue     = require('vue'),
-    utils   = require('../utils'),
-    request = require('../request'),
-    route   = require('../route')
-
-/*
- * show: default -false 创建时是否显示
- * callback: [function, this] 关闭时回调方法
- */
-
-function openbox(opts) {
-    var callback = opts.callback,
-
-        data = utils.extend({
-            title: opts.title,
-            width: opts.width || 600,
-            model: { name:1235 },
-            src: opts.src
-        }, opts.data),
-
-        Openbox = Vue.extend({
-            template: require('./openbox.html'),
-            replace: true,
-            methods: {
-                show: function () {
-                    utils.addClass(this.$el, 'open')
-                    var box = this.$el.querySelector('.openbox-content')
-                    box.style.width = this.width
-                },
-                bgclose: function (e) {
-                    var box = this.$el.querySelector('.openbox-content')
-                    if (e.target == box || utils.isDescendant(box, e.target)) return
-                    this.close()
-                },
-                close: function (suc) {
-                    if (suc && callback) callback(this.model)
-                    this.$destroy()
-                },
-                getComponent: function () {
-                }
-            },
-            data: data,
-            created: function () {
-                document.body.appendChild(this.$el)
-                var self = this
-                if (opts.btns) {
-                    self.btns = []
-                    utils.forEach(opts.btns, function (btn) {
-                        if (typeof btn === 'string') {
-                            switch(btn) {
-                                case 'close':
-                                    self.btns.push({ text: '关 闭', type:'default', fn: self.close.bind(self) })
-                                    break
-                                case 'ok':
-                                    self.btns.push({ text: '确 定', type:'primary', fn: self.close.bind(self, true) })
-                                    break
-                            }
-                        } else {
-                            self.btns.push(btn)
-                        }
-                    })
-                }
-
-                this.$watch('src', function () {
-                    route.getComponent(this.src, function () {
-                        this.content = this.src
-                    }.bind(this))
-                }.bind(this))
-            },
-
-            ready: function () {
-            }
-        }),
-
-        vm = new Openbox()
-
-    if (opts.show) vm.show()
-   
-    return vm
-}
-
-
-module.exports = openbox
-
-});
-require.register("vui/src/components/page.js", function(exports, require, module){
-var request   = require('../request'),
-    utils     = require('../utils'),
-    _location = require('../location'),
-    route     = require('../route'),
-    forEach   = utils.forEach,
-    basepath  = _location.node(true).pathname,
-    log       = require('vue').require('utils').log
-
-
-function getSearch(pager, filters, sort) {
-    var search = {},
-        txt = ""
-
-    forEach({p:pager, f:filters, s:sort}, function (obj, pre) {
-        if (!obj) return
-        forEach(obj, function (v, k) {
-            if (undefined !== v && '' !== v) search[pre + '.' + k] = v
-        })
-    })
-
-    txt = utils.toKeyValue(search)
-    return {
-        obj: search,
-        txt: txt ? "?" + txt : ""
-    }
-}
-
-function routeChange() {
-    // 如果路径不等于基础路径，忽略route
-    if (_location.node(true).pathname === basepath)
-        this.init()
-}
-
-
-module.exports = {
-    paramAttributes: ['src', 'delay', 'routeChange'],
-    methods: {
-        search: function (fs) {
-            if (fs === null) this.filters = {}
-            this.pager.page = 1
-            this.update()
-        },
-        update: function () {
-            var self = this,
-                search = getSearch(this.pager, this.filters, this.sort),
-                url = this.currentUrl = this.src + search.txt
-
-            if (this.routeChange && this.routeChange === 'true')
-                _location.search(search.obj)
-
-            request.get(url)
-                .end(function (res) {
-                    self.data = res.body.data
-                    self.total = res.body.total
-                })
-        },
-        init: function () {
-            var search = utils.parseKeyValue(_location.node(true).search) || {},
-                self = this
-
-            this.pager = {
-                page: 1,
-                size: 20
-            }
-
-            this.filters = {}
-            this.sort = {}
-
-            function setFilter(v, k) {
-                if (k.indexOf('f.') !== 0) return
-                self.filters[k.slice(2)] = v
-            }
-            
-            forEach(search, function (v, k) {
-                switch (k) {
-                    case 'p.page':
-                        self.pager.page = parseInt(v)
-                        break
-                    case 'p.size':
-                        self.pager.size = parseInt(v)
-                        break
-                    default:
-                        setFilter(v, k)
-                        break
-                }
-            })
-
-            try {
-                var size = this.$el.getAttribute("size")
-                if (size) this.pager.size = parseInt(size)
-            } catch (e) {}
-        },
-        destroy: function () {
-            this.$destroy()
-        }
-    },
-    data: {
-        data: [],
-        filters: {},
-        pager: {},
-        total: 0,
-        sort: {}
-    },
-    created: function () {
-        this.init()
-        if (!this.delay) this.update()
-    },
-    ready: function () {
-        this.$watch('pager', this.update)
-        if (this.routeChange)
-            //route.bind([routeChange, this])
-            route.bind(routeChange.bind(this))
-    },
-    beforeDestroy: function () {
-        if (this.routeChange)
-            //route.unbind([routeChange, this])
-            route.unbind(routeChange.bind(this))
-    }
-}
-
-});
-require.register("vui/src/components/pagination.js", function(exports, require, module){
-var utils = require('../utils')
-
-module.exports = {
-    template: require('./pagination.html'),
-    replace: true,
-    methods: {
-        compose: function () {
-            var page = this.page,
-                size = this.size,
-                step = this.step,
-                max  = this.max = Math.ceil(this.total / size)
-
-            this.pages = []
-            for (var i = 1; i <= max; i++) {
-                if (i === 1 || i === max || Math.abs(i-page) < 5)
-                    this.pages.push(i)
-            }
-
-        },
-        change: function (page) {
-            this.page = page
-            this.compose()
-        }
-    },
-    data: {
-        page: 1,
-        size: 20,
-        total: 0,
-        step: 5,
-        max: 1,
-        pages: []
-    },
-    created: function () {
-        this.compose()
-    },
-    ready: function () {
-        var self = this
-        this.$watch('total', function () {
-            self.compose()
-        })
-    }
-}
-
-});
 require.register("vui/src/components/date.js", function(exports, require, module){
 var utils = require('../utils')
-
-function maxDate(year, month) {
-    var timestamp = new Date(year, month+1, -1),
-        date = new Date(timestamp)
-    return date
-}
 
 function pad(v) {
     v = v.toString()
@@ -8040,23 +7726,426 @@ module.exports = {
 }
 
 });
+require.register("vui/src/components/form-control.js", function(exports, require, module){
+var utils = require('../utils')
+
+function getCol(str, label) {
+    var col = [2, 10, 0]
+
+    if (str) {
+        try {
+            var ss = str.split(',')
+            utils.forEach(ss, function (s, i) {
+                ss[i] = parseInt(s)
+            })
+
+            if (ss.length === 1)
+                col = [ ss[0], 12-ss[0], 0]
+            else if (ss.length === 2)
+                col = [ ss[0], ss[1], 0 ]
+            else
+                col = ss
+
+        } catch (e) {}
+    }
+
+    if (!label && col[2] === 0)
+        col[2] = col[0]
+
+    return col
+}
+
+var TEMPLATES = {
+    'submit': '<button class="btn" type="{{_type}}">{{_text}}</button>',
+    'button': '<button class="btn" type="{{_type}}">{{_text}}</button>',
+    'radio': '',
+    'checkbox': '<div class="checkbox"><label><input type="checkbox" name="{{_name}}" v-model="value" /> {{_text}}</label></div>',
+    'textarea': '<textarea class="form-control" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
+    'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+    'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}" type="{{_type}}"></div>',
+    'default': '<input class="form-control" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
+    'empty': ''
+}
+
+
+module.exports = {
+    template: require('./form-control.html'),
+    replace: true,
+
+    methods: {},
+
+    data: {},
+
+    created: function () {
+        this.id = utils.nextUid()
+        this._type = this.$el.getAttribute('type') || 'empty'
+        this._label = this.$el.getAttribute('label')
+        this._col = getCol(this.$el.getAttribute('col'), this._label)
+        this._src = this.$el.getAttribute('src')
+        this._rows = this.$el.getAttribute('rows')
+        this._text = this.$el.getAttribute('text')
+        this._name = this.$el.getAttribute('name')
+        this._content = undefined === TEMPLATES[this._type] ? TEMPLATES['default'] : TEMPLATES[this._type]
+
+        // clear
+        utils.forEach(['type', 'label', 'col', 'src', 'text', 'classname', 'name', 'rows'], function (attr) {
+            this.$el.removeAttribute(attr)
+        }.bind(this))
+    }
+}
+
+});
+require.register("vui/src/components/scope.js", function(exports, require, module){
+// 先占个位置
+module.exports = {
+    methods: {
+        set: function (modal) {
+            this.modal = modal
+        }
+    },
+    data: {
+        modal: {}
+    },
+    created: function () {
+    }
+}
+
+});
+require.register("vui/src/components/select.js", function(exports, require, module){
+var request = require('../request'),
+    utils   = require('../utils'),
+    forEach = utils.forEach
+
+module.exports = {
+    template: require('./select.html'),
+    replace: true,
+    paramAttributes: ['src', 'placeholder'],
+    methods: {
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
+        },
+        select: function (item) {
+            //this.placeholder = ''
+            this.text = item.text
+            if (item.value != this.value)
+                this.value = item.value
+        },
+        setValue: function (value) {
+            if (undefined === value) {
+                this.text = null
+            }
+
+            forEach(this.options, function (item) {
+                if (value == item.value)
+                    this.select(item)
+            }.bind(this))
+        }
+    },
+    data: {
+        options: []
+    },
+    created: function () {
+        var self = this
+        utils.addClass(this.$el, 'select')
+        request.get(this.src).end(function (res) {
+            self.options = res.body
+            self.setValue(self.value)
+        })
+
+        this.$closeHandle = function () {
+            self.close()
+        }
+    },
+    ready: function () {
+        var self = this
+        self.$watch('value', function () {
+            self.setValue(self.value)
+        })
+    }
+}
+
+});
+require.register("vui/src/components/openbox.js", function(exports, require, module){
+var Vue     = require('vue'),
+    utils   = require('../utils'),
+    //request = require('../request'),
+    route   = require('../route')
+
+/*
+ * show: default -false 创建时是否显示
+ * callback: [function, this] 关闭时回调方法
+ */
+
+function openbox(opts) {
+    var callback = opts.callback,
+
+        data = utils.extend({
+            title: opts.title,
+            width: opts.width || 600,
+            model: { name:1235 },
+            src: opts.src
+        }, opts.data),
+
+        Openbox = Vue.extend({
+            template: require('./openbox.html'),
+            replace: true,
+            methods: {
+                show: function () {
+                    utils.addClass(this.$el, 'open')
+                    var box = this.$el.querySelector('.openbox-content')
+                    box.style.width = this.width
+                },
+                bgclose: function (e) {
+                    var box = this.$el.querySelector('.openbox-content')
+                    if (e.target === box || utils.isDescendant(box, e.target)) return
+                    this.close()
+                },
+                close: function (suc) {
+                    if (suc && callback) callback(this.model)
+                    this.$destroy()
+                },
+                getComponent: function () {
+                }
+            },
+            data: data,
+            created: function () {
+                document.body.appendChild(this.$el)
+                var self = this
+                if (opts.btns) {
+                    self.btns = []
+                    utils.forEach(opts.btns, function (btn) {
+                        if (typeof btn === 'string') {
+                            switch(btn) {
+                                case 'close':
+                                    self.btns.push({ text: '关 闭', type:'default', fn: self.close.bind(self) })
+                                    break
+                                case 'ok':
+                                    self.btns.push({ text: '确 定', type:'primary', fn: self.close.bind(self, true) })
+                                    break
+                            }
+                        } else {
+                            self.btns.push(btn)
+                        }
+                    })
+                }
+
+                this.$watch('src', function () {
+                    route.getComponent(this.src, function () {
+                        this.content = this.src
+                    }.bind(this))
+                }.bind(this))
+            },
+
+            ready: function () {
+            }
+        }),
+
+        vm = new Openbox()
+
+    if (opts.show) vm.show()
+   
+    return vm
+}
+
+
+module.exports = openbox
+
+});
+require.register("vui/src/components/page.js", function(exports, require, module){
+var request   = require('../request'),
+    utils     = require('../utils'),
+    _location = require('../location'),
+    route     = require('../route'),
+    forEach   = utils.forEach,
+    basepath  = _location.node(true).pathname
+
+
+function getSearch(pager, filters, sort) {
+    var search = {},
+        txt = ""
+
+    forEach({p:pager, f:filters, s:sort}, function (obj, pre) {
+        if (!obj) return
+        forEach(obj, function (v, k) {
+            if (undefined !== v && '' !== v) search[pre + '.' + k] = v
+        })
+    })
+
+    txt = utils.toKeyValue(search)
+    return {
+        obj: search,
+        txt: txt ? "?" + txt : ""
+    }
+}
+
+function routeChange() {
+    // 如果路径不等于基础路径，忽略route
+    if (_location.node(true).pathname === basepath)
+        this.init()
+}
+
+
+module.exports = {
+    paramAttributes: ['src', 'delay', 'routeChange'],
+    methods: {
+        search: function (fs) {
+            if (fs === null) this.filters = {}
+            this.pager.page = 1
+            this.update()
+        },
+        update: function () {
+            var self = this,
+                search = getSearch(this.pager, this.filters, this.sort),
+                url = this.currentUrl = this.src + search.txt
+
+            if (this.routeChange && this.routeChange === 'true')
+                _location.search(search.obj)
+
+            request.get(url)
+                .end(function (res) {
+                    self.data = res.body.data
+                    self.total = res.body.total
+                })
+        },
+        init: function () {
+            var search = utils.parseKeyValue(_location.node(true).search) || {},
+                self = this
+
+            this.pager = {
+                page: 1,
+                size: 20
+            }
+
+            this.filters = {}
+            this.sort = {}
+
+            function setFilter(v, k) {
+                if (k.indexOf('f.') !== 0) return
+                self.filters[k.slice(2)] = v
+            }
+            
+            forEach(search, function (v, k) {
+                switch (k) {
+                    case 'p.page':
+                        self.pager.page = parseInt(v)
+                        break
+                    case 'p.size':
+                        self.pager.size = parseInt(v)
+                        break
+                    default:
+                        setFilter(v, k)
+                        break
+                }
+            })
+
+            try {
+                var size = this.$el.getAttribute("size")
+                if (size) this.pager.size = parseInt(size)
+            } catch (e) {}
+        },
+        destroy: function () {
+            this.$destroy()
+        }
+    },
+    data: {
+        data: [],
+        filters: {},
+        pager: {},
+        total: 0,
+        sort: {}
+    },
+    created: function () {
+        this.init()
+        if (!this.delay) this.update()
+    },
+    ready: function () {
+        this.$watch('pager', this.update)
+        if (this.routeChange)
+            //route.bind([routeChange, this])
+            route.bind(routeChange.bind(this))
+    },
+    beforeDestroy: function () {
+        if (this.routeChange)
+            //route.unbind([routeChange, this])
+            route.unbind(routeChange.bind(this))
+    }
+}
+
+});
+require.register("vui/src/components/pagination.js", function(exports, require, module){
+module.exports = {
+    template: require('./pagination.html'),
+    replace: true,
+    methods: {
+        compose: function () {
+            var page = this.page,
+                size = this.size,
+                max  = this.max = Math.ceil(this.total / size)
+
+            this.pages = []
+            for (var i = 1; i <= max; i++) {
+                if (i === 1 || i === max || Math.abs(i-page) < 5)
+                    this.pages.push(i)
+            }
+
+        },
+        change: function (page) {
+            this.page = page
+            this.compose()
+        }
+    },
+    data: {
+        page: 1,
+        size: 20,
+        total: 0,
+        step: 5,
+        max: 1,
+        pages: []
+    },
+    created: function () {
+        this.compose()
+    },
+    ready: function () {
+        var self = this
+        this.$watch('total', function () {
+            self.compose()
+        })
+    }
+}
+
+});
 
 
 
 
 
 
+require.register("vui/src/components/date.html", function(exports, require, module){
+module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
+});
+require.register("vui/src/components/form-control.html", function(exports, require, module){
+module.exports = '<div class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!=\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
+});
 require.register("vui/src/components/select.html", function(exports, require, module){
-module.exports = '<div v-on="click:toggle()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
+module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
-});
-require.register("vui/src/components/date.html", function(exports, require, module){
-module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");

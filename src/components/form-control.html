@@ -1,0 +1,5 @@
+<div class="form-group">
+    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>
+    <div v-if="_type!='empty'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>
+    <div v-if="_type=='empty'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>
+</div>

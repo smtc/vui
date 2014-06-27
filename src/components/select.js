@@ -7,8 +7,20 @@ module.exports = {
     replace: true,
     paramAttributes: ['src', 'placeholder'],
     methods: {
-        toggle: function () {
-            utils.toggleClass(this.$el, 'active')
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
         },
         select: function (item) {
             //this.placeholder = ''
@@ -37,6 +49,10 @@ module.exports = {
             self.options = res.body
             self.setValue(self.value)
         })
+
+        this.$closeHandle = function () {
+            self.close()
+        }
     },
     ready: function () {
         var self = this
