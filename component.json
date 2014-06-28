@@ -10,6 +10,7 @@
         "src/request.js",
         "src/directives/href.js",
         "src/components/date.js",
+        "src/components/form.js",
         "src/components/form-control.js",
         "src/components/scope.js",
         "src/components/select.js",

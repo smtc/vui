@@ -27,14 +27,14 @@ function getCol(str, label) {
 }
 
 var TEMPLATES = {
-    'submit': '<button class="btn" type="{{_type}}">{{_text}}</button>',
-    'button': '<button class="btn" type="{{_type}}">{{_text}}</button>',
-    'radio': '',
+    'submit': '<button class="btn" type="submit">{{_text}}</button>',
+    'button': '<button class="btn" type="button">{{_text}}</button>',
+    'radios': '<div class="radio-inline"><label><input type="radio" name="{{_name}}" v-model="value" /> {{_text}}</label></div>',
     'checkbox': '<div class="checkbox"><label><input type="checkbox" name="{{_name}}" v-model="value" /> {{_text}}</label></div>',
-    'textarea': '<textarea class="form-control" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
+    'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
     'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
-    'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}" type="{{_type}}"></div>',
-    'default': '<input class="form-control" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
+    'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+    'default': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
     'empty': ''
 }
 
@@ -56,10 +56,11 @@ module.exports = {
         this._rows = this.$el.getAttribute('rows')
         this._text = this.$el.getAttribute('text')
         this._name = this.$el.getAttribute('name')
+        this._readonly = this.$el.getAttribute('readonly')
         this._content = undefined === TEMPLATES[this._type] ? TEMPLATES['default'] : TEMPLATES[this._type]
 
         // clear
-        utils.forEach(['type', 'label', 'col', 'src', 'text', 'classname', 'name', 'rows'], function (attr) {
+        utils.forEach(['type', 'label', 'col', 'src', 'text', 'name', 'rows', 'readonly'], function (attr) {
             this.$el.removeAttribute(attr)
         }.bind(this))
     }

@@ -26,6 +26,7 @@ var vm = new Vue({
 
     components: {
         'date': require('./components/date'),
+        'form': require('./components/form'),
         'form-control': require('./components/form-control'),
         'page': require('./components/page'),
         'pagination': require('./components/pagination'),
