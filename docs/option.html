@@ -32,14 +32,17 @@
 
     <h3>Example Options</h3>
     <div class="bs-example bs-example-type">
-        <div type="checkbox" v-component="option" v-with="value:cb1" options="'option 1':1,'option 2':2"></div>
+        <div type="checkbox" v-component="option" v-with="value:cb1" options="'option 1':1,'option 2':2,'option 3':3"></div>
         <div type="radio" v-component="option" v-with="value:ra1" options="'option 1':1,'option 2':2"></div>
 
+        <button style="button" v-on="click:ra1=2" class="btn btn-default">set radio 2</button>
+        <button style="button" v-on="click:cb1=[2,3]" class="btn btn-default">set checkbox 2,3</button>
+        <br />
         checkbox: {{cb1}}<br />
         radio: {{ra1}}
     </div>
     <pre v-pre class="prettyprint">
-&lt;div type="checkbox" v-component="option" v-with="value:cb1" options="'option 1':1,'option 2':2"&gt;&lt;/div&gt;
+&lt;div type="checkbox" v-component="option" v-with="value:cb1" options="'option 1':1,'option 2':2,'option 3':3"&gt;&lt;/div&gt;
 &lt;div type="radio" v-component="option" v-with="value:ra1" options="'option 1':1,'option 2':2"&gt;&lt;/div&gt;
 
 checkbox: {{cb1}}&lt;br /&gt;

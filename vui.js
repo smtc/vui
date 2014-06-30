@@ -7772,8 +7772,8 @@ function getCol(str, label) {
 var TEMPLATES = {
     'submit': '<button class="btn" type="submit">{{_text}}</button>',
     'button': '<button class="btn" type="button">{{_text}}</button>',
-    'radios': '<div class="radio-inline"><label><input type="radio" name="{{_name}}" v-model="value" /> {{_text}}</label></div>',
-    'checkbox': '<div class="checkbox"><label><input type="checkbox" name="{{_name}}" v-model="value" /> {{_text}}</label></div>',
+    'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
+    'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
     'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
     'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
     'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
@@ -7792,20 +7792,22 @@ module.exports = {
 
     created: function () {
         this.id = utils.nextUid()
+
+        // set attr
+        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline'], function (attr) {
+            this['_' + attr] = this.$el.getAttribute(attr)
+            this.$el.removeAttribute(attr)
+        }.bind(this))
+
         this._type = this.$el.getAttribute('type') || 'empty'
-        this._label = this.$el.getAttribute('label')
         this._col = getCol(this.$el.getAttribute('col'), this._label)
-        this._src = this.$el.getAttribute('src')
-        this._rows = this.$el.getAttribute('rows')
-        this._text = this.$el.getAttribute('text')
-        this._name = this.$el.getAttribute('name')
-        this._readonly = this.$el.getAttribute('readonly')
         this._content = undefined === TEMPLATES[this._type] ? TEMPLATES['default'] : TEMPLATES[this._type]
 
         // clear
-        utils.forEach(['type', 'label', 'col', 'src', 'text', 'name', 'rows', 'readonly'], function (attr) {
+        utils.forEach(['type', 'col'], function (attr) {
             this.$el.removeAttribute(attr)
         }.bind(this))
+
     }
 }
 
@@ -7900,8 +7902,43 @@ require.register("vui/src/components/option.js", function(exports, require, modu
 var request = require('../request'),
     utils   = require('../utils')
 
+function formatOption(opts) {
+    if (!opts) return []
+    if (utils.isArray(opts)) return opts
+
+    if ('string' === typeof opts) {
+        opts = opts.trim()
+        if (opts.charAt(0) !== '{')
+             opts = '{' + opts + '}'
+        opts = eval('(' + opts + ')')
+    }
+
+    return opts
+    /*
+    var list = []
+    utils.forEach(opts, function (v, k) {
+        list.push({
+            value: v,
+            text: k
+        })
+    })
+
+    return list
+    */
+}
+
+function contains(arr, val) {
+    var suc = false
+    utils.forEach(arr, function (s) {
+        if (s == val)
+            suc = true
+    })
+    return suc
+}
+
 module.exports = {
     template: require('./option.html'),
+    paramAttributes: ['src', 'options', 'inline', 'name'],
 
     methods: {
         setValue: function (value, e) {
@@ -7920,32 +7957,38 @@ module.exports = {
 
         setRadioValue: function (el, value) {
             this.value = value
+        },
+
+        check: function (value) {
+            var vals = this.value
+            if (!vals)
+                vals = []
+            else if ('string' === typeof vals)
+                vals = [vals]
+
+            return utils.contains(value)
         }
     },
 
     data: {
-        options: null, 
-        value: null
+        options: null
     },
 
     created: function () {
-        var src = this.$el.getAttribute('src'),
-            opts = this.$el.getAttribute('options')
+        var src = this.src
 
         this.type = this.className = this.$el.getAttribute('type')
-        this.name = this.$el.getAttribute('name') || utils.nextUid()
+        this.name = this.name || utils.nextUid()
 
-        if (utils.toBoolean(this.$el.getAttribute('inline')))
+        if (utils.toBoolean(this.inline))
             this.className = this.type + '-inline'
 
-        if (!this.options && opts) {
-            opts = opts.trim()
-            if (opts.charAt(0) !== '{') opts = '{' + opts + '}'
-            this.options = eval('(' + opts + ')')
+        if (this.options) {
+            this.options = formatOption(this.options)
         } else if (!this.options && src) {
             this.options = {}
             request.get(src).end(function (res) {
-                this.options = res.body
+                this.options = formatOption(res.body)
             }.bind(this))
         }
 
@@ -7953,6 +7996,7 @@ module.exports = {
         utils.forEach(['type', 'src', 'name', 'options'], function (attr) {
             this.$el.removeAttribute(attr)
         }.bind(this))
+
     },
 
     ready: function () {
@@ -7962,6 +8006,18 @@ module.exports = {
             else if ('string' === typeof this.value)
                 this.value = this.value.split(',')
         }
+
+        this.$watch('value', function () {
+            if (this.type === 'radio')
+                this.$el.querySelector('input[value="' + this.value + '"]').checked = true
+            else {
+                var vals = this.value
+                utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
+                    el.checked = contains(vals, el.value)
+                }.bind(this))
+            }
+                
+        }.bind(this))
     }
 }
 
@@ -8221,7 +8277,7 @@ require.register("vui/src/components/date.html", function(exports, require, modu
 module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
-module.exports = '<div class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!=\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
+module.exports = '<div class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';

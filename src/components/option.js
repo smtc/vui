@@ -1,8 +1,43 @@
 var request = require('../request'),
     utils   = require('../utils')
 
+function formatOption(opts) {
+    if (!opts) return []
+    if (utils.isArray(opts)) return opts
+
+    if ('string' === typeof opts) {
+        opts = opts.trim()
+        if (opts.charAt(0) !== '{')
+             opts = '{' + opts + '}'
+        opts = eval('(' + opts + ')')
+    }
+
+    return opts
+    /*
+    var list = []
+    utils.forEach(opts, function (v, k) {
+        list.push({
+            value: v,
+            text: k
+        })
+    })
+
+    return list
+    */
+}
+
+function contains(arr, val) {
+    var suc = false
+    utils.forEach(arr, function (s) {
+        if (s == val)
+            suc = true
+    })
+    return suc
+}
+
 module.exports = {
     template: require('./option.html'),
+    paramAttributes: ['src', 'options', 'inline', 'name'],
 
     methods: {
         setValue: function (value, e) {
@@ -21,32 +56,38 @@ module.exports = {
 
         setRadioValue: function (el, value) {
             this.value = value
+        },
+
+        check: function (value) {
+            var vals = this.value
+            if (!vals)
+                vals = []
+            else if ('string' === typeof vals)
+                vals = [vals]
+
+            return utils.contains(value)
         }
     },
 
     data: {
-        options: null, 
-        value: null
+        options: null
     },
 
     created: function () {
-        var src = this.$el.getAttribute('src'),
-            opts = this.$el.getAttribute('options')
+        var src = this.src
 
         this.type = this.className = this.$el.getAttribute('type')
-        this.name = this.$el.getAttribute('name') || utils.nextUid()
+        this.name = this.name || utils.nextUid()
 
-        if (utils.toBoolean(this.$el.getAttribute('inline')))
+        if (utils.toBoolean(this.inline))
             this.className = this.type + '-inline'
 
-        if (!this.options && opts) {
-            opts = opts.trim()
-            if (opts.charAt(0) !== '{') opts = '{' + opts + '}'
-            this.options = eval('(' + opts + ')')
+        if (this.options) {
+            this.options = formatOption(this.options)
         } else if (!this.options && src) {
             this.options = {}
             request.get(src).end(function (res) {
-                this.options = res.body
+                this.options = formatOption(res.body)
             }.bind(this))
         }
 
@@ -54,6 +95,7 @@ module.exports = {
         utils.forEach(['type', 'src', 'name', 'options'], function (attr) {
             this.$el.removeAttribute(attr)
         }.bind(this))
+
     },
 
     ready: function () {
@@ -63,5 +105,17 @@ module.exports = {
             else if ('string' === typeof this.value)
                 this.value = this.value.split(',')
         }
+
+        this.$watch('value', function () {
+            if (this.type === 'radio')
+                this.$el.querySelector('input[value="' + this.value + '"]').checked = true
+            else {
+                var vals = this.value
+                utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
+                    el.checked = contains(vals, el.value)
+                }.bind(this))
+            }
+                
+        }.bind(this))
     }
 }

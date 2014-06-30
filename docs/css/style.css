@@ -1438,6 +1438,7 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .openbox-body{padding:20px;min-width:600px}
 .openbox-footer{text-align:right;padding:15px 20px;border-top:1px solid rgba(0,0,0,.2)}
 .openbox-footer button{margin-left:10px}
+.checkbox-inline label,.radio-inline label{font-weight:400}
 body,html{height:100%}
 .sidebar{width:300px;position:fixed;left:0;top:0;bottom:0}
 .sidebar .list{padding:60px;font-size:18px}
