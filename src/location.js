@@ -50,16 +50,16 @@ function setMode(mode) {
 function url(href, replace) {
     // Android Browser BFCache causes _location, history reference to become stale.
     //if (_location !== window.location) _location = window.location
-    if (history !== window.history) history = window.history
+    //if (history !== window.history) history = window.history
 
     // setter
     if (href) {
         if (lastBrowserUrl === href) return
         lastBrowserUrl = href
         if (html5Mode) {
-            if (replace) history.replaceState(null, '', href)
+            if (replace) window.history.replaceState(null, '', href)
             else {
-                history.pushState(null, '', href)
+                window.history.pushState(null, '', href)
                 // Crazy Opera Bug: http://my.opera.com/community/forums/topic.dml?id=1185462
                 //baseElement.attr('href', baseElement.attr('href'))
             }
@@ -116,6 +116,7 @@ function search(query, value) {
             if (utils.isString(query))
                 query = utils.toKeyValue(query)
             _search = query
+            break
         default:
             if (null === value || isUndefined(value))
                 delete _search[query]

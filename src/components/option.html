@@ -1,0 +1,3 @@
+<div v-repeat="options" class="{{className}}">
+    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> 
+</div>

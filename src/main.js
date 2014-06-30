@@ -3,9 +3,7 @@ var Vue             = require('vue'),
     _location       = require('./location'),
     route           = require('./route'),
 	utils           = require('./utils'),
-    node            = require('./node'),
     openbox         = require('./components/openbox'),
-    templateCache   = {},
     $data           = {}
 
 
@@ -28,6 +26,7 @@ var vm = new Vue({
         'date': require('./components/date'),
         'form': require('./components/form'),
         'form-control': require('./components/form-control'),
+        'option': require('./components/option'),
         'page': require('./components/page'),
         'pagination': require('./components/pagination'),
         'scope': require('./components/scope'),

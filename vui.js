@@ -5971,9 +5971,7 @@ var Vue             = require('vue'),
     _location       = require('./location'),
     route           = require('./route'),
 	utils           = require('./utils'),
-    node            = require('./node'),
     openbox         = require('./components/openbox'),
-    templateCache   = {},
     $data           = {}
 
 
@@ -5996,6 +5994,7 @@ var vm = new Vue({
         'date': require('./components/date'),
         'form': require('./components/form'),
         'form-control': require('./components/form-control'),
+        'option': require('./components/option'),
         'page': require('./components/page'),
         'pagination': require('./components/pagination'),
         'scope': require('./components/scope'),
@@ -7136,16 +7135,16 @@ function setMode(mode) {
 function url(href, replace) {
     // Android Browser BFCache causes _location, history reference to become stale.
     //if (_location !== window.location) _location = window.location
-    if (history !== window.history) history = window.history
+    //if (history !== window.history) history = window.history
 
     // setter
     if (href) {
         if (lastBrowserUrl === href) return
         lastBrowserUrl = href
         if (html5Mode) {
-            if (replace) history.replaceState(null, '', href)
+            if (replace) window.history.replaceState(null, '', href)
             else {
-                history.pushState(null, '', href)
+                window.history.pushState(null, '', href)
                 // Crazy Opera Bug: http://my.opera.com/community/forums/topic.dml?id=1185462
                 //baseElement.attr('href', baseElement.attr('href'))
             }
@@ -7202,6 +7201,7 @@ function search(query, value) {
             if (utils.isString(query))
                 query = utils.toKeyValue(query)
             _search = query
+            break
         default:
             if (null === value || isUndefined(value))
                 delete _search[query]
@@ -7491,7 +7491,6 @@ require.register("vui/src/request.js", function(exports, require, module){
 // 暂时先用superagent
 
 var request       = require('superagent'),
-    utils         = require('./utils'),
     templateCache = {}
 
 // 从缓存中读取
@@ -7811,88 +7810,6 @@ module.exports = {
 }
 
 });
-require.register("vui/src/components/scope.js", function(exports, require, module){
-// 先占个位置
-module.exports = {
-    methods: {
-        set: function (modal) {
-            this.modal = modal
-        }
-    },
-    data: {
-        modal: {}
-    },
-    created: function () {
-    }
-}
-
-});
-require.register("vui/src/components/select.js", function(exports, require, module){
-var request = require('../request'),
-    utils   = require('../utils'),
-    forEach = utils.forEach
-
-module.exports = {
-    template: require('./select.html'),
-    replace: true,
-    paramAttributes: ['src', 'placeholder'],
-    methods: {
-        open: function () {
-            if (this.$open) return
-            this.$open = true
-            setTimeout(function () {
-                utils.addClass(this.$el, 'active')
-                document.body.addEventListener('click', this.$closeHandle)
-            }.bind(this), 50)
-        },
-        close: function () {
-            if (!this.$open) return
-            this.$open = false
-
-            utils.removeClass(this.$el, 'active')
-            document.body.removeEventListener('click', this.$closeHandle)
-        },
-        select: function (item) {
-            //this.placeholder = ''
-            this.text = item.text
-            if (item.value != this.value)
-                this.value = item.value
-        },
-        setValue: function (value) {
-            if (undefined === value) {
-                this.text = null
-            }
-
-            forEach(this.options, function (item) {
-                if (value == item.value)
-                    this.select(item)
-            }.bind(this))
-        }
-    },
-    data: {
-        options: []
-    },
-    created: function () {
-        var self = this
-        utils.addClass(this.$el, 'select')
-        request.get(this.src).end(function (res) {
-            self.options = res.body
-            self.setValue(self.value)
-        })
-
-        this.$closeHandle = function () {
-            self.close()
-        }
-    },
-    ready: function () {
-        var self = this
-        self.$watch('value', function () {
-            self.setValue(self.value)
-        })
-    }
-}
-
-});
 require.register("vui/src/components/openbox.js", function(exports, require, module){
 var Vue     = require('vue'),
     utils   = require('../utils'),
@@ -7977,6 +7894,76 @@ function openbox(opts) {
 
 
 module.exports = openbox
+
+});
+require.register("vui/src/components/option.js", function(exports, require, module){
+var request = require('../request'),
+    utils   = require('../utils')
+
+module.exports = {
+    template: require('./option.html'),
+
+    methods: {
+        setValue: function (value, e) {
+            if (this.type === 'radio')
+                this.setRadioValue(e.target, value)
+            else
+                this.setCheckboxValue(e.target, value)
+        },
+
+        setCheckboxValue: function (el, value) {
+            if (el.checked)
+                this.value.push(value)
+            else
+                utils.arrayRemove(this.value, value)
+        },
+
+        setRadioValue: function (el, value) {
+            this.value = value
+        }
+    },
+
+    data: {
+        options: null, 
+        value: null
+    },
+
+    created: function () {
+        var src = this.$el.getAttribute('src'),
+            opts = this.$el.getAttribute('options')
+
+        this.type = this.className = this.$el.getAttribute('type')
+        this.name = this.$el.getAttribute('name') || utils.nextUid()
+
+        if (utils.toBoolean(this.$el.getAttribute('inline')))
+            this.className = this.type + '-inline'
+
+        if (!this.options && opts) {
+            opts = opts.trim()
+            if (opts.charAt(0) !== '{') opts = '{' + opts + '}'
+            this.options = eval('(' + opts + ')')
+        } else if (!this.options && src) {
+            this.options = {}
+            request.get(src).end(function (res) {
+                this.options = res.body
+            }.bind(this))
+        }
+
+        // clear
+        utils.forEach(['type', 'src', 'name', 'options'], function (attr) {
+            this.$el.removeAttribute(attr)
+        }.bind(this))
+    },
+
+    ready: function () {
+        if (this.type === 'checkbox') {
+            if (null === this.value || undefined === this.value)
+                this.value = []
+            else if ('string' === typeof this.value)
+                this.value = this.value.split(',')
+        }
+    }
+}
 
 });
 require.register("vui/src/components/page.js", function(exports, require, module){
@@ -8142,6 +8129,88 @@ module.exports = {
 }
 
 });
+require.register("vui/src/components/scope.js", function(exports, require, module){
+// 先占个位置
+module.exports = {
+    methods: {
+        set: function (modal) {
+            this.modal = modal
+        }
+    },
+    data: {
+        modal: {}
+    },
+    created: function () {
+    }
+}
+
+});
+require.register("vui/src/components/select.js", function(exports, require, module){
+var request = require('../request'),
+    utils   = require('../utils'),
+    forEach = utils.forEach
+
+module.exports = {
+    template: require('./select.html'),
+    replace: true,
+    paramAttributes: ['src', 'placeholder'],
+    methods: {
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
+        },
+        select: function (item) {
+            //this.placeholder = ''
+            this.text = item.text
+            if (item.value != this.value)
+                this.value = item.value
+        },
+        setValue: function (value) {
+            if (undefined === value) {
+                this.text = null
+            }
+
+            forEach(this.options, function (item) {
+                if (value == item.value)
+                    this.select(item)
+            }.bind(this))
+        }
+    },
+    data: {
+        options: []
+    },
+    created: function () {
+        var self = this
+        utils.addClass(this.$el, 'select')
+        request.get(this.src).end(function (res) {
+            self.options = res.body
+            self.setValue(self.value)
+        })
+
+        this.$closeHandle = function () {
+            self.close()
+        }
+    },
+    ready: function () {
+        var self = this
+        self.$watch('value', function () {
+            self.setValue(self.value)
+        })
+    }
+}
+
+});
 
 
 
@@ -8154,14 +8223,17 @@ module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text=
 require.register("vui/src/components/form-control.html", function(exports, require, module){
 module.exports = '<div class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!=\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
 });
-require.register("vui/src/components/select.html", function(exports, require, module){
-module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
-});
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
+require.register("vui/src/components/option.html", function(exports, require, module){
+module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
+});
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
+});
+require.register("vui/src/components/select.html", function(exports, require, module){
+module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
 });
 require.alias("yyx990803-vue/src/main.js", "vui/deps/vue/src/main.js");
 require.alias("yyx990803-vue/src/emitter.js", "vui/deps/vue/src/emitter.js");

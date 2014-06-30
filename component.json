@@ -12,18 +12,20 @@
         "src/components/date.js",
         "src/components/form.js",
         "src/components/form-control.js",
-        "src/components/scope.js",
-        "src/components/select.js",
         "src/components/openbox.js",
+        "src/components/option.js",
         "src/components/page.js",
-        "src/components/pagination.js"
+        "src/components/pagination.js",
+        "src/components/scope.js",
+        "src/components/select.js"
     ],
     "templates": [
         "src/components/date.html",
         "src/components/form-control.html",
-        "src/components/select.html",
         "src/components/openbox.html",
-        "src/components/pagination.html"
+        "src/components/option.html",
+        "src/components/pagination.html",
+        "src/components/select.html"
     ],
     "paths": [
         "components"

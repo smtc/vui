@@ -1,7 +1,6 @@
 // 暂时先用superagent
 
 var request       = require('superagent'),
-    utils         = require('./utils'),
     templateCache = {}
 
 // 从缓存中读取
