@@ -34,6 +34,9 @@ var TEMPLATES = {
         'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
         'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
         'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+        'integer': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alpha': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alphanum': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'default': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
         'empty': ''
     },
@@ -56,8 +59,7 @@ function _require() {
         this.valid = false
         this.error = this._label + "不能为空"
     } else {
-        this.valid = true
-        this.error = ''
+        this.pass()
     }
 }
 
@@ -67,7 +69,8 @@ function _len(val, t) {
         tip = ''
     switch(this._type) {
         case 'number':
-            len = this.value 
+        case 'integer':
+            len = parseInt(this.value)
             break
         default:
             len = this.value.length
@@ -94,6 +97,16 @@ function minlen(val) {
 }
 
 
+function regex(reg) {
+    if (reg.test(this.value)) {
+        this.pass()
+    } else {
+        this.valid = false
+        this.error = this._label + '格式不正确'
+    }
+}
+
+
 
 module.exports = {
     template: require('./form-control.html'),
@@ -105,7 +118,9 @@ module.exports = {
             var i = this.checkList.length,
                 ck
 
-            if (i === 0) return
+            if (this.valid && REGS[this._type])
+                regex.call(this, REGS[this._type])
+            //if (i === 0) return
 
             while(i-- && this.valid) {
                 ck = this.checkList[i]
@@ -121,17 +136,20 @@ module.exports = {
                         break
                 }
             }
+        },
+
+        pass: function () {
+            this.valid = true
+            this.error = ''
         }
     },
 
-    data: {
-        checkList: [],
-        valid: true,
-        error: ''
-    },
+    data: {},
 
     created: function () {
         this.id = utils.nextUid()
+        this.pass()
+        this.checkList = []
 
         // set attr
         utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline'], function (attr) {
@@ -141,8 +159,8 @@ module.exports = {
 
         // validate
         utils.forEach(['max', 'min', 'require'], function (attr) {
-            var val = this.$el.getAttribute(attr)
-            if (val) this.checkList.push([attr, val])
+            if (this.$el.hasAttribute(attr)) 
+                this.checkList.push([attr, this.$el.getAttribute(attr)])
             this.$el.removeAttribute(attr)
         }.bind(this))
 
@@ -155,7 +173,6 @@ module.exports = {
         utils.forEach(['type', 'col'], function (attr) {
             this.$el.removeAttribute(attr)
         }.bind(this))
-
     },
 
     ready: function () {
