@@ -7770,25 +7770,108 @@ function getCol(str, label) {
 }
 
 var TEMPLATES = {
-    'submit': '<button class="btn" type="submit">{{_text}}</button>',
-    'button': '<button class="btn" type="button">{{_text}}</button>',
-    'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
-    'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
-    'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
-    'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
-    'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
-    'default': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
-    'empty': ''
+        'submit': '<button class="btn" type="submit">{{_text}}</button>',
+        'button': '<button class="btn" type="button">{{_text}}</button>',
+        'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
+        'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
+        'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
+        'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+        'default': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
+        'empty': ''
+    },
+
+    REGS = {
+        'email': /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i,
+        'url': /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/,
+        'number': /^\s*(\-|\+)?(\d+|(\d*(\.\d*)))\s*$/,
+        'date': /^(\d{4})-(\d{2})-(\d{2})$/,
+        'alpha': /^[a-z ._-]+$/i,
+        'alphanum': /^[a-z0-9_]+$/i,
+        'password': /^[\x00-\xff]+$/,
+        'integer': /^[-+]?[0-9]+$/,
+        'tel': /^[\d\s ().-]+$/
+    }
+
+
+function _require() {
+    if (utils.isBoolean(this.value)) {
+        this.valid = false
+        this.error = this._label + "不能为空"
+    } else {
+        this.valid = true
+        this.error = ''
+    }
 }
+
+
+function _len(val, t) {
+    var len = 0,
+        tip = ''
+    switch(this._type) {
+        case 'number':
+            len = this.value 
+            break
+        default:
+            len = this.value.length
+            tip = '长度'
+            break
+    }
+    if (t === 'min')
+        this.valid = len >= val
+    else
+        this.valid = len <= val
+
+    if (!this.valid)
+        this.error = this._label + tip + "不能" + (t === 'min' ? "小" : "大") + "于" + val
+    else
+        this.error = ''
+}
+
+function maxlen(val) {
+    return _len.call(this, val, 'max')
+}
+
+function minlen(val) {
+    return _len.call(this, val, 'min')
+}
+
 
 
 module.exports = {
     template: require('./form-control.html'),
     replace: true,
 
-    methods: {},
+    methods: {
+        check: function () {
+            this.valid = true
+            var i = this.checkList.length,
+                ck
 
-    data: {},
+            if (i === 0) return
+
+            while(i-- && this.valid) {
+                ck = this.checkList[i]
+                switch(ck[0]) {
+                    case 'max':
+                        maxlen.call(this, ck[1])
+                        break
+                    case 'min':
+                        minlen.call(this, ck[1])
+                        break
+                    case 'require':
+                        _require.call(this)
+                        break
+                }
+            }
+        }
+    },
+
+    data: {
+        checkList: [],
+        valid: true,
+        error: ''
+    },
 
     created: function () {
         this.id = utils.nextUid()
@@ -7799,15 +7882,29 @@ module.exports = {
             this.$el.removeAttribute(attr)
         }.bind(this))
 
+        // validate
+        utils.forEach(['max', 'min', 'require'], function (attr) {
+            var val = this.$el.getAttribute(attr)
+            if (val) this.checkList.push([attr, val])
+            this.$el.removeAttribute(attr)
+        }.bind(this))
+
         this._type = this.$el.getAttribute('type') || 'empty'
         this._col = getCol(this.$el.getAttribute('col'), this._label)
         this._content = undefined === TEMPLATES[this._type] ? TEMPLATES['default'] : TEMPLATES[this._type]
+        this._content += '<p class="help-block">{{error}}</p>';
 
         // clear
         utils.forEach(['type', 'col'], function (attr) {
             this.$el.removeAttribute(attr)
         }.bind(this))
 
+    },
+
+    ready: function () {
+        this.$watch('value', function () {
+            this.check()
+        }.bind(this))
     }
 }
 
@@ -7914,17 +8011,6 @@ function formatOption(opts) {
     }
 
     return opts
-    /*
-    var list = []
-    utils.forEach(opts, function (v, k) {
-        list.push({
-            value: v,
-            text: k
-        })
-    })
-
-    return list
-    */
 }
 
 function contains(arr, val) {
@@ -8277,7 +8363,7 @@ require.register("vui/src/components/date.html", function(exports, require, modu
 module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
-module.exports = '<div class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
+module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';

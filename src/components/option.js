@@ -13,17 +13,6 @@ function formatOption(opts) {
     }
 
     return opts
-    /*
-    var list = []
-    utils.forEach(opts, function (v, k) {
-        list.push({
-            value: v,
-            text: k
-        })
-    })
-
-    return list
-    */
 }
 
 function contains(arr, val) {

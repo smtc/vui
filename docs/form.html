@@ -9,7 +9,7 @@
         <form class="form-horizontal" role="form">
             <form-control label="文本" type="text" name="text" readonly="true" v-with="value:model.text"></form-control>
             <form-control label="Email" type="email" name="email" v-with="value:model.email"></form-control>
-            <form-control label="密码" col="2,5" type="password" name="password" v-with="value:model.password"></form-control>
+            <form-control label="密码"  max="12" min="6" col="2,5" type="password" name="password" v-with="value:model.password"></form-control>
             <form-control label="日期" col="2,4" type="date" name="start" v-with="value:model.date"></form-control>
             <form-control label="多选" type="checkbox" name="checkbox" v-with="value:model.checkbox" options="'option 1':1,'option 2':2"></form-control>
             <form-control type="radio" name="radio" inline="true" v-with="value:model.radio" src="json/options.json"></form-control>
