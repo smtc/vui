@@ -44,6 +44,12 @@
             prettyPrint()
         }, 500)
     }, true)
+
+;(function () {
+    var p = vui.utils.urlResolve(vui.location.url()).pathname
+    if (p.substring(p.length-1) === '/')
+        vui.location.url('main.html')
+})()
 </script>
 
 </body>
