@@ -7734,6 +7734,9 @@ module.exports = {
     methods: {
         back: function () {
             window.history.back()
+        },
+        
+        success: function (json) {
         }
     },
 
@@ -7754,7 +7757,11 @@ module.exports = {
 
             if (this.valid)
                 request.post(this.src).send(this.model).end(function (res) {
-                })
+                    if (res.body.status === 1) {
+                        this.success(res.body)
+                    } else {
+                    }
+                }.bind(this))
         }.bind(this))
     }
 }
