@@ -1,0 +1,10 @@
+build
+lib-cov
+coverage.html
+.DS_Store
+node_modules
+*.sock
+*.swp
+test.js
+test/node/fixtures/tmp.json
+/components

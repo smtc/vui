@@ -1,0 +1,50 @@
+<html>
+<head>
+	<title>vui docs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/prettify.css">
+</head>
+<body>
+
+<div class="sidebar">
+	<div class="list">
+		<h3>VUI Api</h3>
+		<ul class="list-unstyled">
+			<li><a v-href="request.html">request</a></li>
+			<li><a v-href="route.html">route</a></li>
+			<li><a v-href="utils.html">utils</a></li>
+			<li>
+                ui
+				<ul class="list-unstyled">
+					<li><a v-href="date.html">date picker</a></li>
+					<li><a v-href="form.html">form & validate</a></li>
+					<li><a v-href="openbox.html">openbox</a></li>
+					<li><a v-href="option.html">checkbox & radio</a></li>
+					<li><a v-href="page.html">page & pagination</a></li>
+					<li><a v-href="select.html">select</a></li>
+				</ul>
+			</li>
+        </ul>
+	</div>
+</div>
+
+<div class="content" v-view="view"></div>
+
+<script type="text/javascript" src="../vui.js"></script>
+<script type="text/javascript" src="js/docs.js"></script>
+<script type="text/javascript" src="js/prettify.js"></script>
+<script type="text/javascript">
+    vui.route(function (path) {
+        if (path.charAt(path.length-1) !== '/')
+            vui.$data.view = path
+
+        // 延时等component 执行完
+        setTimeout(function () {
+            prettyPrint()
+        }, 500)
+    }, true)
+</script>
+
+</body>
+</html>
