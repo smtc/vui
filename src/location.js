@@ -54,8 +54,8 @@ function url(href, replace) {
 
     // setter
     if (href) {
-        if (lastBrowserUrl === href) return
-        lastBrowserUrl = href
+        //if (lastBrowserUrl === href) return
+        //lastBrowserUrl = href
         if (html5Mode) {
             if (replace) window.history.replaceState(null, '', href)
             else {

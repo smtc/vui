@@ -7139,8 +7139,8 @@ function url(href, replace) {
 
     // setter
     if (href) {
-        if (lastBrowserUrl === href) return
-        lastBrowserUrl = href
+        //if (lastBrowserUrl === href) return
+        //lastBrowserUrl = href
         if (html5Mode) {
             if (replace) window.history.replaceState(null, '', href)
             else {
@@ -7739,9 +7739,6 @@ module.exports = {
         
         success: function (json) {
             this.back()
-        },
-
-        delete: function () {
         }
     },
 
@@ -8309,6 +8306,16 @@ module.exports = {
                     self.total = res.body.total
                 })
         },
+
+        del: function (data) {
+            request.del(this.src).send(data).end(function (res) {
+                if (res.body.status === 1)
+                    this.update()
+                else
+                    alert(res.body.errors)
+            }.bind(this))
+        },
+
         init: function () {
             var search = utils.parseKeyValue(_location.node(true).search) || {},
                 self = this

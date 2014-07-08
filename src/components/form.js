@@ -10,9 +10,6 @@ module.exports = {
         
         success: function (json) {
             this.back()
-        },
-
-        delete: function () {
         }
     },
 
