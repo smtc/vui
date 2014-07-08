@@ -18,9 +18,12 @@ app.post('/api/oauth/test', function (req, res) {
 })
 
 app.post('/api/form/test', function (req, res) {
-    res.send({ status: 1, auth: auth })
+    res.send({ status: 1, data: {} })
 })
 
+app.put('/api/form/test', function (req, res) {
+    res.send({ status: 1 })
+})
 
 app.get('/api/template', function (req, res) {
     var temp = '<div>1234</div>'

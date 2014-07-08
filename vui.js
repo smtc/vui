@@ -7728,7 +7728,8 @@ module.exports = {
 });
 require.register("vui/src/components/form.js", function(exports, require, module){
 var utils = require('../utils'),
-    request = require('../request')
+    request = require('../request'),
+    location = require('../location')
 
 module.exports = {
     methods: {
@@ -7737,6 +7738,10 @@ module.exports = {
         },
         
         success: function (json) {
+            this.back()
+        },
+
+        delete: function () {
         }
     },
 
@@ -7747,6 +7752,7 @@ module.exports = {
 
         this.src = this.$el.getAttribute('action')
 
+        // submit 使用 put 方法
         this.$el.addEventListener('submit', function (event) {
             event.preventDefault()
             this.$broadcast('check')
@@ -7756,13 +7762,29 @@ module.exports = {
             }.bind(this))
 
             if (this.valid)
-                request.post(this.src).send(this.model).end(function (res) {
+                request.put(this.src).send(this.model).end(function (res) {
                     if (res.body.status === 1) {
                         this.success(res.body)
                     } else {
+                        alert(res.body.errors)
                     }
                 }.bind(this))
         }.bind(this))
+
+    },
+
+    ready: function () {
+        // init 获取数据, post 方法
+        var search = location.node(true).search
+        if (search) {
+            request.post(this.src).send(search).end(function (res) {
+                if (res.body.status === 1)
+                    this.model = res.body.data
+                else
+                    alert(res.body.errors)
+            }.bind(this))
+        }
+
     }
 }
 
