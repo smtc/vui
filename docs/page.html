@@ -74,6 +74,7 @@
     <button v-on="click:pager.page=10">set page 10</button>
     <button v-on="click:pager.size=40">set size 40</button>
     {{currentUrl}}
+    <button v-on="click:del('id=1')">delete</button>
 
     </div>
     <pre v-pre class="prettyprint">
@@ -115,6 +116,7 @@
     &lt;button v-on="click:pager.page=10"&gt;set page 10&lt;/button&gt;
     &lt;button v-on="click:pager.size=40"&gt;set size 40&lt;/button&gt;
     {{currentUrl}}
+    &lt;button v-on="click:del('id=1')"&gt;set size 40&lt;/button&gt;
 
 &lt;/div&gt;</pre>
 
