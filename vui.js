@@ -5974,6 +5974,16 @@ var Vue             = require('vue'),
     openbox         = require('./components/openbox'),
     $data           = {}
 
+var components = {
+    'date': require('./components/date'),
+    'form': require('./components/form'),
+    'form-control': require('./components/form-control'),
+    'option': require('./components/option'),
+    'page': require('./components/page'),
+    'pagination': require('./components/pagination'),
+    'scope': require('./components/scope'),
+    'select': require('./components/select')
+}
 
 var vm = new Vue({
 
@@ -5990,16 +6000,7 @@ var vm = new Vue({
     filters: {
     },
 
-    components: {
-        'date': require('./components/date'),
-        'form': require('./components/form'),
-        'form-control': require('./components/form-control'),
-        'option': require('./components/option'),
-        'page': require('./components/page'),
-        'pagination': require('./components/pagination'),
-        'scope': require('./components/scope'),
-        'select': require('./components/select')
-    },
+    components: components,
 
     data: $data
 
@@ -8326,6 +8327,30 @@ module.exports = {
 
         select: function (item) {
             item.vui_checked = !item.vui_checked
+        },
+
+        getSelected: function () {
+            var sd = [],
+                args = Array.prototype.slice.call(arguments),
+                len = args.length,
+                nd = null
+            utils.forEach(this.data, function (d) {
+                if (!d.vui_checked) return
+
+                if (len === 0)
+                    nd = d
+                else if (len === 1)
+                    nd = d[args[0]]
+                else {
+                    nd = {}
+                    utils.forEach(args, function (v, i) {
+                        nd[v] = d[v]
+                    })
+                }
+                
+                sd.push(nd)
+            })
+            return sd
         },
 
         init: function () {

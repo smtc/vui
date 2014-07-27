@@ -48,7 +48,7 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th v-on="click: selectAll"><icon-check></icon-check></th>
+                <th v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>
                 <th>id</th>
                 <th>姓名</th>
                 <th>角色</th>
@@ -71,13 +71,14 @@
     </table>
 
     <div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
-    {{data}}
+    selected: {{getSelected('id')}}
+    <br />
 
-    <button v-on="click:destroy()">destroy</button>
     <button v-on="click:pager.page=10">set page 10</button>
     <button v-on="click:pager.size=40">set size 40</button>
-    {{currentUrl}}
     <button v-on="click:del('id=1')">delete</button>
+    <br />
+    Current Url: {{currentUrl}}
 
     </div>
     <pre v-pre class="prettyprint">
@@ -93,6 +94,7 @@
     &lt;table class="table table-bordered table-hover"&gt;
         &lt;thead&gt;
             &lt;tr&gt;
+                &lt;th v-on="click: selectAll"&gt;&lt;i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"&gt;&lt;/i&gt;&lt;/th&gt;
                 &lt;th&gt;id&lt;/th&gt;
                 &lt;th&gt;姓名&lt;/th&gt;
                 &lt;th&gt;角色&lt;/th&gt;
@@ -102,7 +104,8 @@
             &lt;/tr&gt;
         &lt;/thead&gt;
         &lt;tbody&gt;
-            &lt;tr v-repeat="data"&gt;
+            &lt;tr v-repeat="data" v-on="click: select(this)"&gt;
+                &lt;td&gt;&lt;i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"&gt;&lt;/i&gt;&lt;/td&gt;
                 &lt;td&gt;{{id}}&lt;/td&gt;
                 &lt;td&gt;{{name}}&lt;/td&gt;
                 &lt;td&gt;{{role}}&lt;/td&gt;
@@ -114,12 +117,14 @@
     &lt;/table&gt;
 
     &lt;div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"&gt;&lt;/div&gt;
+    selected: {{getSelected('id')}}
+    &lt;br /&gt;
 
-    &lt;button v-on="click:destroy()"&gt;destroy&lt;/button&gt;
     &lt;button v-on="click:pager.page=10"&gt;set page 10&lt;/button&gt;
     &lt;button v-on="click:pager.size=40"&gt;set size 40&lt;/button&gt;
-    {{currentUrl}}
-    &lt;button v-on="click:del('id=1')"&gt;set size 40&lt;/button&gt;
+    &lt;button v-on="click:del('id=1')"&gt;delete&lt;/button&gt;
+    &lt;br /&gt;
+    Current Url: {{currentUrl}}
 
 &lt;/div&gt;</pre>
 

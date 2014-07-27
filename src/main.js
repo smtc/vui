@@ -6,6 +6,16 @@ var Vue             = require('vue'),
     openbox         = require('./components/openbox'),
     $data           = {}
 
+var components = {
+    'date': require('./components/date'),
+    'form': require('./components/form'),
+    'form-control': require('./components/form-control'),
+    'option': require('./components/option'),
+    'page': require('./components/page'),
+    'pagination': require('./components/pagination'),
+    'scope': require('./components/scope'),
+    'select': require('./components/select')
+}
 
 var vm = new Vue({
 
@@ -22,16 +32,7 @@ var vm = new Vue({
     filters: {
     },
 
-    components: {
-        'date': require('./components/date'),
-        'form': require('./components/form'),
-        'form-control': require('./components/form-control'),
-        'option': require('./components/option'),
-        'page': require('./components/page'),
-        'pagination': require('./components/pagination'),
-        'scope': require('./components/scope'),
-        'select': require('./components/select')
-    },
+    components: components,
 
     data: $data
 

@@ -75,6 +75,30 @@ module.exports = {
             item.vui_checked = !item.vui_checked
         },
 
+        getSelected: function () {
+            var sd = [],
+                args = Array.prototype.slice.call(arguments),
+                len = args.length,
+                nd = null
+            utils.forEach(this.data, function (d) {
+                if (!d.vui_checked) return
+
+                if (len === 0)
+                    nd = d
+                else if (len === 1)
+                    nd = d[args[0]]
+                else {
+                    nd = {}
+                    utils.forEach(args, function (v, i) {
+                        nd[v] = d[v]
+                    })
+                }
+                
+                sd.push(nd)
+            })
+            return sd
+        },
+
         init: function () {
             var search = utils.parseKeyValue(_location.node(true).search) || {},
                 self = this
