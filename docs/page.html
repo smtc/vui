@@ -48,6 +48,7 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
+                <th v-on="click: selectAll"><icon-check></icon-check></th>
                 <th>id</th>
                 <th>姓名</th>
                 <th>角色</th>
@@ -57,7 +58,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-repeat="data">
+            <tr v-repeat="data" v-on="click: select(this)">
+                <td><i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"></i></td>
                 <td>{{id}}</td>
                 <td>{{name}}</td>
                 <td>{{role}}</td>
@@ -69,6 +71,7 @@
     </table>
 
     <div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
+    {{data}}
 
     <button v-on="click:destroy()">destroy</button>
     <button v-on="click:pager.page=10">set page 10</button>

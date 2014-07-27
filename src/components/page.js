@@ -39,6 +39,7 @@ module.exports = {
             this.pager.page = 1
             this.update()
         },
+
         update: function () {
             var self = this,
                 search = getSearch(this.pager, this.filters, this.sort),
@@ -63,10 +64,22 @@ module.exports = {
             }.bind(this))
         },
 
+        selectAll: function () {
+            var allChecked = this.allChecked = !this.allChecked
+            utils.forEach(this.data, function (d) {
+                d.vui_checked = allChecked
+            })
+        },
+
+        select: function (item) {
+            item.vui_checked = !item.vui_checked
+        },
+
         init: function () {
             var search = utils.parseKeyValue(_location.node(true).search) || {},
                 self = this
 
+            this.allChecked = false
             this.pager = {
                 page: 1,
                 size: 20
