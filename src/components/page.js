@@ -2,6 +2,7 @@ var request   = require('../request'),
     utils     = require('../utils'),
     _location = require('../location'),
     route     = require('../route'),
+    message   = require('../message'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
@@ -50,17 +51,38 @@ module.exports = {
 
             request.get(url)
                 .end(function (res) {
+                    if (res.status != 200) {
+                        message.add(res.text)
+                        return
+                    }
                     self.data = res.body.data
                     self.total = res.body.total
                 })
         },
 
+        updateModel: function (item) {
+            request.put(this.src).send(item.$data).end(function (res) {
+                if (res.status != 200) {
+                    message.add(res.text)
+                    return
+                }
+                if (res.body.status === 1)
+                    message.add('success')
+                else
+                    message.add(res.body.errors)
+            })
+        },
+
         del: function (data) {
             request.del(this.src).send(data).end(function (res) {
+                if (res.status != 200) {
+                    message.add(res.text)
+                    return
+                }
                 if (res.body.status === 1)
                     this.update()
                 else
-                    alert(res.body.errors)
+                    message.add(res.body.errors)
             }.bind(this))
         },
 

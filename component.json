@@ -5,10 +5,12 @@
         "src/main.js",
         "src/utils.js",
         "src/location.js",
+        "src/message.js",
         "src/node.js",
         "src/route.js",
         "src/request.js",
         "src/directives/href.js",
+        "src/directives/editable.js",
         "src/components/date.js",
         "src/components/form.js",
         "src/components/form-control.js",
@@ -31,7 +33,7 @@
         "components"
     ],
     "dependencies": {
-        "yyx990803/vue": "*",
+        "yyx990803/vue": "v0.10.6",
         "smtc/superagent": "*"
     },
     "license": "MIT"

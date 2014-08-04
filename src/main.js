@@ -4,6 +4,7 @@ var Vue             = require('vue'),
     route           = require('./route'),
 	utils           = require('./utils'),
     openbox         = require('./components/openbox'),
+    message         = require('./message'),
     $data           = {}
 
 var components = {
@@ -26,6 +27,7 @@ var vm = new Vue({
     },
 
     directives: {
+        editable: require('./directives/editable'),
         href: require('./directives/href')
     },
 
@@ -45,6 +47,7 @@ module.exports = {
     route: route,
     $data: $data,
     location: _location,
+    message: message,
     openbox: openbox,
     Vue: Vue,
     vm: vm,
