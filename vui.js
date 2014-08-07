@@ -6022,6 +6022,30 @@ request.put = function(url, data, fn){
 module.exports = request;
 
 });
+require.register("vui/src/prototype.js", function(exports, require, module){
+// 对Date的扩展，将 Date 转化为指定格式的String
+// 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符， 
+// 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字) 
+// 例子： 
+// (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423 
+// (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18 
+Date.prototype.format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+});
 require.register("vui/src/main.js", function(exports, require, module){
 var Vue             = require('vue'),
     request         = require('./request'),
@@ -6029,13 +6053,18 @@ var Vue             = require('vue'),
     route           = require('./route'),
 	utils           = require('./utils'),
     openbox         = require('./components/openbox'),
-    message         = require('./message'),
-    $data           = {}
+    message         = require('./components/message'),
+    $data           = {},
+    initialized     = false,
+    vm
+
+require('./prototype'),
 
 var components = {
     'date': require('./components/date'),
     'form': require('./components/form'),
     'form-control': require('./components/form-control'),
+    'message': message.component,
     'option': require('./components/option'),
     'page': require('./components/page'),
     'pagination': require('./components/pagination'),
@@ -6043,28 +6072,37 @@ var components = {
     'select': require('./components/select')
 }
 
-var vm = new Vue({
+function init() {
+    if (initialized) return
+    initialized = true
 
-    el: 'body',
+    //$data.messages = message.messages
 
-    methods: {
-        openbox: openbox
-    },
+    vm = new Vue({
 
-    directives: {
-        editable: require('./directives/editable'),
-        href: require('./directives/href')
-    },
+        el: 'body',
 
-    filters: {
-    },
+        methods: {
+            openbox: openbox
+        },
 
-    components: components,
+        directives: {
+            editable: require('./directives/editable'),
+            href: require('./directives/href')
+        },
 
-    data: $data
+        filters: {
+        },
 
-})
+        components: components,
 
+        data: $data
+
+    })
+}
+
+// export Vue
+window.Vue = Vue
 
 module.exports = {
     request: request,
@@ -6074,6 +6112,7 @@ module.exports = {
     location: _location,
     message: message,
     openbox: openbox,
+    init: init,
     Vue: Vue,
     vm: vm,
     
@@ -7293,35 +7332,6 @@ _location = module.exports = {
 
 
 });
-require.register("vui/src/message.js", function(exports, require, module){
-/* 
- * message { text: '', type: '' }
- */
-var messages = []
-
-module.exports = {
-    add: function (msg) {
-        // 占位用，后面再完成
-        alert(msg)
-
-        /*
-        var t = typeof msg
-        if (t === 'string')
-            messages.push({
-                text: msg,
-                type: 'warning'
-            })
-        else
-            messages.push(msg)
-        */
-    },
-
-    getMessages: function () {
-        return messages
-    }
-}
-
-});
 require.register("vui/src/node.js", function(exports, require, module){
 var hasClassList    = 'classList' in document.documentElement,
     urlParsingNode  = document.createElement("a")
@@ -8159,6 +8169,70 @@ module.exports = {
 }
 
 });
+require.register("vui/src/components/message.js", function(exports, require, module){
+/* 
+ * message { text: '', type: '' }
+ */
+var utils       = require('../utils'),
+    messages    = []
+
+var component = {
+    template: require('./message.html'),
+
+    data: {
+        messages: messages
+    },
+
+    methods: {
+        remove: function (item) {
+            this.messages.$remove(item.$data)
+        }
+    }
+}
+
+module.exports = {
+    push: function (msg) {
+        var t = typeof msg
+        if (t === 'string')
+            messages.push({
+                text: msg,
+                type: 'warning',
+                time: new Date().format('yyyy-MM-dd hh-mm-ss')
+            })
+        else
+            messages.push(msg)
+    },
+
+    add: function (msg, type) {
+        this.push({
+            text: msg,
+            type: type,
+            time: new Date().format('yyyy-MM-dd hh-mm-ss')
+        })
+    },
+
+    success: function (msg) {
+        this.add(msg, 'success')
+    },
+    
+    error: function (msg) {
+        this.add(msg, 'danger')
+    },
+    
+    info: function (msg) {
+        this.add(msg, 'info')
+    },
+
+    warn: function (msg) {
+        this.add(msg, 'warning')
+    },
+    
+    messages: messages,
+
+    component: component
+}
+
+});
 require.register("vui/src/components/openbox.js", function(exports, require, module){
 var Vue     = require('vue'),
     utils   = require('../utils'),
@@ -8363,7 +8437,7 @@ var request   = require('../request'),
     utils     = require('../utils'),
     _location = require('../location'),
     route     = require('../route'),
-    message   = require('../message'),
+    message   = require('./message'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
@@ -8413,7 +8487,7 @@ module.exports = {
             request.get(url)
                 .end(function (res) {
                     if (res.status != 200) {
-                        message.add(res.text)
+                        message.push(res.text)
                         return
                     }
                     self.data = res.body.data
@@ -8424,26 +8498,26 @@ module.exports = {
         updateModel: function (item) {
             request.put(this.src).send(item.$data).end(function (res) {
                 if (res.status != 200) {
-                    message.add(res.text)
+                    message.error(res.text)
                     return
                 }
                 if (res.body.status === 1)
-                    message.add('success')
+                    message.success(res.body.msg || 'success')
                 else
-                    message.add(res.body.errors)
+                    message.error(res.body.errors)
             })
         },
 
         del: function (data) {
             request.del(this.src).send(data).end(function (res) {
                 if (res.status != 200) {
-                    message.add(res.text)
+                    message.error(res.text)
                     return
                 }
                 if (res.body.status === 1)
                     this.update()
                 else
-                    message.add(res.body.errors)
+                    message.error(res.body.errors)
             }.bind(this))
         },
 
@@ -8683,6 +8757,9 @@ module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text=
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
+});
+require.register("vui/src/components/message.html", function(exports, require, module){
+module.exports = '<div v-repeat="messages" class="alert alert-{{type}}">\n    <strong>{{time}}</strong><br />\n    {{text}}\n    <button v-on="click: remove(this)" class="close">&times;</button>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
