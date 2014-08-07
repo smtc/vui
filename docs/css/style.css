@@ -1449,7 +1449,8 @@ body,html{height:100%}
 .sidebar a:hover{border-bottom:solid 2px #428bca}
 .content{margin:0 0 0 340px;padding:50px 0;max-width:800px}
 .page-header{border-bottom:1px solid #eee;margin-top:10px}
-.message{width:300px;position:fixed;z-index:99999;top:-1px;left:50%;margin:0 -150px}
+.message{width:600px;position:fixed;z-index:99999;top:0;left:50%;margin:0 -300px}
+.message .alert{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.3);box-shadow:0 5px 15px rgba(0,0,0,.3)}
 .bs-callout{margin:20px 0;padding:20px;border-left:3px solid #eee}
 .bs-callout h4{margin-top:0;margin-bottom:5px}
 .bs-callout p:last-child{margin-bottom:0}

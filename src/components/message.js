@@ -19,40 +19,37 @@ var component = {
 }
 
 module.exports = {
-    push: function (msg) {
-        var t = typeof msg
-        if (t === 'string')
-            messages.push({
+    push: function (msg, type) {
+        if ('string' === typeof msg) {
+            msg = {
                 text: msg,
-                type: 'warning',
+                type: type || 'warning',
                 time: new Date().format('yyyy-MM-dd hh-mm-ss')
-            })
-        else
-            messages.push(msg)
-    },
+            }
+        }
+        messages.push(msg)
 
-    add: function (msg, type) {
-        this.push({
-            text: msg,
-            type: type,
-            time: new Date().format('yyyy-MM-dd hh-mm-ss')
-        })
+        var timeout = msg.timeout || (msg.type === 'danger' ? 0 : 5000)
+        if (timeout != 0)
+            setTimeout(function () {
+                utils.arrayRemove(messages, msg)
+            }, timeout)
     },
 
     success: function (msg) {
-        this.add(msg, 'success')
+        this.push(msg, 'success')
     },
     
     error: function (msg) {
-        this.add(msg, 'danger')
+        this.push(msg, 'danger')
     },
     
     info: function (msg) {
-        this.add(msg, 'info')
+        this.push(msg, 'info')
     },
 
     warn: function (msg) {
-        this.add(msg, 'warning')
+        this.push(msg, 'warning')
     },
     
     messages: messages,

@@ -49,12 +49,16 @@ html, body {
 }
 
 .message {
-    width: 300px;
+    width: 600px;
     position: fixed;
     z-index: 99999;
-    top: -1px;
+    top: 0px;
     left: 50%;
-    margin: 0 -150px;
+    margin: 0 -300px;
+
+    .alert {
+        .box-shadow(0 5px 15px rgba(0,0,0,.3));
+    }
 }
 
 // copy from bootstrap
