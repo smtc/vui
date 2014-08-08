@@ -7847,7 +7847,8 @@ module.exports = {
 require.register("vui/src/components/form.js", function(exports, require, module){
 var utils = require('../utils'),
     request = require('../request'),
-    location = require('../location')
+    location = require('../location'),
+    message = require('./message')
 
 module.exports = {
     methods: {
@@ -7877,11 +7878,11 @@ module.exports = {
             }.bind(this))
 
             if (this.valid)
-                request.put(this.src).send(this.model).end(function (res) {
+                request.post(this.src).send(this.model).end(function (res) {
                     if (res.body.status === 1) {
                         this.success(res.body)
                     } else {
-                        alert(res.body.errors)
+                        message.error(res.body.error)
                     }
                 }.bind(this))
         }.bind(this))
@@ -7892,7 +7893,7 @@ module.exports = {
         // init 获取数据, post 方法
         var search = location.node(true).search
         if (search) {
-            request.post(this.src).send(search).end(function (res) {
+            request.get(this.src).send(search).end(function (res) {
                 if (res.body.status === 1)
                     this.model = res.body.data
                 else
@@ -7908,27 +7909,17 @@ require.register("vui/src/components/form-control.js", function(exports, require
 var utils = require('../utils')
 
 function getCol(str, label) {
-    var col = [2, 10, 0]
+    var col = [2, 6]
 
     if (str) {
-        try {
-            var ss = str.split(',')
-            utils.forEach(ss, function (s, i) {
+        var ss = str.split(',')
+        utils.forEach(ss, function (s, i) {
+            try {
                 ss[i] = parseInt(s)
-            })
-
-            if (ss.length === 1)
-                col = [ ss[0], 12-ss[0], 0]
-            else if (ss.length === 2)
-                col = [ ss[0], ss[1], 0 ]
-            else
-                col = ss
-
-        } catch (e) {}
+            } catch (e) {}
+        })
+        col = [ ss[0] || 2, ss[1] || 6 ]
     }
-
-    if (!label && col[2] === 0)
-        col[2] = col[0]
 
     return col
 }
@@ -7938,13 +7929,13 @@ var TEMPLATES = {
         'button': '<button class="btn" type="button">{{_text}}</button>',
         'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
-        'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
-        'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
-        'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
-        'integer': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'alpha': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'alphanum': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'default': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
+        'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
+        'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'date': '<div class="form-control date col-sm-{{_col[1]}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+        'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alpha': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alphanum': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'default': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
         'empty': ''
     },
 
@@ -8144,7 +8135,10 @@ module.exports = {
         this._type = this.$el.getAttribute('type') || 'empty'
         this._col = getCol(this.$el.getAttribute('col'), this._label)
         this._content = undefined === TEMPLATES[this._type] ? TEMPLATES['default'] : TEMPLATES[this._type]
-        this._content += '<p class="help-block">{{message}}</p>';
+        if (this._inline && this._type !== 'checkbox' && this._type !== 'radio')
+            this._content += '<p class="help-inline">{{message}}</p>';
+        else
+            this._content += '<p class="help-block">{{message}}</p>';
 
         // clear type
         utils.forEach(['type', 'col'], function (attr) {
@@ -8753,7 +8747,7 @@ require.register("vui/src/components/date.html", function(exports, require, modu
 module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
-module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
+module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
 });
 require.register("vui/src/components/message.html", function(exports, require, module){
 module.exports = '<div v-repeat="messages" class="alert alert-{{type}}">\n    <strong>{{time}}</strong><br />\n    {{text}}\n    <button v-on="click: remove(this)" class="close">&times;</button>\n</div>\n';

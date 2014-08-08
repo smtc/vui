@@ -1,27 +1,17 @@
 var utils = require('../utils')
 
 function getCol(str, label) {
-    var col = [2, 10, 0]
+    var col = [2, 6]
 
     if (str) {
-        try {
-            var ss = str.split(',')
-            utils.forEach(ss, function (s, i) {
+        var ss = str.split(',')
+        utils.forEach(ss, function (s, i) {
+            try {
                 ss[i] = parseInt(s)
-            })
-
-            if (ss.length === 1)
-                col = [ ss[0], 12-ss[0], 0]
-            else if (ss.length === 2)
-                col = [ ss[0], ss[1], 0 ]
-            else
-                col = ss
-
-        } catch (e) {}
+            } catch (e) {}
+        })
+        col = [ ss[0] || 2, ss[1] || 6 ]
     }
-
-    if (!label && col[2] === 0)
-        col[2] = col[0]
 
     return col
 }
@@ -31,13 +21,13 @@ var TEMPLATES = {
         'button': '<button class="btn" type="button">{{_text}}</button>',
         'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
-        'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
-        'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
-        'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
-        'integer': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'alpha': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'alphanum': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'default': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
+        'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
+        'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'date': '<div class="form-control date col-sm-{{_col[1]}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+        'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alpha': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alphanum': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'default': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
         'empty': ''
     },
 
@@ -237,7 +227,10 @@ module.exports = {
         this._type = this.$el.getAttribute('type') || 'empty'
         this._col = getCol(this.$el.getAttribute('col'), this._label)
         this._content = undefined === TEMPLATES[this._type] ? TEMPLATES['default'] : TEMPLATES[this._type]
-        this._content += '<p class="help-block">{{message}}</p>';
+        if (this._inline && this._type !== 'checkbox' && this._type !== 'radio')
+            this._content += '<p class="help-inline">{{message}}</p>';
+        else
+            this._content += '<p class="help-block">{{message}}</p>';
 
         // clear type
         utils.forEach(['type', 'col'], function (attr) {

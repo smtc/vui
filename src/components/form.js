@@ -1,6 +1,7 @@
 var utils = require('../utils'),
     request = require('../request'),
-    location = require('../location')
+    location = require('../location'),
+    message = require('./message')
 
 module.exports = {
     methods: {
@@ -30,11 +31,11 @@ module.exports = {
             }.bind(this))
 
             if (this.valid)
-                request.put(this.src).send(this.model).end(function (res) {
+                request.post(this.src).send(this.model).end(function (res) {
                     if (res.body.status === 1) {
                         this.success(res.body)
                     } else {
-                        alert(res.body.errors)
+                        message.error(res.body.error)
                     }
                 }.bind(this))
         }.bind(this))
@@ -45,7 +46,7 @@ module.exports = {
         // init 获取数据, post 方法
         var search = location.node(true).search
         if (search) {
-            request.post(this.src).send(search).end(function (res) {
+            request.get(this.src).send(search).end(function (res) {
                 if (res.body.status === 1)
                     this.model = res.body.data
                 else
