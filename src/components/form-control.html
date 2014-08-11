@@ -1,5 +1,5 @@
 <div v-class="has-error:!valid" class="form-group">
-    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>
+    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>
     <div v-if="_type!=='empty'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>
     <div v-if="_type==='empty'" class="col-sm-{{12-_col[0]}}"><content></content></div>
 </div>
