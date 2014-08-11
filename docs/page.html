@@ -55,23 +55,25 @@
                 <th>ip</th>
                 <th>时间</th>
                 <th>状态</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            <tr v-repeat="data" v-on="click: select(this)">
-                <td><i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"></i></td>
+            <tr v-repeat="data">
+                <td v-on="click: select(this)"><i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"></i></td>
                 <td>{{id}}</td>
-                <td>{{name}}</td>
+                <td v-editable="name"></td>
                 <td>{{role}}</td>
                 <td>{{ip}}</td>
                 <td>{{time}}</td>
                 <td>{{status}}</td>
+                <td><label v-on="click: updateModel(this)" class="label label-info">保存</label></td>
             </tr>
         </body>
     </table>
 
     <div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
-    selected: {{getSelected('id')}}
+    selected: {{getSelected()}}
     <br />
 
     <button v-on="click:pager.page=10">set page 10</button>

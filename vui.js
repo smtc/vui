@@ -208,12 +208,14 @@ var config      = require('./config'),
     ViewModel   = require('./viewmodel'),
     utils       = require('./utils'),
     makeHash    = utils.hash,
-    assetTypes  = ['directive', 'filter', 'partial', 'effect', 'component']
-
-// require these so Browserify can catch them
-// so they can be used in Vue.require
-require('./observer')
-require('./transition')
+    assetTypes  = ['directive', 'filter', 'partial', 'effect', 'component'],
+    // Internal modules that are exposed for plugins
+    pluginAPI   = {
+        utils: utils,
+        config: config,
+        transition: require('./transition'),
+        observer: require('./observer')
+    }
 
 ViewModel.options = config.globalAssets = {
     directives  : require('./directives'),
@@ -234,7 +236,7 @@ assetTypes.forEach(function (type) {
         }
         if (!value) return hash[id]
         if (type === 'partial') {
-            value = utils.toFragment(value)
+            value = utils.parseTemplateOption(value)
         } else if (type === 'component') {
             value = utils.toConstructor(value)
         } else if (type === 'filter') {
@@ -289,8 +291,8 @@ ViewModel.use = function (plugin) {
 /**
  *  Expose internal modules for plugins
  */
-ViewModel.require = function (path) {
-    return require('./' + path)
+ViewModel.require = function (module) {
+    return pluginAPI[module]
 }
 
 ViewModel.extend = extend
@@ -547,6 +549,11 @@ var utils = module.exports = {
     toFragment: require('./fragment'),
 
     /**
+     *  Parse the various types of template options
+     */
+    parseTemplateOption: require('./template-parser.js'),
+
+    /**
      *  get a value from an object keypath
      */
     get: function (obj, key) {
@@ -740,7 +747,7 @@ var utils = module.exports = {
         }
         if (partials) {
             for (key in partials) {
-                partials[key] = utils.toFragment(partials[key])
+                partials[key] = utils.parseTemplateOption(partials[key])
             }
         }
         if (filters) {
@@ -749,7 +756,7 @@ var utils = module.exports = {
             }
         }
         if (template) {
-            options.template = utils.toFragment(template)
+            options.template = utils.parseTemplateOption(template)
         }
     },
 
@@ -867,29 +874,12 @@ map.rect = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'
 
 var TAG_RE = /<([\w:]+)/
 
-module.exports = function (template) {
-
-    if (typeof template !== 'string') {
-        return template
-    }
-
-    // template by ID
-    if (template.charAt(0) === '#') {
-        var templateNode = document.getElementById(template.slice(1))
-        if (!templateNode) return
-        // if its a template tag and the browser supports it,
-        // its content is already a document fragment!
-        if (templateNode.tagName === 'TEMPLATE' && templateNode.content) {
-            return templateNode.content
-        }
-        template = templateNode.innerHTML
-    }
-
+module.exports = function (templateString) {
     var frag = document.createDocumentFragment(),
-        m = TAG_RE.exec(template)
+        m = TAG_RE.exec(templateString)
     // text only
     if (!m) {
-        frag.appendChild(document.createTextNode(template))
+        frag.appendChild(document.createTextNode(templateString))
         return frag
     }
 
@@ -900,7 +890,7 @@ module.exports = function (template) {
         suffix = wrap[2],
         node = document.createElement('div')
 
-    node.innerHTML = prefix + template.trim() + suffix
+    node.innerHTML = prefix + templateString.trim() + suffix
     while (depth--) node = node.lastChild
 
     // one element
@@ -1978,13 +1968,23 @@ var Compiler   = require('./compiler'),
  *  and a few reserved methods
  */
 function ViewModel (options) {
-    // just compile. options are passed directly to compiler
+    // compile if options passed, if false return. options are passed directly to compiler
+    if (options === false) return
     new Compiler(this, options)
 }
 
 // All VM prototype methods are inenumerable
 // so it can be stringified/looped through as raw data
 var VMProto = ViewModel.prototype
+
+/**
+ *  init allows config compilation after instantiation:
+ *    var a = new Vue(false)
+ *    a.init(config)
+ */
+def(VMProto, '$init', function (options) {
+    new Compiler(this, options)
+})
 
 /**
  *  Convenience function to get a value from
@@ -2043,8 +2043,8 @@ def(VMProto, '$unwatch', function (key, callback) {
 /**
  *  unbind everything, remove everything
  */
-def(VMProto, '$destroy', function () {
-    this.$compiler.destroy()
+def(VMProto, '$destroy', function (noRemove) {
+    this.$compiler.destroy(noRemove)
 })
 
 /**
@@ -2140,6 +2140,7 @@ function query (el) {
 }
 
 module.exports = ViewModel
+
 });
 require.register("yyx990803-vue/src/binding.js", function(exports, require, module){
 var Batcher        = require('./batcher'),
@@ -3146,6 +3147,55 @@ exports.eval = function (exp, compiler, data) {
     return res
 }
 });
+require.register("yyx990803-vue/src/template-parser.js", function(exports, require, module){
+var toFragment = require('./fragment');
+
+/**
+ * Parses a template string or node and normalizes it into a
+ * a node that can be used as a partial of a template option
+ *
+ * Possible values include
+ * id selector: '#some-template-id'
+ * template string: '<div><span>my template</span></div>'
+ * DocumentFragment object
+ * Node object of type Template
+ */
+module.exports = function(template) {
+    var templateNode;
+
+    if (template instanceof window.DocumentFragment) {
+        // if the template is already a document fragment -- do nothing
+        return template
+    }
+
+    if (typeof template === 'string') {
+        // template by ID
+        if (template.charAt(0) === '#') {
+            templateNode = document.getElementById(template.slice(1))
+            if (!templateNode) return
+        } else {
+            return toFragment(template)
+        }
+    } else if (template.nodeType) {
+        templateNode = template
+    } else {
+        return
+    }
+
+    // if its a template tag and the browser supports it,
+    // its content is already a document fragment!
+    if (templateNode.tagName === 'TEMPLATE' && templateNode.content) {
+        return templateNode.content
+    }
+
+    if (templateNode.tagName === 'SCRIPT') {
+        return toFragment(templateNode.innerHTML)
+    }
+
+    return toFragment(templateNode.outerHTML);
+}
+
+});
 require.register("yyx990803-vue/src/text-parser.js", function(exports, require, module){
 var openChar        = '{',
     endChar         = '}',
@@ -3349,6 +3399,7 @@ filters.lowercase = function (value) {
  *  12345 => $12,345.00
  */
 filters.currency = function (value, sign) {
+    value = parseFloat(value)
     if (!value && value !== 0) return ''
     sign = sign || '$'
     var s = Math.floor(value).toString(),
@@ -4266,7 +4317,9 @@ module.exports = {
         var el = this.iframeBind
             ? this.el.contentWindow
             : this.el
-        el.removeEventListener(this.arg, this.handler)
+        if (this.handler) {
+            el.removeEventListener(this.arg, this.handler)
+        }
     },
 
     unbind: function () {
@@ -4566,10 +4619,14 @@ module.exports = {
     },
 
     update: function (value) {
-        var prop = this.prop
+        var prop = this.prop,
+            isImportant
+        /* jshint eqeqeq: true */
+        // cast possible numbers/booleans into strings
+        if (value != null) value += ''
         if (prop) {
-            if (value){
-                var isImportant = value.slice(-10) === '!important'
+            if (value) {
+                isImportant = value.slice(-10) === '!important'
                     ? 'important'
                     : ''
                 if (isImportant) {
@@ -5965,6 +6022,30 @@ request.put = function(url, data, fn){
 module.exports = request;
 
 });
+require.register("vui/src/prototype.js", function(exports, require, module){
+// 对Date的扩展，将 Date 转化为指定格式的String
+// 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符， 
+// 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字) 
+// 例子： 
+// (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423 
+// (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18 
+Date.prototype.format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+});
 require.register("vui/src/main.js", function(exports, require, module){
 var Vue             = require('vue'),
     request         = require('./request'),
@@ -5972,12 +6053,18 @@ var Vue             = require('vue'),
     route           = require('./route'),
 	utils           = require('./utils'),
     openbox         = require('./components/openbox'),
-    $data           = {}
+    message         = require('./components/message'),
+    $data           = {},
+    initialized     = false,
+    vm
+
+require('./prototype')
 
 var components = {
     'date': require('./components/date'),
     'form': require('./components/form'),
     'form-control': require('./components/form-control'),
+    'message': message.component,
     'option': require('./components/option'),
     'page': require('./components/page'),
     'pagination': require('./components/pagination'),
@@ -5985,27 +6072,37 @@ var components = {
     'select': require('./components/select')
 }
 
-var vm = new Vue({
+function init() {
+    if (initialized) return
+    initialized = true
 
-    el: 'body',
+    //$data.messages = message.messages
 
-    methods: {
-        openbox: openbox
-    },
+    vm = new Vue({
 
-    directives: {
-        href: require('./directives/href')
-    },
+        el: 'body',
 
-    filters: {
-    },
+        methods: {
+            openbox: openbox
+        },
 
-    components: components,
+        directives: {
+            editable: require('./directives/editable'),
+            href: require('./directives/href')
+        },
 
-    data: $data
+        filters: {
+        },
 
-})
+        components: components,
 
+        data: $data
+
+    })
+}
+
+// export Vue
+window.Vue = Vue
 
 module.exports = {
     request: request,
@@ -6013,7 +6110,9 @@ module.exports = {
     route: route,
     $data: $data,
     location: _location,
+    message: message,
     openbox: openbox,
+    init: init,
     Vue: Vue,
     vm: vm,
     
@@ -7549,6 +7648,24 @@ module.exports = {
 }
 
 });
+require.register("vui/src/directives/editable.js", function(exports, require, module){
+module.exports = {
+
+    bind: function () {
+        this.el.innerHTML = this.compiler.data[this.key]
+        this.el.setAttribute('contentEditable', true)
+        this.el.addEventListener('keyup', function () {
+            this.compiler.data[this.key] = this.el.innerHTML
+        }.bind(this))
+    },
+
+    unbind: function (value) {
+        this.el.innerHTML = value
+    }
+
+}
+
+});
 require.register("vui/src/components/date.js", function(exports, require, module){
 var utils = require('../utils')
 
@@ -7730,7 +7847,8 @@ module.exports = {
 require.register("vui/src/components/form.js", function(exports, require, module){
 var utils = require('../utils'),
     request = require('../request'),
-    location = require('../location')
+    location = require('../location'),
+    message = require('./message')
 
 module.exports = {
     methods: {
@@ -7760,11 +7878,11 @@ module.exports = {
             }.bind(this))
 
             if (this.valid)
-                request.put(this.src).send(this.model).end(function (res) {
+                request.post(this.src).send(this.model).end(function (res) {
                     if (res.body.status === 1) {
                         this.success(res.body)
                     } else {
-                        alert(res.body.errors)
+                        message.error(res.body.error)
                     }
                 }.bind(this))
         }.bind(this))
@@ -7775,7 +7893,7 @@ module.exports = {
         // init 获取数据, post 方法
         var search = location.node(true).search
         if (search) {
-            request.post(this.src).send(search).end(function (res) {
+            request.get(this.src).send(search).end(function (res) {
                 if (res.body.status === 1)
                     this.model = res.body.data
                 else
@@ -7791,27 +7909,17 @@ require.register("vui/src/components/form-control.js", function(exports, require
 var utils = require('../utils')
 
 function getCol(str, label) {
-    var col = [2, 10, 0]
+    var col = [2, 6]
 
     if (str) {
-        try {
-            var ss = str.split(',')
-            utils.forEach(ss, function (s, i) {
+        var ss = str.split(',')
+        utils.forEach(ss, function (s, i) {
+            try {
                 ss[i] = parseInt(s)
-            })
-
-            if (ss.length === 1)
-                col = [ ss[0], 12-ss[0], 0]
-            else if (ss.length === 2)
-                col = [ ss[0], ss[1], 0 ]
-            else
-                col = ss
-
-        } catch (e) {}
+            } catch (e) {}
+        })
+        col = [ ss[0] || 2, ss[1] || 6 ]
     }
-
-    if (!label && col[2] === 0)
-        col[2] = col[0]
 
     return col
 }
@@ -7821,13 +7929,13 @@ var TEMPLATES = {
         'button': '<button class="btn" type="button">{{_text}}</button>',
         'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
-        'textarea': '<textarea class="form-control" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
-        'select': '<div class="form-control select" src="{{_src}}" v-with="value:value" v-component="select"></div>',
-        'date': '<div class="form-control date" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
-        'integer': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'alpha': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'alphanum': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
-        'default': '<input class="form-control" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
+        'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
+        'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'date': '<div class="form-control date col-sm-{{_col[1]}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+        'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alpha': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'alphanum': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'default': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
         'empty': ''
     },
 
@@ -8027,7 +8135,10 @@ module.exports = {
         this._type = this.$el.getAttribute('type') || 'empty'
         this._col = getCol(this.$el.getAttribute('col'), this._label)
         this._content = undefined === TEMPLATES[this._type] ? TEMPLATES['default'] : TEMPLATES[this._type]
-        this._content += '<p class="help-block">{{message}}</p>';
+        if (this._inline && this._type !== 'checkbox' && this._type !== 'radio')
+            this._content += '<p class="help-inline">{{message}}</p>';
+        else
+            this._content += '<p class="help-block">{{message}}</p>';
 
         // clear type
         utils.forEach(['type', 'col'], function (attr) {
@@ -8049,6 +8160,67 @@ module.exports = {
             this.check()
         }.bind(this))
     }
+}
+
+});
+require.register("vui/src/components/message.js", function(exports, require, module){
+/* 
+ * message { text: '', type: '' }
+ */
+var utils       = require('../utils'),
+    messages    = []
+
+var component = {
+    template: require('./message.html'),
+
+    data: {
+        messages: messages
+    },
+
+    methods: {
+        remove: function (item) {
+            this.messages.$remove(item.$data)
+        }
+    }
+}
+
+module.exports = {
+    push: function (msg, type) {
+        if ('string' === typeof msg) {
+            msg = {
+                text: msg,
+                type: type || 'warning',
+                time: new Date().format('yyyy-MM-dd hh-mm-ss')
+            }
+        }
+        messages.push(msg)
+
+        var timeout = msg.timeout || (msg.type === 'danger' ? 0 : 5000)
+        if (timeout != 0)
+            setTimeout(function () {
+                utils.arrayRemove(messages, msg)
+            }, timeout)
+    },
+
+    success: function (msg) {
+        this.push(msg, 'success')
+    },
+    
+    error: function (msg) {
+        this.push(msg, 'danger')
+    },
+    
+    info: function (msg) {
+        this.push(msg, 'info')
+    },
+
+    warn: function (msg) {
+        this.push(msg, 'warning')
+    },
+    
+    messages: messages,
+
+    component: component
 }
 
 });
@@ -8256,6 +8428,7 @@ var request   = require('../request'),
     utils     = require('../utils'),
     _location = require('../location'),
     route     = require('../route'),
+    message   = require('./message'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
@@ -8304,17 +8477,38 @@ module.exports = {
 
             request.get(url)
                 .end(function (res) {
+                    if (res.status != 200) {
+                        message.push(res.text)
+                        return
+                    }
                     self.data = res.body.data
                     self.total = res.body.total
                 })
         },
 
+        updateModel: function (item) {
+            request.put(this.src).send(item.$data).end(function (res) {
+                if (res.status != 200) {
+                    message.error(res.text)
+                    return
+                }
+                if (res.body.status === 1)
+                    message.success(res.body.msg || 'success')
+                else
+                    message.error(res.body.errors)
+            })
+        },
+
         del: function (data) {
             request.del(this.src).send(data).end(function (res) {
+                if (res.status != 200) {
+                    message.error(res.text)
+                    return
+                }
                 if (res.body.status === 1)
                     this.update()
                 else
-                    alert(res.body.errors)
+                    message.error(res.body.errors)
             }.bind(this))
         },
 
@@ -8553,7 +8747,10 @@ require.register("vui/src/components/date.html", function(exports, require, modu
 module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
-module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{_col[1]}} col-sm-offset-{{_col[2]}}"><content></content></div>\n</div>\n';
+module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label v-if="_label" for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
+});
+require.register("vui/src/components/message.html", function(exports, require, module){
+module.exports = '<div v-repeat="messages" class="alert alert-{{type}}">\n    <strong>{{time}}</strong><br />\n    {{text}}\n    <button v-on="click: remove(this)" class="close">&times;</button>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
@@ -8578,6 +8775,7 @@ require.alias("yyx990803-vue/src/binding.js", "vui/deps/vue/src/binding.js");
 require.alias("yyx990803-vue/src/observer.js", "vui/deps/vue/src/observer.js");
 require.alias("yyx990803-vue/src/directive.js", "vui/deps/vue/src/directive.js");
 require.alias("yyx990803-vue/src/exp-parser.js", "vui/deps/vue/src/exp-parser.js");
+require.alias("yyx990803-vue/src/template-parser.js", "vui/deps/vue/src/template-parser.js");
 require.alias("yyx990803-vue/src/text-parser.js", "vui/deps/vue/src/text-parser.js");
 require.alias("yyx990803-vue/src/deps-parser.js", "vui/deps/vue/src/deps-parser.js");
 require.alias("yyx990803-vue/src/filters.js", "vui/deps/vue/src/filters.js");

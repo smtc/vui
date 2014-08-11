@@ -31,10 +31,16 @@
 
 <div class="content" v-view="view"></div>
 
+<div v-component="message" class="message"></div>
+
+
 <script type="text/javascript" src="../vui.js"></script>
 <script type="text/javascript" src="js/docs.js"></script>
 <script type="text/javascript" src="js/prettify.js"></script>
 <script type="text/javascript">
+;(function () {
+    vui.init()
+
     vui.route(function (path) {
         if (path.charAt(path.length-1) !== '/')
             vui.$data.view = path
@@ -45,7 +51,6 @@
         }, 500)
     }, true)
 
-;(function () {
     var h = vui.utils.urlResolve(vui.location.url()).hash
     if (!h)
         vui.location.url('main.html')
