@@ -7890,17 +7890,15 @@ module.exports = {
     },
 
     ready: function () {
-        // init 获取数据, post 方法
         var search = location.node(true).search
-        if (search) {
-            request.get(this.src).query(search).end(function (res) {
+        request.get(this.src).query(search).end(function (res) {
+            if (res.status != 200) {
                 if (res.body.status === 1)
                     this.model = res.body.data
-                else
-                    alert(res.body.errors)
-            }.bind(this))
-        }
-
+                else if (res.body.errors)
+                    message.error(res.body.errors)
+            }
+        }.bind(this))
     }
 }
 
