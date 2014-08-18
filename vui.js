@@ -7890,8 +7890,10 @@ module.exports = {
     },
 
     ready: function () {
-        var search = location.node(true).search
-        request.get(this.src).query(search).end(function (res) {
+        var node = location.node(true),
+            search = node.search,
+            hash = node.hash
+        request.get(this.src + hash).query(search).end(function (res) {
             if (res.status != 200) {
                 if (res.body.status === 1)
                     this.model = res.body.data
