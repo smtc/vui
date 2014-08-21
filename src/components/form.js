@@ -39,10 +39,14 @@ module.exports = {
                 loading.start()
                 request.post(this.src).send(this.model).end(function (res) {
                     loading.end()
-                    if (res.body.status === 1) {
-                        this.success(res.body)
+                    if (res.status === 200) {
+                        if (res.body.status === 1) {
+                            this.success(res.body)
+                        } else {
+                            message.error(res.body.error)
+                        }
                     } else {
-                        message.error(res.body.error)
+                        message.error('error:' + res.status)
                     }
                 }.bind(this))
         }.bind(this))
