@@ -8247,7 +8247,7 @@ module.exports = {
             msg = {
                 text: msg,
                 type: type || 'warning',
-                time: new Date().format('yyyy-MM-dd hh-mm-ss')
+                time: new Date().format('yyyy-MM-dd hh:mm:ss')
             }
         }
         messages.push(msg)
