@@ -7866,10 +7866,14 @@ module.exports = {
         this.controls = {}
         this.model = {}
 
-        this.src = this.$el.getAttribute('action')
+        this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
+
+        var form = this.$el;
+        if (form.tagName != "FORM")
+            form = form.querySelector('form')
 
         // submit 使用 put 方法
-        this.$el.addEventListener('submit', function (event) {
+        form.addEventListener('submit', function (event) {
             event.preventDefault()
             this.$broadcast('check')
 
