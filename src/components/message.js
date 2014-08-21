@@ -5,7 +5,12 @@ var utils       = require('../utils'),
     messages    = []
 
 var component = {
-    template: require('./message.html'),
+    //template: require('./message.html'),
+    template:   '<div v-repeat="messages" class="alert alert-{{type}}">' +
+                    '<strong>{{time}}</strong><br />' +
+                    '{{text}}' +
+                    '<button v-on="click: remove(this)" class="close">&times;</button>' +
+                '</div>',
 
     data: {
         messages: messages

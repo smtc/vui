@@ -3,6 +3,7 @@ var request   = require('../request'),
     _location = require('../location'),
     route     = require('../route'),
     message   = require('./message'),
+    loading   = require('./loading'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
@@ -49,8 +50,10 @@ module.exports = {
             if (this.routeChange && this.routeChange === 'true')
                 _location.search(search.obj)
 
+            loading.start()
             request.get(url)
                 .end(function (res) {
+                    loading.end()
                     if (res.status != 200) {
                         message.push(res.text)
                         return

@@ -61,6 +61,42 @@ html, body {
     }
 }
 
+.loading {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    label {
+        position: absolute;
+        left: 50%;
+        top: 80px;
+        width: 200px;
+        text-align: center;
+        margin: 0 0 0 -105px;
+        padding: 5px;
+        background-color: #fff;
+        font-size: 12px;
+        font-weight: normal;
+        z-index: 99999;
+
+        img {
+            margin: -2px 12px 0 0;
+        }
+    }
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #000;
+    .opacity(0.2);
+}
+
 // copy from bootstrap
 
 .bs-callout {

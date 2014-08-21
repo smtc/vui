@@ -1454,6 +1454,10 @@ body,html{height:100%}
 .page-header{border-bottom:1px solid #eee;margin-top:10px}
 .message{width:600px;position:fixed;z-index:99999;top:0;left:50%;margin:0 -300px}
 .message .alert{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.3);box-shadow:0 5px 15px rgba(0,0,0,.3)}
+.loading{position:fixed;left:0;right:0;top:0;bottom:0}
+.loading label{position:absolute;left:50%;top:80px;width:200px;text-align:center;margin:0 0 0 -105px;padding:5px;background-color:#fff;font-size:12px;font-weight:400;z-index:99999}
+.loading label img{margin:-2px 12px 0 0}
+.overlay{position:absolute;left:0;right:0;top:0;bottom:0;background-color:#000;opacity:.2;filter:alpha(opacity=20)}
 .bs-callout{margin:20px 0;padding:20px;border-left:3px solid #eee}
 .bs-callout h4{margin-top:0;margin-bottom:5px}
 .bs-callout p:last-child{margin-bottom:0}

@@ -6053,6 +6053,7 @@ var Vue             = require('vue'),
     route           = require('./route'),
 	utils           = require('./utils'),
     openbox         = require('./components/openbox'),
+    loading         = require('./components/loading'),
     message         = require('./components/message'),
     $data           = {},
     initialized     = false,
@@ -6064,6 +6065,7 @@ var components = {
     'date': require('./components/date'),
     'form': require('./components/form'),
     'form-control': require('./components/form-control'),
+    'loading': loading.component,
     'message': message.component,
     'option': require('./components/option'),
     'page': require('./components/page'),
@@ -6110,6 +6112,7 @@ module.exports = {
     route: route,
     $data: $data,
     location: _location,
+    loading: loading,
     message: message,
     openbox: openbox,
     init: init,
@@ -7845,10 +7848,11 @@ module.exports = {
 
 });
 require.register("vui/src/components/form.js", function(exports, require, module){
-var utils = require('../utils'),
-    request = require('../request'),
-    location = require('../location'),
-    message = require('./message')
+var utils       = require('../utils'),
+    request     = require('../request'),
+    location    = require('../location'),
+    loading     = require('./loading'),
+    message     = require('./message')
 
 module.exports = {
     methods: {
@@ -7882,7 +7886,9 @@ module.exports = {
             }.bind(this))
 
             if (this.valid)
+                loading.start()
                 request.post(this.src).send(this.model).end(function (res) {
+                    loading.end()
                     if (res.body.status === 1) {
                         this.success(res.body)
                     } else {
@@ -7898,7 +7904,7 @@ module.exports = {
             search = node.search,
             hash = node.hash
         request.get(this.src + hash).query(search).end(function (res) {
-            if (res.status != 200) {
+            if (res.status === 200) {
                 if (res.body.status === 1)
                     this.model = res.body.data
                 else if (res.body.errors)
@@ -8167,6 +8173,44 @@ module.exports = {
 }
 
 });
+require.register("vui/src/components/loading.js", function(exports, require, module){
+var utils   = require('../utils'),
+    handle  = { status: 0 }
+
+var component = {
+    template:   '<div v-show="handle.status > 0" class="loading">' +
+                    '<div class="overlay"></div>' +
+                    '<label><img v-show="img" src="{{img}}" />{{text}}</label>' +
+                '</div>',
+
+    replace: true,
+
+    data: {
+        handle: handle,
+        img: '',
+        text: ''
+    },
+
+    created: function () {
+        this.img = this.$el.getAttribute('img')
+        this.text = this.$el.getAttribute('text')
+    }
+
+}
+
+module.exports = {
+    start: function () {
+        handle.status++
+    },
+
+    end: function () {
+        handle.status--
+    },
+
+    component: component
+}
+
+});
 require.register("vui/src/components/message.js", function(exports, require, module){
 /* 
  * message { text: '', type: '' }
@@ -8175,7 +8219,12 @@ var utils       = require('../utils'),
     messages    = []
 
 var component = {
-    template: require('./message.html'),
+    //template: require('./message.html'),
+    template:   '<div v-repeat="messages" class="alert alert-{{type}}">' +
+                    '<strong>{{time}}</strong><br />' +
+                    '{{text}}' +
+                    '<button v-on="click: remove(this)" class="close">&times;</button>' +
+                '</div>',
 
     data: {
         messages: messages
@@ -8433,6 +8482,7 @@ var request   = require('../request'),
     _location = require('../location'),
     route     = require('../route'),
     message   = require('./message'),
+    loading   = require('./loading'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
@@ -8479,8 +8529,10 @@ module.exports = {
             if (this.routeChange && this.routeChange === 'true')
                 _location.search(search.obj)
 
+            loading.start()
             request.get(url)
                 .end(function (res) {
+                    loading.end()
                     if (res.status != 200) {
                         message.push(res.text)
                         return
@@ -8752,9 +8804,6 @@ module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text=
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
-});
-require.register("vui/src/components/message.html", function(exports, require, module){
-module.exports = '<div v-repeat="messages" class="alert alert-{{type}}">\n    <strong>{{time}}</strong><br />\n    {{text}}\n    <button v-on="click: remove(this)" class="close">&times;</button>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';

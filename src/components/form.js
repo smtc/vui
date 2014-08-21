@@ -1,7 +1,8 @@
-var utils = require('../utils'),
-    request = require('../request'),
-    location = require('../location'),
-    message = require('./message')
+var utils       = require('../utils'),
+    request     = require('../request'),
+    location    = require('../location'),
+    loading     = require('./loading'),
+    message     = require('./message')
 
 module.exports = {
     methods: {
@@ -35,7 +36,9 @@ module.exports = {
             }.bind(this))
 
             if (this.valid)
+                loading.start()
                 request.post(this.src).send(this.model).end(function (res) {
+                    loading.end()
                     if (res.body.status === 1) {
                         this.success(res.body)
                     } else {
@@ -51,7 +54,7 @@ module.exports = {
             search = node.search,
             hash = node.hash
         request.get(this.src + hash).query(search).end(function (res) {
-            if (res.status != 200) {
+            if (res.status === 200) {
                 if (res.body.status === 1)
                     this.model = res.body.data
                 else if (res.body.errors)

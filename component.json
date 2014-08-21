@@ -14,6 +14,7 @@
         "src/components/date.js",
         "src/components/form.js",
         "src/components/form-control.js",
+        "src/components/loading.js",
         "src/components/message.js",
         "src/components/openbox.js",
         "src/components/option.js",
@@ -25,7 +26,6 @@
     "templates": [
         "src/components/date.html",
         "src/components/form-control.html",
-        "src/components/message.html",
         "src/components/openbox.html",
         "src/components/option.html",
         "src/components/pagination.html",
