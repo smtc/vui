@@ -19,12 +19,9 @@
         <button class="btn btn-danger" onclick="vui.message.error('pop error')">pop error(do not autoclose)</button>
     </div>
     <pre v-pre class="prettyprint">
-&lt;div class="form-control date" v-component="date" v-with="date:date"&gt;&lt;/div&gt;
-&lt;div class="form-control date" up="true" v-component="date" v-with="date:date2"&gt;&lt;/div&gt;
-&lt;br /&gt;
-&lt;p&gt;当前选择日期：{{date}} - {{date2}}&lt;/p&gt;
+&lt;button class="btn btn-success" onclick="vui.message.success('pop success')"&gt;pop success&lt;/button&gt;
+&lt;button class="btn btn-info" onclick="vui.message.info('pop info')"&gt;pop info&lt;/button&gt;
+&lt;button class="btn btn-warning" onclick="vui.message.warn('pop warning')"&gt;pop warning&lt;/button&gt;
+&lt;button class="btn btn-danger" onclick="vui.message.error('pop error')"&gt;pop error(do not autoclose)&lt;/button&gt;
 </pre>
 </div>
-<script>
-alert(123)
-</script>
