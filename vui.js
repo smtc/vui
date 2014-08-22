@@ -7896,7 +7896,7 @@ module.exports = {
                             message.error(res.body.error)
                         }
                     } else {
-                        message.error('error:' + res.status)
+                        message.error(res.text, res.status)
                     }
                 }.bind(this))
         }.bind(this))
@@ -8220,10 +8220,13 @@ require.register("vui/src/components/message.js", function(exports, require, mod
  * message { text: '', type: '' }
  */
 var utils       = require('../utils'),
-    messages    = []
+    messages    = [],
+    httpStatus  = {
+        404: '请求的地址不存在',
+        500: '内部服务器错误'
+    }
 
 var component = {
-    //template: require('./message.html'),
     template:   '<div v-repeat="messages" class="alert alert-{{type}}">' +
                     '<strong>{{time}}</strong><br />' +
                     '{{text}}' +
@@ -8263,7 +8266,9 @@ module.exports = {
         this.push(msg, 'success')
     },
     
-    error: function (msg) {
+    error: function (msg, status) {
+        if (!msg && status)
+            msg = httpStatus[status]
         this.push(msg, 'danger')
     },
     
@@ -8547,9 +8552,11 @@ module.exports = {
         },
 
         updateModel: function (item) {
+            loading.start()
             request.put(this.src).send(item.$data).end(function (res) {
+                loading.end()
                 if (res.status != 200) {
-                    message.error(res.text)
+                    message.error(res.text, res.status)
                     return
                 }
                 if (res.body.status === 1)
@@ -8560,9 +8567,11 @@ module.exports = {
         },
 
         del: function (data) {
+            loading.start()
             request.del(this.src).send(data).end(function (res) {
+                loading.end()
                 if (res.status != 200) {
-                    message.error(res.text)
+                    message.error(res.text, res.status)
                     return
                 }
                 if (res.body.status === 1)
