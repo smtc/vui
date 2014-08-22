@@ -46,7 +46,7 @@ module.exports = {
                             message.error(res.body.error)
                         }
                     } else {
-                        message.error('error:' + res.status)
+                        message.error(res.text, res.status)
                     }
                 }.bind(this))
         }.bind(this))

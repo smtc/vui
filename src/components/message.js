@@ -2,10 +2,13 @@
  * message { text: '', type: '' }
  */
 var utils       = require('../utils'),
-    messages    = []
+    messages    = [],
+    httpStatus  = {
+        404: '请求的地址不存在',
+        500: '内部服务器错误'
+    }
 
 var component = {
-    //template: require('./message.html'),
     template:   '<div v-repeat="messages" class="alert alert-{{type}}">' +
                     '<strong>{{time}}</strong><br />' +
                     '{{text}}' +
@@ -45,7 +48,9 @@ module.exports = {
         this.push(msg, 'success')
     },
     
-    error: function (msg) {
+    error: function (msg, status) {
+        if (!msg && status)
+            msg = httpStatus[status]
         this.push(msg, 'danger')
     },
     

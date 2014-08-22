@@ -64,9 +64,11 @@ module.exports = {
         },
 
         updateModel: function (item) {
+            loading.start()
             request.put(this.src).send(item.$data).end(function (res) {
+                loading.end()
                 if (res.status != 200) {
-                    message.error(res.text)
+                    message.error(res.text, res.status)
                     return
                 }
                 if (res.body.status === 1)
@@ -77,9 +79,11 @@ module.exports = {
         },
 
         del: function (data) {
+            loading.start()
             request.del(this.src).send(data).end(function (res) {
+                loading.end()
                 if (res.status != 200) {
-                    message.error(res.text)
+                    message.error(res.text, res.status)
                     return
                 }
                 if (res.body.status === 1)
