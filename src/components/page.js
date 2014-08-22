@@ -55,7 +55,7 @@ module.exports = {
                 .end(function (res) {
                     loading.end()
                     if (res.status != 200) {
-                        message.push(res.text)
+                        message.error('', res.status)
                         return
                     }
                     self.data = res.body.data
@@ -68,7 +68,7 @@ module.exports = {
             request.put(this.src).send(item.$data).end(function (res) {
                 loading.end()
                 if (res.status != 200) {
-                    message.error(res.text, res.status)
+                    message.error('', res.status)
                     return
                 }
                 if (res.body.status === 1)
@@ -83,7 +83,7 @@ module.exports = {
             request.del(this.src).send(data).end(function (res) {
                 loading.end()
                 if (res.status != 200) {
-                    message.error(res.text, res.status)
+                    message.error('', res.status)
                     return
                 }
                 if (res.body.status === 1)
