@@ -7950,6 +7950,7 @@ var TEMPLATES = {
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
         'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'tree': '<ul v-with="value:value" selectable="{{_selectable}}" select="{{_select}}" src="{{_src}}" v-component="tree"></ul>',
         'date': '<div class="form-control date col-sm-{{_col[1]}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
         'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'alpha': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
@@ -8136,7 +8137,7 @@ module.exports = {
         this.checkList = []
 
         // set attr
-        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'tip'], function (attr) {
+        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'tip', 'selectable', 'select'], function (attr) {
             this['_' + attr] = this.$el.getAttribute(attr)
             this.$el.removeAttribute(attr)
         }.bind(this))
@@ -8672,6 +8673,13 @@ module.exports = {
     created: function () {
         this.init()
         if (!this.delay) this.update()
+
+        var form = this.$el.querySelector('form')
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault()
+            })
+        }
     },
     ready: function () {
         this.$watch('pager', this.update)
@@ -8843,6 +8851,7 @@ function initData(data, list, p) {
 }
 
 function initValue(list, values, k) {
+    values = values || []
     if (typeof values === 'string')
         values = values.split(',')
 
@@ -8882,10 +8891,12 @@ var tree = {
     template: '<ul class="treeview list-unstyled"><li v-repeat="node:data" v-with="list:list, current:current" v-component="tree-{{node.$type}}"></li></ul>',
 
     replace: true,
+
+    paramAttributes: ['src', 'selectable'],
     
     data: {
         data: [],
-        checkable: false,
+        selectable: false,
         current: null
     },
 
@@ -8905,12 +8916,11 @@ var tree = {
         var self = this
         this.data = []
         this.list = {}
-        this.checkable = this.$el.getAttribute('checkable') === 'true'
+        this.selectable = this.selectable === 'true'
         this.value = ''
         var selectId = this.$el.getAttribute('select') || 'id'
-        var src = this.src = this.$el.getAttribute('src')
-        if (src) {
-            request.get(src).end(function (res) {
+        if (this.src) {
+            request.get(this.src).end(function (res) {
                 if (res.status !== 200) {
                     message.error(null, res.status)
                     return
@@ -8933,7 +8943,7 @@ var tree = {
 var folder = {
     template:   '<label v-class="active:current==node">\
                     <i class="icon" v-class="icon-minus-square-o:open, icon-plus-square-o:!open" v-on="click:open=!open"></i>\
-                    <i v-show="checkable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
+                    <i v-show="selectable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
                     <i class="icon icon-folder-o" v-class="icon-folder-open-o: open"></i>\
                     <span v-on="click:current=node">{{node.text}}</span>\
                 </label>\
@@ -8958,7 +8968,7 @@ var folder = {
 var file = {
     template:   '<label v-class="active:current==node">\
                     <i class="icon icon-file-o"></i>\
-                    <i v-show="checkable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
+                    <i v-show="selectable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
                     <span v-on="click:current=node">{{node.text}}</span>\
                 </label>',
 

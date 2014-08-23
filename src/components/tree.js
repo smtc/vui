@@ -29,6 +29,7 @@ function initData(data, list, p) {
 }
 
 function initValue(list, values, k) {
+    values = values || []
     if (typeof values === 'string')
         values = values.split(',')
 
@@ -68,10 +69,12 @@ var tree = {
     template: '<ul class="treeview list-unstyled"><li v-repeat="node:data" v-with="list:list, current:current" v-component="tree-{{node.$type}}"></li></ul>',
 
     replace: true,
+
+    paramAttributes: ['src', 'selectable'],
     
     data: {
         data: [],
-        checkable: false,
+        selectable: false,
         current: null
     },
 
@@ -91,12 +94,11 @@ var tree = {
         var self = this
         this.data = []
         this.list = {}
-        this.checkable = this.$el.getAttribute('checkable') === 'true'
+        this.selectable = this.selectable === 'true'
         this.value = ''
         var selectId = this.$el.getAttribute('select') || 'id'
-        var src = this.src = this.$el.getAttribute('src')
-        if (src) {
-            request.get(src).end(function (res) {
+        if (this.src) {
+            request.get(this.src).end(function (res) {
                 if (res.status !== 200) {
                     message.error(null, res.status)
                     return
@@ -119,7 +121,7 @@ var tree = {
 var folder = {
     template:   '<label v-class="active:current==node">\
                     <i class="icon" v-class="icon-minus-square-o:open, icon-plus-square-o:!open" v-on="click:open=!open"></i>\
-                    <i v-show="checkable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
+                    <i v-show="selectable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
                     <i class="icon icon-folder-o" v-class="icon-folder-open-o: open"></i>\
                     <span v-on="click:current=node">{{node.text}}</span>\
                 </label>\
@@ -144,7 +146,7 @@ var folder = {
 var file = {
     template:   '<label v-class="active:current==node">\
                     <i class="icon icon-file-o"></i>\
-                    <i v-show="checkable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
+                    <i v-show="selectable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
                     <span v-on="click:current=node">{{node.text}}</span>\
                 </label>',
 

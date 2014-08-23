@@ -179,6 +179,13 @@ module.exports = {
     created: function () {
         this.init()
         if (!this.delay) this.update()
+
+        var form = this.$el.querySelector('form')
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault()
+            })
+        }
     },
     ready: function () {
         this.$watch('pager', this.update)
