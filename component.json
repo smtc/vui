@@ -21,7 +21,8 @@
         "src/components/page.js",
         "src/components/pagination.js",
         "src/components/scope.js",
-        "src/components/select.js"
+        "src/components/select.js",
+        "src/components/tree.js"
     ],
     "templates": [
         "src/components/date.html",

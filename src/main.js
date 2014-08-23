@@ -6,10 +6,12 @@ var Vue             = require('vue'),
     openbox         = require('./components/openbox'),
     loading         = require('./components/loading'),
     message         = require('./components/message'),
+    tree            = require('./components/tree'),
     $data           = {},
     initialized     = false,
     vm
 
+// register prototype
 require('./prototype')
 
 var components = {
@@ -22,7 +24,10 @@ var components = {
     'page': require('./components/page'),
     'pagination': require('./components/pagination'),
     'scope': require('./components/scope'),
-    'select': require('./components/select')
+    'select': require('./components/select'),
+    'tree': tree.tree,
+    'tree-folder': tree.folder,
+    'tree-file': tree.file
 }
 
 function init() {

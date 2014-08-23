@@ -1410,7 +1410,7 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .date .date-picker .inner .gray{color:#ccc}
 .date .date-picker-up{top:auto;bottom:35px}
 .treeview .icon{width:15px}
-.treeview ul{padding-left:18px}
+.treeview ul{padding-left:19px}
 .treeview label{font-weight:400;margin:0;display:block;line-height:22px}
 .treeview label span{margin-right:20px}
 .treeview label.active{background-color:#f5f5f5}
