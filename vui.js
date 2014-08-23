@@ -8893,7 +8893,7 @@ var tree = {
 
     replace: true,
 
-    paramAttributes: ['src', 'selectable'],
+    paramAttributes: ['src', 'select', 'selectable'],
     
     data: {
         data: [],
@@ -8919,7 +8919,7 @@ var tree = {
         this.list = {}
         this.selectable = this.selectable === 'true'
         this.value = ''
-        var selectId = this.$el.getAttribute('select') || 'id'
+        this.select = this.select || 'id'
         if (this.src) {
             request.get(this.src).end(function (res) {
                 if (res.status !== 200) {
@@ -8928,7 +8928,7 @@ var tree = {
                 }
                 if (res.body.status == 1) {
                     self.data = initData(res.body.data, self.list)
-                    initValue(self.list, self.value, selectId)
+                    initValue(self.list, self.value, self.select)
                 } else {
                     message.error(res.body.errors)
                 }
@@ -8936,7 +8936,7 @@ var tree = {
         }
 
         this.$watch('data', function () {
-            this.value = this.getSelected(selectId)
+            this.value = this.getSelected(this.select)
         }.bind(this))
     }
 }
