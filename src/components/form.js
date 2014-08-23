@@ -35,7 +35,7 @@ module.exports = {
                 this.valid = this.valid && v
             }.bind(this))
 
-            if (this.valid)
+            if (this.valid) {
                 loading.start()
                 request.post(this.src).send(this.model).end(function (res) {
                     loading.end()
@@ -49,6 +49,7 @@ module.exports = {
                         message.error('', res.status)
                     }
                 }.bind(this))
+            }
         }.bind(this))
 
     },
