@@ -8191,7 +8191,7 @@ var utils   = require('../utils'),
 var component = {
     template:   '<div v-show="handle.status > 0" class="loading">' +
                     '<div class="overlay"></div>' +
-                    '<label><img v-show="img" src="{{img}}" />{{text}}</label>' +
+                    '<label><img v-show="img" v-attr="src:img" />{{text}}</label>' +
                 '</div>',
 
     replace: true,
@@ -8683,14 +8683,12 @@ module.exports = {
         }
     },
     ready: function () {
-        this.$watch('pager', this.update)
+        //this.$watch('pager.page', this.update)
         if (this.routeChange)
-            //route.bind([routeChange, this])
             route.bind(routeChange.bind(this))
     },
     beforeDestroy: function () {
         if (this.routeChange)
-            //route.unbind([routeChange, this])
             route.unbind(routeChange.bind(this))
     }
 }
@@ -8716,6 +8714,8 @@ module.exports = {
         change: function (page) {
             this.page = page
             this.compose()
+            if (this.$parent && this.$parent.update)
+                this.$parent.update()
         }
     },
     data: {
