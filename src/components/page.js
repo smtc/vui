@@ -188,14 +188,12 @@ module.exports = {
         }
     },
     ready: function () {
-        this.$watch('pager', this.update)
+        //this.$watch('pager.page', this.update)
         if (this.routeChange)
-            //route.bind([routeChange, this])
             route.bind(routeChange.bind(this))
     },
     beforeDestroy: function () {
         if (this.routeChange)
-            //route.unbind([routeChange, this])
             route.unbind(routeChange.bind(this))
     }
 }

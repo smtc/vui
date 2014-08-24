@@ -17,6 +17,8 @@ module.exports = {
         change: function (page) {
             this.page = page
             this.compose()
+            if (this.$parent && this.$parent.update)
+                this.$parent.update()
         }
     },
     data: {
