@@ -1,0 +1,15 @@
+<content></content>
+<div v-if="struct">
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th v-repeat="h:headers">{{h.text}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-repeat="d:data">
+            <td v-repeat="h:headers">{{d[h.key]}}</td>
+        </tr>
+    </body>
+</table>
+</div>

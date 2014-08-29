@@ -1,0 +1,14 @@
+{
+    "status": 1,
+    "src": "json/tablelist.json",
+    "headers": [
+        { "key": "id", "text": "id" }, 
+        { "key": "name", "text": "姓名" }, 
+        { "key": "role", "text": "角色" },
+        { "key": "ip", "text": "ip" },
+        { "key": "time", "text": "时间" },
+        { "key": "status", "text": "状态" },
+        { "key": "", "text": "" }
+    ]
+}
+

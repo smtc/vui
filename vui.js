@@ -5805,7 +5805,7 @@ Request.prototype.withCredentials = function(){
  * @api public
  */
 
-Request.prototype.end = function(fn){
+Request.prototype.end = function(fn, sync){
   var self = this;
   var xhr = this.xhr = getXHR();
   var query = this._query.join('&');
@@ -5849,7 +5849,8 @@ Request.prototype.end = function(fn){
   }
 
   // initiate request
-  xhr.open(this.method, this.url, true);
+  //xhr.open(this.method, this.url, true);
+  xhr.open(this.method, this.url, !sync);
 
   // CORS
   if (this._withCredentials) xhr.withCredentials = true;
@@ -8276,7 +8277,7 @@ module.exports = {
     error: function (msg, status) {
         if (!msg && status)
             msg = httpStatus[status]
-        this.push(msg, 'danger')
+        this.push(msg || "", 'danger')
     },
     
     info: function (msg) {
@@ -8529,6 +8530,8 @@ function routeChange() {
 
 
 module.exports = {
+    template: require('./page.html'),
+
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
         search: function (fs) {
@@ -8669,10 +8672,29 @@ module.exports = {
         filters: {},
         pager: {},
         total: 0,
-        sort: {}
+        sort: {},
+        struct: false,
+        src: ''
     },
     created: function () {
         this.init()
+
+        var struct = this.$el.getAttribute("struct")
+        if (struct) {
+            loading.start()
+            request.get(struct).end(function (res) {
+                loading.end()
+                if (res.status !== 200 || res.body.status !== 1) {
+                    message.error(res.body.errors, res.status)
+                    return
+                }
+
+                this.struct = true
+                this.headers = res.body.headers
+                this.src = res.body.src
+            }.bind(this), true)
+        }
+
         if (!this.delay) this.update()
 
         var form = this.$el.querySelector('form')
@@ -9008,6 +9030,9 @@ module.exports = '<div class="openbox">\n    <div class="openbox-backdrop"></div
 });
 require.register("vui/src/components/option.html", function(exports, require, module){
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
+});
+require.register("vui/src/components/page.html", function(exports, require, module){
+module.exports = '<content></content>\n<div v-if="struct">\n<table class="table table-bordered table-hover">\n    <thead>\n        <tr>\n            <th v-repeat="h:headers">{{h.text}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr v-repeat="d:data">\n            <td v-repeat="h:headers">{{d[h.key]}}</td>\n        </tr>\n    </body>\n</table>\n</div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';

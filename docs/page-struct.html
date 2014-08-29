@@ -1,0 +1,25 @@
+<div>
+	<h1 class="page-header">数据显示及分页</h1>
+
+    <p>使用json struct 自动初始化表格。</p>
+
+    <br />
+
+    <h3>数据展示</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>v-component="page"</h4>
+        <pre class="prettyprint">&lt;ELEMENTTAG struct="json/page-struct.json" delay="true" routeChange="true" size="10" v-component="page"&gt;</pre>
+        <h4>参数</h4>
+        <p>
+            struct - 获取struct的地址。
+            其余参数见page。
+        </p>
+    </div>
+
+    <br />
+    <h3>Example</h3>
+    <div class="bs-example bs-example-type" struct="json/page-struct.json" routeChange="true" size="10" v-component="page">
+    </div>
+    <pre v-pre class="prettyprint">
+    </pre>
+</div>

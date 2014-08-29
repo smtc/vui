@@ -34,6 +34,8 @@ function routeChange() {
 
 
 module.exports = {
+    template: require('./page.html'),
+
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
         search: function (fs) {
@@ -174,10 +176,29 @@ module.exports = {
         filters: {},
         pager: {},
         total: 0,
-        sort: {}
+        sort: {},
+        struct: false,
+        src: ''
     },
     created: function () {
         this.init()
+
+        var struct = this.$el.getAttribute("struct")
+        if (struct) {
+            loading.start()
+            request.get(struct).end(function (res) {
+                loading.end()
+                if (res.status !== 200 || res.body.status !== 1) {
+                    message.error(res.body.errors, res.status)
+                    return
+                }
+
+                this.struct = true
+                this.headers = res.body.headers
+                this.src = res.body.src
+            }.bind(this), true)
+        }
+
         if (!this.delay) this.update()
 
         var form = this.$el.querySelector('form')

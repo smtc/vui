@@ -51,7 +51,7 @@ module.exports = {
     error: function (msg, status) {
         if (!msg && status)
             msg = httpStatus[status]
-        this.push(msg, 'danger')
+        this.push(msg || "", 'danger')
     },
     
     info: function (msg) {

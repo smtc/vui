@@ -29,6 +29,7 @@
         "src/components/form-control.html",
         "src/components/openbox.html",
         "src/components/option.html",
+        "src/components/page.html",
         "src/components/pagination.html",
         "src/components/select.html"
     ],
