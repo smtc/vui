@@ -6,7 +6,7 @@
         { "key": "name", "text": "姓名", "type": "text", "filter": true }, 
         { "key": "role", "text": "角色", "type": "select", "filter": true, "src": "json/select.json" },
         { "key": "ip", "text": "ip" },
-        { "key": "time", "text": "时间" },
+        { "key": "time", "text": "时间", "type": "date", "filter": true },
         { "key": "status", "text": "状态", "type": "bool", "filter": true },
         { "key": "", "text": "" }
     ]

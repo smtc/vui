@@ -46,7 +46,8 @@ module.exports = {
             document.body.removeEventListener('click', this.$closeHandle)
         },
 
-        set: function (day) {
+        set: function (day, event) {
+            console.log(event)
             this.date = day.str
             this.currentDate = {
                 year: day.year,

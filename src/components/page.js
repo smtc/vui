@@ -36,7 +36,8 @@ function routeChange() {
 var FILTERS = {
     text: '<input class="form-control" placeholder="{text}" v-model="filters.{key}" />',
     select: '<div class="form-control" src="{src}" style="width:160px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
-    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>'
+    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
+    date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}"></div>'
 }
 function getFilter(headers) {
     headers = headers || []
@@ -213,7 +214,7 @@ module.exports = {
 
                 this.struct = true
                 this.headers = res.body.headers
-                this.filter = getFilter(this.headers)
+                this.filterTpl = getFilter(this.headers)
                 if (res.body.src)
                     this.src = res.body.src
             }.bind(this), true)
