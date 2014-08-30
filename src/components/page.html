@@ -1,5 +1,11 @@
 <content></content>
 <div v-if="struct">
+<form v-if="filter.length > 0" class="form-inline" v-on="submit:search">
+    <label v-repeat="f:filter" v-html="f" class="form-group"></label>
+    <label class="form-group"><button class="btn btn-primary">{{button.ok}}</button></label>
+    <label class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></label>
+    {{filters}}
+</form>
 <table class="table table-bordered table-hover">
     <thead>
         <tr>

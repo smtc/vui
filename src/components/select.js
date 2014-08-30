@@ -1,5 +1,6 @@
 var request = require('../request'),
     utils   = require('../utils'),
+    lang    = require('../lang/lang'),
     forEach = utils.forEach
 
 module.exports = {
@@ -34,7 +35,7 @@ module.exports = {
             }
 
             forEach(this.options, function (item) {
-                if (value == item.value)
+                if (value === item.value)
                     this.select(item)
             }.bind(this))
         }
@@ -45,10 +46,15 @@ module.exports = {
     created: function () {
         var self = this
         utils.addClass(this.$el, 'select')
-        request.get(this.src).end(function (res) {
-            self.options = res.body
-            self.setValue(self.value)
-        })
+
+        if (this.src === 'bool') {
+            this.options = lang.get('boolSelect')
+        } else {
+            request.get(this.src).end(function (res) {
+                self.options = res.body
+                self.setValue(self.value)
+            })
+        }
 
         this.$closeHandle = function () {
             self.close()

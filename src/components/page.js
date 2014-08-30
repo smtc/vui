@@ -4,9 +4,9 @@ var request   = require('../request'),
     route     = require('../route'),
     message   = require('./message'),
     loading   = require('./loading'),
+    lang      = require('../lang/lang'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
-
 
 function getSearch(pager, filters, sort) {
     var search = {},
@@ -32,6 +32,22 @@ function routeChange() {
         this.init()
 }
 
+// filters ========================================================
+var FILTERS = {
+    text: '<input class="form-control" placeholder="{text}" v-model="filters.{key}" />',
+    select: '<div class="form-control" src="{src}" style="width:160px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
+    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>'
+}
+function getFilter(headers) {
+    headers = headers || []
+    var filter = []
+    utils.forEach(headers, function (v, i) {
+        if (!v.filter) return
+        var el = utils.substitute(FILTERS[v.type], v)
+        filter.push(el)
+    })
+    return filter
+}
 
 module.exports = {
     template: require('./page.html'),
@@ -130,6 +146,7 @@ module.exports = {
             return sd
         },
 
+
         init: function () {
             var search = utils.parseKeyValue(_location.node(true).search) || {},
                 self = this
@@ -140,6 +157,7 @@ module.exports = {
                 size: 20
             }
 
+            this.button = lang.get('button')
             this.filters = {}
             this.sort = {}
 
@@ -195,7 +213,9 @@ module.exports = {
 
                 this.struct = true
                 this.headers = res.body.headers
-                this.src = res.body.src
+                this.filter = getFilter(this.headers)
+                if (res.body.src)
+                    this.src = res.body.src
             }.bind(this), true)
         }
 
@@ -209,7 +229,6 @@ module.exports = {
         }
     },
     ready: function () {
-        //this.$watch('pager.page', this.update)
         if (this.routeChange)
             route.bind(routeChange.bind(this))
     },

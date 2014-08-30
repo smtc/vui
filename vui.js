@@ -6057,6 +6057,7 @@ var Vue             = require('vue'),
     loading         = require('./components/loading'),
     message         = require('./components/message'),
     tree            = require('./components/tree'),
+    lang            = require('./lang/lang'),
     $data           = {},
     initialized     = false,
     vm
@@ -6084,8 +6085,6 @@ function init() {
     if (initialized) return
     initialized = true
 
-    //$data.messages = message.messages
-
     vm = new Vue({
 
         el: 'body',
@@ -6112,6 +6111,9 @@ function init() {
 // export Vue
 window.Vue = Vue
 
+//set default language
+lang.set('zh-cn')
+
 module.exports = {
     request: request,
     utils: utils,
@@ -6122,6 +6124,7 @@ module.exports = {
     message: message,
     openbox: openbox,
     init: init,
+    setLang: lang.set,
     Vue: Vue,
     vm: vm,
     
@@ -7920,6 +7923,8 @@ module.exports = {
                     this.model = res.body.data
                 else if (res.body.errors)
                     message.error(res.body.errors)
+            } else {
+                message.error('', res.status)
             }
         }.bind(this))
     }
@@ -8228,11 +8233,8 @@ require.register("vui/src/components/message.js", function(exports, require, mod
  * message { text: '', type: '' }
  */
 var utils       = require('../utils'),
-    messages    = [],
-    httpStatus  = {
-        404: '请求的地址不存在',
-        500: '内部服务器错误'
-    }
+    lang        = require('../lang/lang'),
+    messages    = []
 
 var component = {
     template:   '<div v-repeat="messages" class="alert alert-{{type}}">' +
@@ -8276,7 +8278,7 @@ module.exports = {
     
     error: function (msg, status) {
         if (!msg && status)
-            msg = httpStatus[status]
+            msg = lang.get('httpStatus.' + status)
         this.push(msg || "", 'danger')
     },
     
@@ -8500,9 +8502,9 @@ var request   = require('../request'),
     route     = require('../route'),
     message   = require('./message'),
     loading   = require('./loading'),
+    lang      = require('../lang/lang'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
-
 
 function getSearch(pager, filters, sort) {
     var search = {},
@@ -8528,6 +8530,22 @@ function routeChange() {
         this.init()
 }
 
+// filters ========================================================
+var FILTERS = {
+    text: '<input class="form-control" placeholder="{text}" v-model="filters.{key}" />',
+    select: '<div class="form-control" src="{src}" style="width:160px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
+    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>'
+}
+function getFilter(headers) {
+    headers = headers || []
+    var filter = []
+    utils.forEach(headers, function (v, i) {
+        if (!v.filter) return
+        var el = utils.substitute(FILTERS[v.type], v)
+        filter.push(el)
+    })
+    return filter
+}
 
 module.exports = {
     template: require('./page.html'),
@@ -8626,6 +8644,7 @@ module.exports = {
             return sd
         },
 
+
         init: function () {
             var search = utils.parseKeyValue(_location.node(true).search) || {},
                 self = this
@@ -8636,6 +8655,7 @@ module.exports = {
                 size: 20
             }
 
+            this.button = lang.get('button')
             this.filters = {}
             this.sort = {}
 
@@ -8691,7 +8711,9 @@ module.exports = {
 
                 this.struct = true
                 this.headers = res.body.headers
-                this.src = res.body.src
+                this.filter = getFilter(this.headers)
+                if (res.body.src)
+                    this.src = res.body.src
             }.bind(this), true)
         }
 
@@ -8705,7 +8727,6 @@ module.exports = {
         }
     },
     ready: function () {
-        //this.$watch('pager.page', this.update)
         if (this.routeChange)
             route.bind(routeChange.bind(this))
     },
@@ -8779,6 +8800,7 @@ module.exports = {
 require.register("vui/src/components/select.js", function(exports, require, module){
 var request = require('../request'),
     utils   = require('../utils'),
+    lang    = require('../lang/lang'),
     forEach = utils.forEach
 
 module.exports = {
@@ -8813,7 +8835,7 @@ module.exports = {
             }
 
             forEach(this.options, function (item) {
-                if (value == item.value)
+                if (value === item.value)
                     this.select(item)
             }.bind(this))
         }
@@ -8824,10 +8846,15 @@ module.exports = {
     created: function () {
         var self = this
         utils.addClass(this.$el, 'select')
-        request.get(this.src).end(function (res) {
-            self.options = res.body
-            self.setValue(self.value)
-        })
+
+        if (this.src === 'bool') {
+            this.options = lang.get('boolSelect')
+        } else {
+            request.get(this.src).end(function (res) {
+                self.options = res.body
+                self.setValue(self.value)
+            })
+        }
 
         this.$closeHandle = function () {
             self.close()
@@ -9013,6 +9040,54 @@ module.exports = {
 }
 
 });
+require.register("vui/src/lang/lang.js", function(exports, require, module){
+var vs  = {}
+
+module.exports = {
+    get: function (key) {
+        var ks  = key.split('.'),
+            val = vs
+        ks.forEach(function (k, i) {
+            if (!val) {
+                val = undefined
+                return
+            }
+            val = val[k]
+        })
+        return val
+    },
+
+    set: function (lang) {
+        vs = require('./' + lang)
+    }
+}
+
+});
+require.register("vui/src/lang/zh-cn.js", function(exports, require, module){
+module.exports = {
+    httpStatus: {
+        404: '请求的地址不存在',
+        500: '内部服务器错误'
+    },
+    button: {
+        filter: '筛选',
+        reset: '重置',
+        submit: '提交',
+        ok: '确定',
+        cancel: '取消',
+        back: '返回',
+        add: '增加',
+        edit: '编辑',
+        del: '删除'
+    },
+    boolSelect: [
+        { text: '　', value: '' },
+        { text: '是', value: 1 },
+        { text: '否', value: 0 }
+    ]
+}
+
+});
 
 
 
@@ -9032,7 +9107,7 @@ require.register("vui/src/components/option.html", function(exports, require, mo
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
 });
 require.register("vui/src/components/page.html", function(exports, require, module){
-module.exports = '<content></content>\n<div v-if="struct">\n<table class="table table-bordered table-hover">\n    <thead>\n        <tr>\n            <th v-repeat="h:headers">{{h.text}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr v-repeat="d:data">\n            <td v-repeat="h:headers">{{d[h.key]}}</td>\n        </tr>\n    </body>\n</table>\n</div>\n';
+module.exports = '<content></content>\n<div v-if="struct">\n<form v-if="filter.length > 0" class="form-inline" v-on="submit:search">\n    <label v-repeat="f:filter" v-html="f" class="form-group"></label>\n    <label class="form-group"><button class="btn btn-primary">{{button.ok}}</button></label>\n    <label class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></label>\n    {{filters}}\n</form>\n<table class="table table-bordered table-hover">\n    <thead>\n        <tr>\n            <th v-repeat="h:headers">{{h.text}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr v-repeat="d:data">\n            <td v-repeat="h:headers">{{d[h.key]}}</td>\n        </tr>\n    </body>\n</table>\n</div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';

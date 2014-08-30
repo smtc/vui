@@ -7,6 +7,7 @@ var Vue             = require('vue'),
     loading         = require('./components/loading'),
     message         = require('./components/message'),
     tree            = require('./components/tree'),
+    lang            = require('./lang/lang'),
     $data           = {},
     initialized     = false,
     vm
@@ -34,8 +35,6 @@ function init() {
     if (initialized) return
     initialized = true
 
-    //$data.messages = message.messages
-
     vm = new Vue({
 
         el: 'body',
@@ -62,6 +61,9 @@ function init() {
 // export Vue
 window.Vue = Vue
 
+//set default language
+lang.set('zh-cn')
+
 module.exports = {
     request: request,
     utils: utils,
@@ -72,6 +74,7 @@ module.exports = {
     message: message,
     openbox: openbox,
     init: init,
+    setLang: lang.set,
     Vue: Vue,
     vm: vm,
     

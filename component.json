@@ -22,7 +22,9 @@
         "src/components/pagination.js",
         "src/components/scope.js",
         "src/components/select.js",
-        "src/components/tree.js"
+        "src/components/tree.js",
+        "src/lang/lang.js",
+        "src/lang/zh-cn.js"
     ],
     "templates": [
         "src/components/date.html",

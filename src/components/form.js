@@ -64,6 +64,8 @@ module.exports = {
                     this.model = res.body.data
                 else if (res.body.errors)
                     message.error(res.body.errors)
+            } else {
+                message.error('', res.status)
             }
         }.bind(this))
     }
