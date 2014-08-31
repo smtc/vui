@@ -8,13 +8,14 @@
     <h3>数据展示</h3>
     <div class="bs-callout bs-callout-info">
         <h4>v-component="page"</h4>
-        <pre class="prettyprint">&lt;ELEMENTTAG src="json/tablelist.json" delay="true" routeChange="true" size="10" v-component="page"&gt;</pre>
+        <pre class="prettyprint">&lt;ELEMENTTAG src="json/tablelist.json" delay="true" pageable="false" routeChange="true" size="10" v-component="page"&gt;</pre>
         <h4>参数</h4>
         <p>
             src - 获取数据的地址。<br />
             delay - 数据是否延时加载，默认为<code>false</code>。<br />
             routeChange - 筛选时是否改变route值，默认为<code>false</code>。<br />
             size - 每页返回数量，默认值<code>20</code>。<br />
+            pageable - 是否显示分页，默认值<code>true</code>。<br />
         </p>
     </div>
 
@@ -32,12 +33,19 @@
         </p>
         <p>
         <span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span>
+        <br />
+        <span class="label label-warning">page component 默认包含 pageable</span>
         </p>
     </div>
 
     <br />
     <h3>Example - Table</h3>
 <div class="bs-example bs-example-type" src="json/tablelist.json" routeChange="true" size="10" v-component="page">
+    <button v-on="click:pager.page=10">set page 10</button>
+    <button v-on="click:pager.size=40">set size 40</button>
+    <button v-on="click:del('id=1')">delete</button>
+    <br />
+    <br />
     <form class="form-inline" v-on="submit:search">
         <div class="form-group"><input class="form-control" placeholder="名称" v-model="filters.name" /></div>
         <div class="form-group"><div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"></div></div>
@@ -73,13 +81,7 @@
         </body>
     </table>
 
-    <div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
     selected: {{getSelected()}}
-    <br />
-
-    <button v-on="click:pager.page=10">set page 10</button>
-    <button v-on="click:pager.size=40">set size 40</button>
-    <button v-on="click:del('id=1')">delete</button>
     <br />
     Current Url: {{currentUrl}}
 
@@ -120,7 +122,6 @@
         &lt;/body&gt;
     &lt;/table&gt;
 
-    &lt;div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"&gt;&lt;/div&gt;
     selected: {{getSelected('id')}}
     &lt;br /&gt;
 
@@ -135,7 +136,7 @@
     <br />
 
 <h3>Example - List</h3>
-<div class="bs-example bs-example-type" src="json/tablelist.json" v-component="page">
+<div class="bs-example bs-example-type" src="json/tablelist.json" pageable="false" v-component="page">
     <form class="form-inline" v-on="submit:search">
         <label class="form-group"><input class="form-control" placeholder="名称" v-model="filters.name" /></label>
         <label class="form-group"><div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"></div></label>
@@ -172,7 +173,6 @@
         &lt;/p&gt;
     &lt;/div&gt;
 
-    &lt;div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"&gt;&lt;/div&gt;
     {{currentUrl}}
 &lt;/div&gt;</pre>
 

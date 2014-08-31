@@ -7701,6 +7701,7 @@ var STATUS = { DAY:1, MONTH:2, YEAR:3 }
 module.exports = {
     template: require('./date.html'),
     replace: true,
+    paramAttributes: ['placeholder'],
 
     methods: {
         open: function () {
@@ -7728,7 +7729,6 @@ module.exports = {
         },
 
         set: function (day, event) {
-            console.log(event)
             this.date = day.str
             this.currentDate = {
                 year: day.year,
@@ -8513,8 +8513,9 @@ function getSearch(pager, filters, sort) {
 
     forEach({p:pager, f:filters, s:sort}, function (obj, pre) {
         if (!obj) return
+        pre = pre === 'f' ? 'f.': ''
         forEach(obj, function (v, k) {
-            if (undefined !== v && '' !== v) search[pre + '.' + k] = v
+            if (undefined !== v && '' !== v) search[pre + k] = v
         })
     })
 
@@ -8533,10 +8534,10 @@ function routeChange() {
 
 // filters ========================================================
 var FILTERS = {
-    text: '<input class="form-control" placeholder="{text}" v-model="filters.{key}" />',
-    select: '<div class="form-control" src="{src}" style="width:160px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
-    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
-    date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}"></div>'
+    text: '<input class="form-control" placeholder="{text}" v-model="filters.{key}${filter}" />',
+    select: '<div class="form-control" src="{src}" style="width:160px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
+    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
+    date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}${filter}"></div>'
 }
 function getFilter(headers) {
     headers = headers || []
@@ -8547,6 +8548,15 @@ function getFilter(headers) {
         filter.push(el)
     })
     return filter
+}
+
+function getHeader(headers) {
+    headers = headers || []
+    var hs = []
+    utils.forEach(headers, function (v, i) {
+        if (!v.hide) hs.push(v)
+    })
+    return hs
 }
 
 module.exports = {
@@ -8660,6 +8670,7 @@ module.exports = {
             this.button = lang.get('button')
             this.filters = {}
             this.sort = {}
+            this.pageable = !(this.$el.getAttribute('pageable') === 'false')
 
             function setFilter(v, k) {
                 if (k.indexOf('f.') !== 0) return
@@ -8668,10 +8679,10 @@ module.exports = {
             
             forEach(search, function (v, k) {
                 switch (k) {
-                    case 'p.page':
+                    case 'page':
                         self.pager.page = parseInt(v)
                         break
-                    case 'p.size':
+                    case 'size':
                         self.pager.size = parseInt(v)
                         break
                     default:
@@ -8696,7 +8707,7 @@ module.exports = {
         total: 0,
         sort: {},
         struct: false,
-        src: ''
+        pageable: false
     },
     created: function () {
         this.init()
@@ -8704,6 +8715,7 @@ module.exports = {
         var struct = this.$el.getAttribute("struct")
         if (struct) {
             loading.start()
+            // use sync 
             request.get(struct).end(function (res) {
                 loading.end()
                 if (res.status !== 200 || res.body.status !== 1) {
@@ -8712,10 +8724,13 @@ module.exports = {
                 }
 
                 this.struct = true
-                this.headers = res.body.headers
-                this.filterTpl = getFilter(this.headers)
+                this.header = getHeader(res.body.headers)
+                this.filterTpl = getFilter(res.body.headers)
+                // if struct has src, use struct.src
                 if (res.body.src)
                     this.src = res.body.src
+                if (res.body.pageable !== undefined)
+                    this.pageable = res.body.pageable
             }.bind(this), true)
         }
 
@@ -9097,7 +9112,7 @@ module.exports = {
 
 
 require.register("vui/src/components/date.html", function(exports, require, module){
-module.exports = '<div v-on="click:open()">\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
+module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
@@ -9109,7 +9124,7 @@ require.register("vui/src/components/option.html", function(exports, require, mo
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
 });
 require.register("vui/src/components/page.html", function(exports, require, module){
-module.exports = '<content></content>\n<div v-if="struct">\n<form v-if="filterTpl.length > 0" class="form-inline" v-on="submit:search">\n    <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div>\n    <div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div>\n    <div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n</form>\n<table class="table table-bordered table-hover">\n    <thead>\n        <tr>\n            <th v-repeat="h:headers">{{h.text}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr v-repeat="d:data">\n            <td v-repeat="h:headers">{{d[h.key]}}</td>\n        </tr>\n    </body>\n</table>\n</div>\n';
+module.exports = '<content></content>\n<div v-if="struct">\n<form v-if="filterTpl.length > 0" class="form-inline" v-on="submit:search">\n    <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div>\n    <div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div>\n    <div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n</form>\n<table class="table table-bordered table-hover">\n    <thead>\n        <tr>\n            <th v-repeat="h:header">{{h.text}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr v-repeat="d:data">\n            <td v-repeat="h:header">{{d[h.key]}}</td>\n        </tr>\n    </body>\n</table>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';

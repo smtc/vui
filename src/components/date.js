@@ -20,6 +20,7 @@ var STATUS = { DAY:1, MONTH:2, YEAR:3 }
 module.exports = {
     template: require('./date.html'),
     replace: true,
+    paramAttributes: ['placeholder'],
 
     methods: {
         open: function () {
@@ -47,7 +48,6 @@ module.exports = {
         },
 
         set: function (day, event) {
-            console.log(event)
             this.date = day.str
             this.currentDate = {
                 year: day.year,

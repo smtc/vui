@@ -14,8 +14,9 @@ function getSearch(pager, filters, sort) {
 
     forEach({p:pager, f:filters, s:sort}, function (obj, pre) {
         if (!obj) return
+        pre = pre === 'f' ? 'f.': ''
         forEach(obj, function (v, k) {
-            if (undefined !== v && '' !== v) search[pre + '.' + k] = v
+            if (undefined !== v && '' !== v) search[pre + k] = v
         })
     })
 
@@ -34,10 +35,10 @@ function routeChange() {
 
 // filters ========================================================
 var FILTERS = {
-    text: '<input class="form-control" placeholder="{text}" v-model="filters.{key}" />',
-    select: '<div class="form-control" src="{src}" style="width:160px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
-    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}"></div>',
-    date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}"></div>'
+    text: '<input class="form-control" placeholder="{text}" v-model="filters.{key}${filter}" />',
+    select: '<div class="form-control" src="{src}" style="width:160px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
+    bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
+    date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}${filter}"></div>'
 }
 function getFilter(headers) {
     headers = headers || []
@@ -48,6 +49,15 @@ function getFilter(headers) {
         filter.push(el)
     })
     return filter
+}
+
+function getHeader(headers) {
+    headers = headers || []
+    var hs = []
+    utils.forEach(headers, function (v, i) {
+        if (!v.hide) hs.push(v)
+    })
+    return hs
 }
 
 module.exports = {
@@ -161,6 +171,7 @@ module.exports = {
             this.button = lang.get('button')
             this.filters = {}
             this.sort = {}
+            this.pageable = !(this.$el.getAttribute('pageable') === 'false')
 
             function setFilter(v, k) {
                 if (k.indexOf('f.') !== 0) return
@@ -169,10 +180,10 @@ module.exports = {
             
             forEach(search, function (v, k) {
                 switch (k) {
-                    case 'p.page':
+                    case 'page':
                         self.pager.page = parseInt(v)
                         break
-                    case 'p.size':
+                    case 'size':
                         self.pager.size = parseInt(v)
                         break
                     default:
@@ -197,7 +208,7 @@ module.exports = {
         total: 0,
         sort: {},
         struct: false,
-        src: ''
+        pageable: false
     },
     created: function () {
         this.init()
@@ -205,6 +216,7 @@ module.exports = {
         var struct = this.$el.getAttribute("struct")
         if (struct) {
             loading.start()
+            // use sync 
             request.get(struct).end(function (res) {
                 loading.end()
                 if (res.status !== 200 || res.body.status !== 1) {
@@ -213,10 +225,13 @@ module.exports = {
                 }
 
                 this.struct = true
-                this.headers = res.body.headers
-                this.filterTpl = getFilter(this.headers)
+                this.header = getHeader(res.body.headers)
+                this.filterTpl = getFilter(res.body.headers)
+                // if struct has src, use struct.src
                 if (res.body.src)
                     this.src = res.body.src
+                if (res.body.pageable !== undefined)
+                    this.pageable = res.body.pageable
             }.bind(this), true)
         }
 

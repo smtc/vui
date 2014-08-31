@@ -1,4 +1,5 @@
 <div v-on="click:open()">
+    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>
     <span class="date-text" v-text="date"></span>
     <i class="icon icon-calendar"></i>
     <div class="date-picker" v-class="date-picker-up: pickerUp">

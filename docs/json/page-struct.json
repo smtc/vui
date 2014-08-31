@@ -2,12 +2,12 @@
     "status": 1,
     "src": "json/tablelist.json",
     "headers": [
-        { "key": "id", "text": "id" }, 
-        { "key": "name", "text": "姓名", "type": "text", "filter": true }, 
-        { "key": "role", "text": "角色", "type": "select", "filter": true, "src": "json/select.json" },
+        { "key": "id", "text": "id", "hide": true }, 
+        { "key": "name", "text": "姓名", "type": "text", "filter": "eq" }, 
+        { "key": "role", "text": "角色", "type": "select", "filter": "eq", "src": "json/select.json" },
         { "key": "ip", "text": "ip" },
-        { "key": "time", "text": "时间", "type": "date", "filter": true },
-        { "key": "status", "text": "状态", "type": "bool", "filter": true },
+        { "key": "time", "text": "时间", "type": "date", "filter": "lt" },
+        { "key": "status", "text": "状态", "type": "bool", "filter": "eq" },
         { "key": "", "text": "" }
     ]
 }

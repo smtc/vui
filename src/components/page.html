@@ -8,13 +8,14 @@
 <table class="table table-bordered table-hover">
     <thead>
         <tr>
-            <th v-repeat="h:headers">{{h.text}}</th>
+            <th v-repeat="h:header">{{h.text}}</th>
         </tr>
     </thead>
     <tbody>
         <tr v-repeat="d:data">
-            <td v-repeat="h:headers">{{d[h.key]}}</td>
+            <td v-repeat="h:header">{{d[h.key]}}</td>
         </tr>
     </body>
 </table>
 </div>
+<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
