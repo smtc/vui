@@ -1,14 +1,19 @@
 {
     "status": 1,
     "src": "json/tablelist.json",
+    "op": {
+        "unit": {
+            "edit": "form.html?id={{id}}",
+            "del": "id={{id}}"
+        }
+    },
     "headers": [
         { "key": "id", "text": "id", "hide": true }, 
-        { "key": "name", "text": "姓名", "type": "text", "filter": "eq" }, 
+        { "key": "name", "text": "姓名", "type": "text", "filter": "like" }, 
         { "key": "role", "text": "角色", "type": "select", "filter": "eq", "src": "json/select.json" },
         { "key": "ip", "text": "ip" },
         { "key": "time", "text": "时间", "type": "date", "filter": "lt" },
-        { "key": "status", "text": "状态", "type": "bool", "filter": "eq" },
-        { "key": "", "text": "" }
+        { "key": "status", "text": "状态", "type": "bool", "filter": "eq" }
     ]
 }
 

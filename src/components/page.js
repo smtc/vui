@@ -60,6 +60,29 @@ function getHeader(headers) {
     return hs
 }
 
+// urls ============================================================
+var UNIT_OP = {
+    "edit": '<a title="{text}" v-href="{op}"><i class="icon icon-edit"></i></a>',
+    "del": '<a title="{text}" class="text-danger" href="javascript:;" v-on="click:del(\'{op}\')"><i class="icon icon-trash-o"></i></a>'
+}
+function getUnitOp(src) {
+    var ops = [],
+        op = '',
+        obj
+    src = src || {}
+    utils.forEach(src, function (v, k) {
+        op = UNIT_OP[k]
+        if (!op) return
+        obj = {
+            // {{key}} replace {{d.key}}，模板需要用d.key取值
+            op: v.replace(/\{\{([^{}]*)\}\}/g, "{{d.$1}}"),
+            text: lang.get('button.' + k)
+        }
+        ops.push(utils.substitute(op, obj))
+    })
+    return ops.join('&nbsp; ')
+}
+
 module.exports = {
     template: require('./page.html'),
 
@@ -130,6 +153,7 @@ module.exports = {
         },
 
         select: function (item) {
+            console.log(item)
             item.vui_checked = !item.vui_checked
         },
 
@@ -232,6 +256,9 @@ module.exports = {
                     this.src = res.body.src
                 if (res.body.pageable !== undefined)
                     this.pageable = res.body.pageable
+                if (res.body.op) {
+                    this.unitOp = getUnitOp(res.body.op.unit)
+                }
             }.bind(this), true)
         }
 

@@ -8559,6 +8559,29 @@ function getHeader(headers) {
     return hs
 }
 
+// urls ============================================================
+var UNIT_OP = {
+    "edit": '<a title="{text}" v-href="{op}"><i class="icon icon-edit"></i></a>',
+    "del": '<a title="{text}" class="text-danger" href="javascript:;" v-on="click:del(\'{op}\')"><i class="icon icon-trash-o"></i></a>'
+}
+function getUnitOp(src) {
+    var ops = [],
+        op = '',
+        obj
+    src = src || {}
+    utils.forEach(src, function (v, k) {
+        op = UNIT_OP[k]
+        if (!op) return
+        obj = {
+            // {{key}} replace {{d.key}}，模板需要用d.key取值
+            op: v.replace(/\{\{([^{}]*)\}\}/g, "{{d.$1}}"),
+            text: lang.get('button.' + k)
+        }
+        ops.push(utils.substitute(op, obj))
+    })
+    return ops.join('&nbsp; ')
+}
+
 module.exports = {
     template: require('./page.html'),
 
@@ -8629,6 +8652,7 @@ module.exports = {
         },
 
         select: function (item) {
+            console.log(item)
             item.vui_checked = !item.vui_checked
         },
 
@@ -8731,6 +8755,9 @@ module.exports = {
                     this.src = res.body.src
                 if (res.body.pageable !== undefined)
                     this.pageable = res.body.pageable
+                if (res.body.op) {
+                    this.unitOp = getUnitOp(res.body.op.unit)
+                }
             }.bind(this), true)
         }
 
@@ -9124,7 +9151,7 @@ require.register("vui/src/components/option.html", function(exports, require, mo
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
 });
 require.register("vui/src/components/page.html", function(exports, require, module){
-module.exports = '<content></content>\n<div v-if="struct">\n<form v-if="filterTpl.length > 0" class="form-inline" v-on="submit:search">\n    <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div>\n    <div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div>\n    <div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n</form>\n<table class="table table-bordered table-hover">\n    <thead>\n        <tr>\n            <th v-repeat="h:header">{{h.text}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr v-repeat="d:data">\n            <td v-repeat="h:header">{{d[h.key]}}</td>\n        </tr>\n    </body>\n</table>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
+module.exports = '<content></content>\n<div v-if="struct">\n<form v-if="filterTpl.length > 0" class="form-inline" v-on="submit:search">\n    <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div>\n    <div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div>\n    <div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n</form>\n<table class="table table-hover">\n    <thead>\n        <tr>\n            <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n            <th></th>\n            <th v-repeat="h:header">{{h.text}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr v-repeat="d:data">\n            <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n            <td v-html="unitOp"></td>\n            <td v-repeat="h:header" v-html="d[h.key]"></td>\n        </tr>\n    </body>\n</table>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
