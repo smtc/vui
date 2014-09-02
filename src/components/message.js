@@ -6,11 +6,15 @@ var utils       = require('../utils'),
     messages    = []
 
 var component = {
-    template:   '<div v-repeat="messages" class="alert alert-{{type}}">' +
+    template:   '<div v-show="messages.length>0">' +
+                '<div v-repeat="messages" class="alert alert-{{type}}">' +
                     '<strong>{{time}}</strong><br />' +
                     '{{text}}' +
                     '<button v-on="click: remove(this)" class="close">&times;</button>' +
+                '</div>' +
                 '</div>',
+
+    replace: true,
 
     data: {
         messages: messages
@@ -18,6 +22,7 @@ var component = {
 
     methods: {
         remove: function (item) {
+            //utils.arrayRemove(messages, item.$data)
             this.messages.$remove(item.$data)
         }
     }
