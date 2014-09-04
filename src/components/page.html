@@ -1,17 +1,11 @@
 <content></content>
 <div v-if="struct">
 <div class="page-header">
-    <div class="buttons">
-        <a class="btn btn-success" v-href="account.edit#0"><i class="icon icon-plus"></i> 新建</a>
-        <a class="btn btn-info" ><i class="icon icon-refresh"></i> 刷新</a>
-        <a class="btn btn-default" v-if="filterTpl.length>0" href="javascript:;" v-on="click:filterShow=!filterShow"><i v-class="icon-eye:filterShow,icon-eye-slash:!filterShow" class="icon"></i> 筛选</a>
-    </div>
+    <div class="buttons" v-html="multOp"></div>
 </div>
 <div class="page-content">
     <form v-if="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">
-        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div>
-        <div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div>
-        <div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>
+        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>
     </form>
     <table class="table table-hover">
         <thead>

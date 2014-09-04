@@ -40,10 +40,10 @@ var FILTERS = {
     bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
     date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}${filter}"></div>'
 }
-function getFilter(headers) {
-    headers = headers || []
+function getFilter(structs) {
+    structs = structs || []
     var filter = []
-    utils.forEach(headers, function (v, i) {
+    utils.forEach(structs, function (v, i) {
         if (!v.filter) return
         var el = utils.substitute(FILTERS[v.type], v)
         filter.push(el)
@@ -51,27 +51,33 @@ function getFilter(headers) {
     return filter
 }
 
-function getHeader(headers) {
-    headers = headers || []
+function getHeader(structs) {
+    structs = structs || []
     var hs = []
-    utils.forEach(headers, function (v, i) {
+    utils.forEach(structs, function (v, i) {
         if (!v.hide) hs.push(v)
     })
     return hs
 }
 
-// urls ============================================================
+// buttons ==========================================================
 var UNIT_OP = {
     "edit": '<a title="{text}" v-href="{op}"><i class="icon icon-edit"></i></a>',
     "del": '<a title="{text}" class="text-danger" href="javascript:;" v-on="click:del(\'{op}\')"><i class="icon icon-trash-o"></i></a>'
 }
-function getUnitOp(src) {
+var MULT_OP = {
+    "new": '<a class="btn btn-success" v-href="{op}"><i class="icon icon-plus"></i> {text}</a>',
+    "refresh": '<a class="btn btn-info" v-on="click:update"><i class="icon icon-refresh"></i> {text}</a>',
+    "del": '<a class="btn btn-danger" title="{text}" class="text-danger" href="javascript:;" v-on="click:delSelect(\'{op}\')"><i class="icon icon-trash-o"></i> {text}</a>',
+    "filter": '<a class="btn btn-default" v-if="filterTpl.length>0" href="javascript:;" v-on="click:filterShow=!filterShow"><i v-class="icon-eye:filterShow,icon-eye-slash:!filterShow" class="icon"></i> {text}</a>'
+}
+function getOp(src, oplist) {
     var ops = [],
         op = '',
         obj
     src = src || {}
     utils.forEach(src, function (v, k) {
-        op = UNIT_OP[k]
+        op = oplist[k]
         if (!op) return
         obj = {
             // {{key}} replace {{d.key}}，模板需要用d.key取值
@@ -81,6 +87,15 @@ function getUnitOp(src) {
         ops.push(utils.substitute(op, obj))
     })
     return ops.join('&nbsp; ')
+}
+function getUnitOp(src) {
+    return getOp(src, UNIT_OP)
+}
+function getMultOp(src, filter) {
+    var ops = getOp(src, MULT_OP)
+    if (filter)
+        ops += '&nbsp; ' + utils.substitute(MULT_OP["filter"], { text: lang.get('button.filter') })
+    return ops
 }
 
 module.exports = {
@@ -145,15 +160,26 @@ module.exports = {
             }.bind(this))
         },
 
+        delSelect: function (keys) {
+            keys = keys || 'id'
+            if (typeof keys == 'string')
+                keys = keys.split(',')
+
+            for (var i=0; i<keys.length; i++) {
+                keys[i] = keys[i].trim()
+            }
+            var data = this.getSelected.apply(this, keys)
+            this.del(data)
+        },
+
         selectAll: function () {
             var allChecked = this.allChecked = !this.allChecked
             utils.forEach(this.data, function (d) {
                 d.vui_checked = allChecked
             })
         },
-
+        
         select: function (item) {
-            console.log(item)
             item.vui_checked = !item.vui_checked
         },
 
@@ -249,8 +275,8 @@ module.exports = {
                 }
 
                 this.struct = true
-                this.header = getHeader(res.body.headers)
-                this.filterTpl = getFilter(res.body.headers)
+                this.header = getHeader(res.body.structs)
+                this.filterTpl = getFilter(res.body.structs)
                 // if struct has src, use struct.src
                 if (res.body.src)
                     this.src = res.body.src
@@ -258,6 +284,7 @@ module.exports = {
                     this.pageable = res.body.pageable
                 if (res.body.op) {
                     this.unitOp = getUnitOp(res.body.op.unit)
+                    this.multOp = getMultOp(res.body.op.mult, this.filterTpl.length>0)
                 }
             }.bind(this), true)
         }

@@ -18,8 +18,46 @@
 
     <br />
     <h3>Example</h3>
-    <div class="bs-example bs-example-type" struct="json/page-struct.json" routeChange="true" size="10" v-component="page">
+    <div class="bs-example bs-example-type">
+        <div struct="json/page-struct.json" pageable="true" routeChange="true" size="10" v-component="page"></div>
     </div>
     <pre v-pre class="prettyprint">
+&lt;div struct="json/page-struct.json" pageable="true" routeChange="true" size="10" v-component="page"&gt;&lt;/div&gt;
+</pre>
+<pre v-pre class="prettyprint">
+//struct结构
+{
+    "status": 1, // 状态 1为成功
+    "src": "example/user/", // api地址，使用RESTful架构
+    "op": {
+        "unit": { // 行内操作按钮
+            "edit": "form.html?id={{id}}", // 内置 edit
+            "del": "id={{id}}" // 内置 del
+        },
+        "mult": { // 表格操作按钮
+            "new": "form.html", // 内置 新建
+            "refresh": "", // 内置 刷新
+            "del": "id" // 内置 批量删除
+        }
+    },
+    "structs": [
+        { "key": "id", "text": "id", "hide": true }, 
+        { "key": "name", "text": "姓名", "type": "text", "filter": "like" }, 
+        { "key": "role", "text": "角色", "type": "select", "filter": "eq", "src": "json/select.json" },
+        { "key": "ip", "text": "ip" },
+        { "key": "time", "text": "时间", "type": "date" },
+        { "key": "time", "text": "开始时间", "hide": true, "type": "date", "filter": "gt" },
+        { "key": "time", "text": "结束时间", "hide": true, "type": "date", "filter": "lt" },
+        { "key": "status", "text": "状态", "type": "bool", "filter": "eq" }
+    ]
+}
+
+//structs 说明
+    key: json数据key
+    text: 显示名称
+    type: 类型
+    filter: 查询条件，like: %%，eq: =, neq: !=, lt: &lt;, gt: &gt;, in: in
+    src: 数据源地址
+
     </pre>
 </div>

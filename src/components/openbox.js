@@ -1,5 +1,6 @@
 var Vue     = require('vue'),
     utils   = require('../utils'),
+    lang    = require('../lang/lang'),
     //request = require('../request'),
     route   = require('../route')
 
@@ -23,7 +24,8 @@ function openbox(opts) {
             replace: true,
             methods: {
                 show: function () {
-                    utils.addClass(this.$el, 'open')
+                    //utils.addClass(this.$el, 'open')
+                    this.$open = true
                     var box = this.$el.querySelector('.openbox-content')
                     box.style.width = this.width
                 },
@@ -42,6 +44,7 @@ function openbox(opts) {
             data: data,
             created: function () {
                 document.body.appendChild(this.$el)
+                this.$open = false
                 var self = this
                 if (opts.btns) {
                     self.btns = []
@@ -49,10 +52,10 @@ function openbox(opts) {
                         if (typeof btn === 'string') {
                             switch(btn) {
                                 case 'close':
-                                    self.btns.push({ text: '关 闭', type:'default', fn: self.close.bind(self) })
+                                    self.btns.push({ text: lang.get('button.close'), type:'default', fn: self.close.bind(self) })
                                     break
                                 case 'ok':
-                                    self.btns.push({ text: '确 定', type:'primary', fn: self.close.bind(self, true) })
+                                    self.btns.push({ text: lang.get('button.ok'), type:'primary', fn: self.close.bind(self, true) })
                                     break
                             }
                         } else {
@@ -79,5 +82,10 @@ function openbox(opts) {
     return vm
 }
 
+openbox.danger = function (message) {
+    openbox({
+        title: 'danger'
+    })
+}
 
 module.exports = openbox

@@ -1,4 +1,4 @@
-<div class="openbox">
+<div v-show="$open" class="openbox" v-transition>
     <div class="openbox-backdrop"></div>
     <div class="openbox-inner" v-on="click:bgclose">
         <div class="openbox-content">

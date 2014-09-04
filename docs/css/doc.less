@@ -4,6 +4,7 @@ html, body {
   height: 100%;
 }
 
+
 .sidebar {
     width: 300px;
     position: fixed;
@@ -46,6 +47,28 @@ html, body {
 .page-header {
     border-bottom: 1px solid #eee;
     margin-top: 10px;
+    position: relative;
+    height: 42px;
+
+    .buttons {
+        position: absolute;
+        right: 10px;
+        top: 0px;
+    }
+}
+
+.page-filter {
+    width: 100%;
+    transition: all .3s ease;
+    padding: 10px 10px 0;
+    background-color: #f1f1f1;
+
+    &.v-enter, &.v-leave {
+        height: 0;
+        padding: 0 10px;
+        opacity: 0;
+        margin: 0;
+    }
 }
 
 .message {
@@ -57,11 +80,18 @@ html, body {
     margin: 0 -300px;
 
     .alert {
+        transition: all .3s ease;
         .box-shadow(0 5px 15px rgba(0,0,0,.3));
+
+        &.v-enter, &.v-leave {
+            opacity: 0;
+            height: 0;
+        }
     }
 }
 
 .loading {
+    transition: all .3s ease;
     position: fixed;
     left: 0;
     right: 0;
@@ -84,6 +114,11 @@ html, body {
         img {
             margin: -2px 12px 0 0;
         }
+    }
+
+    &.v-enter, &.v-leave {
+        opacity: 0;
+        height: 0;
     }
 }
 

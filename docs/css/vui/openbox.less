@@ -1,5 +1,12 @@
 .openbox {
-    display: none;
+    transition: all .3s ease;
+
+    &.v-enter, &.v-leave {
+        height: 0;
+        padding: 0;
+        opacity: 0;
+        margin: 0;
+    }
 }
 
 
@@ -61,6 +68,7 @@
 .openbox-body {
     padding: 20px;
     min-width: 600px;
+    transition: all .3s ease;
 }
 
 .openbox-footer {

@@ -8,9 +8,12 @@ module.exports = {
         reset: '重置',
         submit: '提交',
         ok: '确定',
+        close: '关闭',
         cancel: '取消',
         back: '返回',
         add: '增加',
+        new: '新建',
+        refresh: '刷新',
         edit: '编辑',
         del: '删除'
     },
