@@ -61,7 +61,7 @@ module.exports = {
         request.get(this.src + hash).query(search).end(function (res) {
             if (res.status === 200) {
                 if (res.body.status === 1)
-                    this.model = res.body.data
+                    this.model = res.body.data || {}
                 else if (res.body.errors)
                     message.error(res.body.errors)
             } else {

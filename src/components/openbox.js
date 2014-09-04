@@ -15,7 +15,8 @@ function openbox(opts) {
         data = utils.extend({
             title: opts.title,
             width: opts.width || 600,
-            model: { name:1235 },
+            model: {},
+            btns: [],
             src: opts.src
         }, opts.data),
 
@@ -45,9 +46,9 @@ function openbox(opts) {
             created: function () {
                 document.body.appendChild(this.$el)
                 this.$open = false
-                var self = this
+                this.btns = []
                 if (opts.btns) {
-                    self.btns = []
+                    var self = this
                     utils.forEach(opts.btns, function (btn) {
                         if (typeof btn === 'string') {
                             switch(btn) {
@@ -65,9 +66,10 @@ function openbox(opts) {
                 }
 
                 this.$watch('src', function () {
-                    route.getComponent(this.src, function () {
-                        this.content = this.src
-                    }.bind(this))
+                    if (this.src)
+                        route.getComponent(this.src, function () {
+                            this.content = this.src
+                        }.bind(this))
                 }.bind(this))
             },
 

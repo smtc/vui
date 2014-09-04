@@ -7921,7 +7921,7 @@ module.exports = {
         request.get(this.src + hash).query(search).end(function (res) {
             if (res.status === 200) {
                 if (res.body.status === 1)
-                    this.model = res.body.data
+                    this.model = res.body.data || {}
                 else if (res.body.errors)
                     message.error(res.body.errors)
             } else {
@@ -8322,7 +8322,8 @@ function openbox(opts) {
         data = utils.extend({
             title: opts.title,
             width: opts.width || 600,
-            model: { name:1235 },
+            model: {},
+            btns: [],
             src: opts.src
         }, opts.data),
 
@@ -8352,9 +8353,9 @@ function openbox(opts) {
             created: function () {
                 document.body.appendChild(this.$el)
                 this.$open = false
-                var self = this
+                this.btns = []
                 if (opts.btns) {
-                    self.btns = []
+                    var self = this
                     utils.forEach(opts.btns, function (btn) {
                         if (typeof btn === 'string') {
                             switch(btn) {
@@ -8372,9 +8373,10 @@ function openbox(opts) {
                 }
 
                 this.$watch('src', function () {
-                    route.getComponent(this.src, function () {
-                        this.content = this.src
-                    }.bind(this))
+                    if (this.src)
+                        route.getComponent(this.src, function () {
+                            this.content = this.src
+                        }.bind(this))
                 }.bind(this))
             },
 
@@ -9190,7 +9192,7 @@ require.register("vui/src/components/form-control.html", function(exports, requi
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.register("vui/src/components/option.html", function(exports, require, module){
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
