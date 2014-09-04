@@ -9052,28 +9052,43 @@ var tree = {
 
     created: function () {
         var self = this
+        this.$initialized = false
+        this.$first = true
         this.data = []
         this.list = {}
         this.selectable = this.selectable === 'true'
-        this.value = ''
         this.select = this.select || 'id'
+
         if (this.src) {
             request.get(this.src).end(function (res) {
-                if (res.status !== 200) {
+               if (res.status !== 200) {
                     message.error(null, res.status)
                     return
                 }
                 if (res.body.status == 1) {
                     self.data = initData(res.body.data, self.list)
-                    initValue(self.list, self.value, self.select)
+                    if (self.value && !self.$initialized) {
+                        self.$initialized = true
+                        initValue(self.list, self.value, self.select)
+                    }
+
+                    self.$watch('data', function () {
+                        self.value = self.getSelected(self.select)
+                    })
                 } else {
                     message.error(res.body.errors)
-                }
+                } 
             })
         }
 
-        this.$watch('data', function () {
-            this.value = this.getSelected(this.select)
+    },
+
+    ready: function () {
+        // 初始化赋值
+        this.$watch('value', function () {
+            if (this.$initialized) return
+            this.$initialized = true
+            initValue(this.list, this.value, this.select)
         }.bind(this))
     }
 }
