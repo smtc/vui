@@ -1,4 +1,5 @@
-var utils = require('../utils')
+var utils = require('../utils'),
+    lang  = require('../lang/lang')
 
 function getCol(str, label) {
     var col = [2, 6]
@@ -44,30 +45,9 @@ var TEMPLATES = {
         'tel': /^[\d\s ().-]+$/
     },
 
-    MSGS = {
-        'require': '不能为空',
-        'maxlen': '长度不能大于{_maxlen}',
-        'minlen': '长度不能小于{_minlen}',
-        'maxlen_cb': '最多选{_maxlen}个选项',
-        'minlen_cb': '最少选{_minlen}个选项',
-        'max': '不能大于{_max}',
-        'min': '不能小于{_min}',
-        'regex': '格式不正确',
-        'alpha': '只能包含英文字符，"-"，"_"',
-        'alphanum': '只能包含数字、英文字符和"_"',
-        'tip': '{_tip}'
-    },
+    MSGS,
 
-    TIPS = {
-        'require': '必填',
-        'max': '最大值{_max}',
-        'min': '最小值{_min}',
-        'maxlen': '最大长度{_maxlen}',
-        'minlen': '最小长度{_minlen}',
-        'maxlen_cb': '最多选{_maxlen}项',
-        'minlen_cb': '最少选{_minlen}项'
-    }
-
+    TIPS
 
 // 必填
 function _require() {
@@ -205,6 +185,9 @@ module.exports = {
     data: {},
 
     created: function () {
+        TIPS = lang.get('validation.tips')
+        MSGS = lang.get('validation.msgs')
+
         this.id = utils.nextUid()
         this.pass()
         this.checkList = []

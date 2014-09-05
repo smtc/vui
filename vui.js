@@ -7933,7 +7933,8 @@ module.exports = {
 
 });
 require.register("vui/src/components/form-control.js", function(exports, require, module){
-var utils = require('../utils')
+var utils = require('../utils'),
+    lang  = require('../lang/lang')
 
 function getCol(str, label) {
     var col = [2, 6]
@@ -7979,30 +7980,9 @@ var TEMPLATES = {
         'tel': /^[\d\s ().-]+$/
     },
 
-    MSGS = {
-        'require': '不能为空',
-        'maxlen': '长度不能大于{_maxlen}',
-        'minlen': '长度不能小于{_minlen}',
-        'maxlen_cb': '最多选{_maxlen}个选项',
-        'minlen_cb': '最少选{_minlen}个选项',
-        'max': '不能大于{_max}',
-        'min': '不能小于{_min}',
-        'regex': '格式不正确',
-        'alpha': '只能包含英文字符，"-"，"_"',
-        'alphanum': '只能包含数字、英文字符和"_"',
-        'tip': '{_tip}'
-    },
+    MSGS,
 
-    TIPS = {
-        'require': '必填',
-        'max': '最大值{_max}',
-        'min': '最小值{_min}',
-        'maxlen': '最大长度{_maxlen}',
-        'minlen': '最小长度{_minlen}',
-        'maxlen_cb': '最多选{_maxlen}项',
-        'minlen_cb': '最少选{_minlen}项'
-    }
-
+    TIPS
 
 // 必填
 function _require() {
@@ -8140,6 +8120,9 @@ module.exports = {
     data: {},
 
     created: function () {
+        TIPS = lang.get('validation.tips')
+        MSGS = lang.get('validation.msgs')
+
         this.id = utils.nextUid()
         this.pass()
         this.checkList = []
@@ -8324,6 +8307,7 @@ function openbox(opts) {
             width: opts.width || 600,
             model: {},
             btns: [],
+            body: opts.body,
             src: opts.src
         }, opts.data),
 
@@ -8391,9 +8375,13 @@ function openbox(opts) {
     return vm
 }
 
-openbox.danger = function (message) {
+openbox.confirm = function (message, callback) {
     openbox({
-        title: 'danger'
+        title: "Confirm",
+        show: true,
+        body: message,
+        btns: ['ok', 'close'],
+        callback: callback
     })
 }
 
@@ -8521,6 +8509,7 @@ var request   = require('../request'),
     message   = require('./message'),
     loading   = require('./loading'),
     lang      = require('../lang/lang'),
+    openbox   = require('./openbox'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
@@ -8576,7 +8565,7 @@ function getHeader(structs) {
     return hs
 }
 
-// buttons ==========================================================
+// buttons =========================================================
 var UNIT_OP = {
     "edit": '<a title="{text}" v-href="{op}"><i class="icon icon-edit"></i></a>',
     "del": '<a title="{text}" class="text-danger" href="javascript:;" v-on="click:del(\'{op}\')"><i class="icon icon-trash-o"></i></a>'
@@ -8634,16 +8623,15 @@ module.exports = {
                 _location.search(search.obj)
 
             loading.start()
-            request.get(url)
-                .end(function (res) {
-                    loading.end()
-                    if (res.status != 200) {
-                        message.error('', res.status)
-                        return
-                    }
-                    self.data = res.body.data
-                    self.total = res.body.total
-                })
+            request.get(url).end(function (res) {
+                loading.end()
+                if (res.status != 200) {
+                    message.error('', res.status)
+                    return
+                }
+                self.data = res.body.data
+                self.total = res.body.total
+            })
         },
 
         updateModel: function (item) {
@@ -8662,18 +8650,29 @@ module.exports = {
         },
 
         del: function (data) {
-            loading.start()
-            request.del(this.src).send(data).end(function (res) {
-                loading.end()
-                if (res.status != 200) {
-                    message.error('', res.status)
-                    return
-                }
-                if (res.body.status === 1)
-                    this.update()
-                else
-                    message.error(res.body.errors)
-            }.bind(this))
+            var self = this
+            function _del() {
+                loading.start()
+                request.del(self.src).send(data).end(function (res) {
+                    loading.end()
+                    if (res.status != 200) {
+                        message.error('', res.status)
+                        return
+                    }
+                    if (res.body.status === 1)
+                        self.update()
+                    else
+                        message.error(res.body.errors)
+                })
+            }
+            
+            var count = 1
+            if ('string' !== typeof data)
+                count = data.length
+            openbox.confirm(lang.get('page.del_confirm', {count: count}), function (status) {
+                if (status) _del()
+            })
+            
         },
 
         delSelect: function (keys) {
@@ -8685,7 +8684,11 @@ module.exports = {
                 keys[i] = keys[i].trim()
             }
             var data = this.getSelected.apply(this, keys)
-            this.del(data)
+
+            if (data.length === 0)
+                message.warn(lang.get('page.must_select'))
+            else
+                this.del(data)
         },
 
         selectAll: function () {
@@ -9144,10 +9147,12 @@ module.exports = {
 
 });
 require.register("vui/src/lang/lang.js", function(exports, require, module){
+var utils = require('../utils')
+
 var vs  = {}
 
 module.exports = {
-    get: function (key) {
+    get: function (key, obj) {
         var ks  = key.split('.'),
             val = vs
         ks.forEach(function (k, i) {
@@ -9157,6 +9162,8 @@ module.exports = {
             }
             val = val[k]
         })
+        if (typeof obj === 'object')
+            val = utils.substitute(val, obj)
         return val
     },
 
@@ -9190,7 +9197,35 @@ module.exports = {
         { text: '　', value: '' },
         { text: '是', value: 1 },
         { text: '否', value: 0 }
-    ]
+    ],
+    validation: {
+        msgs: {
+            'require': '不能为空',
+            'maxlen': '长度不能大于{_maxlen}',
+            'minlen': '长度不能小于{_minlen}',
+            'maxlen_cb': '最多选{_maxlen}个选项',
+            'minlen_cb': '最少选{_minlen}个选项',
+            'max': '不能大于{_max}',
+            'min': '不能小于{_min}',
+            'regex': '格式不正确',
+            'alpha': '只能包含英文字符，"-"，"_"',
+            'alphanum': '只能包含数字、英文字符和"_"',
+            'tip': '{_tip}'
+        },
+        tips: {
+            'require': '必填',
+            'max': '最大值{_max}',
+            'min': '最小值{_min}',
+            'maxlen': '最大长度{_maxlen}',
+            'minlen': '最小长度{_minlen}',
+            'maxlen_cb': '最多选{_maxlen}项',
+            'minlen_cb': '最少选{_minlen}项'
+        }
+    },
+    page: {
+        del_confirm: '是否确定要删除这 {count} 条数据？',
+        must_select: '至少选择一条数据'
+    }
 }
 
 });
@@ -9207,7 +9242,7 @@ require.register("vui/src/components/form-control.html", function(exports, requi
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.register("vui/src/components/option.html", function(exports, require, module){
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';

@@ -17,6 +17,7 @@ function openbox(opts) {
             width: opts.width || 600,
             model: {},
             btns: [],
+            body: opts.body,
             src: opts.src
         }, opts.data),
 
@@ -84,9 +85,13 @@ function openbox(opts) {
     return vm
 }
 
-openbox.danger = function (message) {
+openbox.confirm = function (message, callback) {
     openbox({
-        title: 'danger'
+        title: "Confirm",
+        show: true,
+        body: message,
+        btns: ['ok', 'close'],
+        callback: callback
     })
 }
 

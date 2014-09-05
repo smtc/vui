@@ -1,7 +1,9 @@
+var utils = require('../utils')
+
 var vs  = {}
 
 module.exports = {
-    get: function (key) {
+    get: function (key, obj) {
         var ks  = key.split('.'),
             val = vs
         ks.forEach(function (k, i) {
@@ -11,6 +13,8 @@ module.exports = {
             }
             val = val[k]
         })
+        if (typeof obj === 'object')
+            val = utils.substitute(val, obj)
         return val
     },
 

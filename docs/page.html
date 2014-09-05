@@ -40,46 +40,58 @@
 
     <br />
     <h3>Example - Table</h3>
-<div class="bs-example bs-example-type" src="json/tablelist.json" routeChange="true" size="10" v-component="page">
+<div class="bs-example bs-example-type" src="json/tablelist.json" pageable="false" routeChange="true" size="10" v-component="page">
     <button v-on="click:pager.page=10">set page 10</button>
     <button v-on="click:pager.size=40">set size 40</button>
     <button v-on="click:del('id=1')">delete</button>
     <br />
     <br />
-    <form class="form-inline" v-on="submit:search">
-        <div class="form-group"><input class="form-control" placeholder="名称" v-model="filters.name" /></div>
-        <div class="form-group"><div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"></div></div>
-        <div class="form-group"><div class="form-control date" style="width:160px" v-component="date" v-with="date:filter.date"></div></div>
-        <div class="form-group"><button class="btn btn-primary">确定</button></div>
-        <div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">重置</button></div>
-    </form>
+    <div class="page-header">
+        <div class="buttons">
+            <a class="btn btn-success" v-href="form.html"><i class="icon icon-plus"></i> 新建</a>&nbsp; 
+            <a class="btn btn-info" v-on="click:update"><i class="icon icon-refresh"></i> 刷新</a>&nbsp; 
+            <a class="btn btn-danger" v-on="click:delSelect" title="删除" href="javascript:;"><i class="icon icon-trash-o"></i> 删除</a>&nbsp; 
+            <a class="btn btn-default" href="javascript:;" v-on="click:filterShow=!filterShow"><i v-class="icon-eye:filterShow,icon-eye-slash:!filterShow" class="icon"></i> 筛选</a>
+        </div>
+    </div>
+    <div class="page-content">
+        <form v-if="filterShow" class="form-inline" v-on="submit:search">
+            <div class="form-group"><input class="form-control" placeholder="名称" v-model="filters.name" /></div>
+            <div class="form-group"><div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"></div></div>
+            <div class="form-group"><div class="form-control date" style="width:160px" v-component="date" v-with="date:filter.date"></div></div>
+            <div class="form-group"><button class="btn btn-primary">确定</button></div>
+            <div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">重置</button></div>
+        </form>
 
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>
-                <th>id</th>
-                <th>姓名</th>
-                <th>角色</th>
-                <th>ip</th>
-                <th>时间</th>
-                <th>状态</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-repeat="data">
-                <td v-on="click: select(this)"><i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"></i></td>
-                <td>{{id}}</td>
-                <td v-editable="name"></td>
-                <td>{{role}}</td>
-                <td>{{ip}}</td>
-                <td>{{time}}</td>
-                <td>{{status}}</td>
-                <td><label v-on="click: updateModel(this)" class="label label-info">保存</label></td>
-            </tr>
-        </body>
-    </table>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>
+                    <th>id</th>
+                    <th>姓名</th>
+                    <th>角色</th>
+                    <th>ip</th>
+                    <th>时间</th>
+                    <th>状态</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-repeat="data">
+                    <td v-on="click: select(this)"><i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"></i></td>
+                    <td>{{id}}</td>
+                    <td v-editable="name"></td>
+                    <td>{{role}}</td>
+                    <td>{{ip}}</td>
+                    <td>{{time}}</td>
+                    <td>{{status}}</td>
+                    <td><label v-on="click: updateModel(this)" class="label label-info">保存</label></td>
+                </tr>
+            </body>
+        </table>
+        
+        <div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
+    </div>
 
     selected: {{getSelected()}}
     <br />

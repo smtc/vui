@@ -5,6 +5,7 @@ var request   = require('../request'),
     message   = require('./message'),
     loading   = require('./loading'),
     lang      = require('../lang/lang'),
+    openbox   = require('./openbox'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
@@ -60,7 +61,7 @@ function getHeader(structs) {
     return hs
 }
 
-// buttons ==========================================================
+// buttons =========================================================
 var UNIT_OP = {
     "edit": '<a title="{text}" v-href="{op}"><i class="icon icon-edit"></i></a>',
     "del": '<a title="{text}" class="text-danger" href="javascript:;" v-on="click:del(\'{op}\')"><i class="icon icon-trash-o"></i></a>'
@@ -118,16 +119,15 @@ module.exports = {
                 _location.search(search.obj)
 
             loading.start()
-            request.get(url)
-                .end(function (res) {
-                    loading.end()
-                    if (res.status != 200) {
-                        message.error('', res.status)
-                        return
-                    }
-                    self.data = res.body.data
-                    self.total = res.body.total
-                })
+            request.get(url).end(function (res) {
+                loading.end()
+                if (res.status != 200) {
+                    message.error('', res.status)
+                    return
+                }
+                self.data = res.body.data
+                self.total = res.body.total
+            })
         },
 
         updateModel: function (item) {
@@ -146,18 +146,29 @@ module.exports = {
         },
 
         del: function (data) {
-            loading.start()
-            request.del(this.src).send(data).end(function (res) {
-                loading.end()
-                if (res.status != 200) {
-                    message.error('', res.status)
-                    return
-                }
-                if (res.body.status === 1)
-                    this.update()
-                else
-                    message.error(res.body.errors)
-            }.bind(this))
+            var self = this
+            function _del() {
+                loading.start()
+                request.del(self.src).send(data).end(function (res) {
+                    loading.end()
+                    if (res.status != 200) {
+                        message.error('', res.status)
+                        return
+                    }
+                    if (res.body.status === 1)
+                        self.update()
+                    else
+                        message.error(res.body.errors)
+                })
+            }
+            
+            var count = 1
+            if ('string' !== typeof data)
+                count = data.length
+            openbox.confirm(lang.get('page.del_confirm', {count: count}), function (status) {
+                if (status) _del()
+            })
+            
         },
 
         delSelect: function (keys) {
@@ -169,7 +180,11 @@ module.exports = {
                 keys[i] = keys[i].trim()
             }
             var data = this.getSelected.apply(this, keys)
-            this.del(data)
+
+            if (data.length === 0)
+                message.warn(lang.get('page.must_select'))
+            else
+                this.del(data)
         },
 
         selectAll: function () {

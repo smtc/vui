@@ -21,5 +21,33 @@ module.exports = {
         { text: '　', value: '' },
         { text: '是', value: 1 },
         { text: '否', value: 0 }
-    ]
+    ],
+    validation: {
+        msgs: {
+            'require': '不能为空',
+            'maxlen': '长度不能大于{_maxlen}',
+            'minlen': '长度不能小于{_minlen}',
+            'maxlen_cb': '最多选{_maxlen}个选项',
+            'minlen_cb': '最少选{_minlen}个选项',
+            'max': '不能大于{_max}',
+            'min': '不能小于{_min}',
+            'regex': '格式不正确',
+            'alpha': '只能包含英文字符，"-"，"_"',
+            'alphanum': '只能包含数字、英文字符和"_"',
+            'tip': '{_tip}'
+        },
+        tips: {
+            'require': '必填',
+            'max': '最大值{_max}',
+            'min': '最小值{_min}',
+            'maxlen': '最大长度{_maxlen}',
+            'minlen': '最小长度{_minlen}',
+            'maxlen_cb': '最多选{_maxlen}项',
+            'minlen_cb': '最少选{_minlen}项'
+        }
+    },
+    page: {
+        del_confirm: '是否确定要删除这 {count} 条数据？',
+        must_select: '至少选择一条数据'
+    }
 }
