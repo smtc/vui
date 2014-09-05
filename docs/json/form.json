@@ -1,0 +1,8 @@
+{
+    "status": 1,
+    "data": {
+        "email": "admin@example.com",
+        "select": 2,
+        "tree": "account.user.roles"
+    }
+}

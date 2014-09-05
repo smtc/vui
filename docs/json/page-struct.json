@@ -1,0 +1,26 @@
+{
+    "status": 1,
+    "src": "json/tablelist.json",
+    "op": {
+        "unit": {
+            "edit": "form.html?id={{id}}",
+            "del": "id={{id}}"
+        },
+        "mult": {
+            "new": "form.html",
+            "refresh": "",
+            "del": "id"
+        }
+    },
+    "structs": [
+        { "key": "id", "text": "id", "hide": true }, 
+        { "key": "name", "text": "姓名", "type": "text", "filter": "like" }, 
+        { "key": "role", "text": "角色", "type": "select", "filter": "eq", "src": "json/select.json" },
+        { "key": "ip", "text": "ip" },
+        { "key": "time", "text": "时间", "type": "date" },
+        { "key": "time", "text": "开始时间", "hide": true, "type": "date", "filter": "gt" },
+        { "key": "time", "text": "结束时间", "hide": true, "type": "date", "filter": "lt" },
+        { "key": "status", "text": "状态", "type": "bool", "filter": "eq" }
+    ]
+}
+

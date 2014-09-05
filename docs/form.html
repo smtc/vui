@@ -47,7 +47,7 @@
 
     <h3>Example</h3>
 
-    <div action="/api/form/test" class="bs-example bs-example-type" v-component="form">
+    <div src="json/form.json" class="bs-example bs-example-type" v-component="form">
         <form class="form-horizontal" role="form">
             <form-control label="文本" col=",10" type="text" name="text" readonly="true" v-with="value:model.text"></form-control>
             <form-control label="Email" type="email" inline="true" require name="email" v-with="value:model.email"></form-control>
@@ -82,6 +82,7 @@
     &lt;form-control type="radio" name="radio" inline="true" v-with="value:model.radio" src="json/options.json"&gt;&lt;/form-control&gt;
     &lt;form-control label="下拉框" require src="json/select.json" col="2,4" type="select" v-with="value:model.select"&gt;&lt;/form-control&gt;
     &lt;form-control label="文本框" col=",10" type="textarea" rows="6" v-with="value:model.textarea"&gt;&lt;/form-control&gt;
+    &lt;form-control label="treeview" col=",10" type="tree" src="json/tree.json" selectable="true" select="id" v-with="value:model.tree"&gt;&lt;/form-control&gt;
 
     &lt;form-control&gt;
         &lt;button class="btn btn-primary" type="submit"&gt;提 交&lt;/button&gt;
