@@ -50,7 +50,7 @@
         <div class="buttons">
             <a class="btn btn-success" v-href="form.html"><i class="icon icon-plus"></i> 新建</a>&nbsp; 
             <a class="btn btn-info" v-on="click:update"><i class="icon icon-refresh"></i> 刷新</a>&nbsp; 
-            <a class="btn btn-danger" v-on="click:delSelect" title="删除" href="javascript:;"><i class="icon icon-trash-o"></i> 删除</a>&nbsp; 
+            <a class="btn btn-danger" v-on="click:delSelect('id')" title="删除" href="javascript:;"><i class="icon icon-trash-o"></i> 删除</a>&nbsp; 
             <a class="btn btn-default" href="javascript:;" v-on="click:filterShow=!filterShow"><i v-class="icon-eye:filterShow,icon-eye-slash:!filterShow" class="icon"></i> 筛选</a>
         </div>
     </div>
@@ -99,47 +99,60 @@
 
     </div>
     <pre v-pre class="prettyprint">
-&lt;div src="json/tablelist.json" routeChange="true" size="10" v-component="page"&gt;
-
-    &lt;form class="form-inline" v-on="submit:search"&gt;
-        &lt;div class="form-group"&gt;&lt;input class="form-control" placeholder="名称" v-model="filters.name" /&gt;&lt;/div&gt;
-        &lt;div class="form-group"&gt;&lt;div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"&gt;&lt;/div&gt;&lt;/div&gt;
-        &lt;div class="form-group"&gt;&lt;div class="form-control date" style="width:160px" v-component="date" v-with="date:filter.date"&gt;&lt;/div&gt;&lt;/div&gt;
-        &lt;div class="form-group"&gt;&lt;button class="btn btn-primary"&gt;确定&lt;/button&gt;&lt;/div&gt;
-        &lt;div class="form-group"&gt;&lt;button v-on="click:search(null)" type="button" class="btn btn-default"&gt;重置&lt;/button&gt;&lt;/div&gt;   
-    &lt;/form&gt;
-
-    &lt;table class="table table-bordered table-hover"&gt;
-        &lt;thead&gt;
-            &lt;tr&gt;
-                &lt;th v-on="click: selectAll"&gt;&lt;i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"&gt;&lt;/i&gt;&lt;/th&gt;
-                &lt;th&gt;id&lt;/th&gt;
-                &lt;th&gt;姓名&lt;/th&gt;
-                &lt;th&gt;角色&lt;/th&gt;
-                &lt;th&gt;ip&lt;/th&gt;
-                &lt;th&gt;时间&lt;/th&gt;
-                &lt;th&gt;状态&lt;/th&gt;
-            &lt;/tr&gt;
-        &lt;/thead&gt;
-        &lt;tbody&gt;
-            &lt;tr v-repeat="data" v-on="click: select(this)"&gt;
-                &lt;td&gt;&lt;i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"&gt;&lt;/i&gt;&lt;/td&gt;
-                &lt;td&gt;{{id}}&lt;/td&gt;
-                &lt;td&gt;{{name}}&lt;/td&gt;
-                &lt;td&gt;{{role}}&lt;/td&gt;
-                &lt;td&gt;{{ip}}&lt;/td&gt;
-                &lt;td&gt;{{time}}&lt;/td&gt;
-                &lt;td&gt;{{status}}&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;/body&gt;
-    &lt;/table&gt;
-
-    selected: {{getSelected('id')}}
-    &lt;br /&gt;
-
+&lt;div class="bs-example bs-example-type" src="json/tablelist.json" pageable="false" routeChange="true" size="10" v-component="page"&gt;
     &lt;button v-on="click:pager.page=10"&gt;set page 10&lt;/button&gt;
     &lt;button v-on="click:pager.size=40"&gt;set size 40&lt;/button&gt;
     &lt;button v-on="click:del('id=1')"&gt;delete&lt;/button&gt;
+    &lt;br /&gt;
+    &lt;br /&gt;
+    &lt;div class="page-header"&gt;
+        &lt;div class="buttons"&gt;
+            &lt;a class="btn btn-success" v-href="form.html"&gt;&lt;i class="icon icon-plus"&gt;&lt;/i&gt; 新建&lt;/a&gt;&nbsp; 
+            &lt;a class="btn btn-info" v-on="click:update"&gt;&lt;i class="icon icon-refresh"&gt;&lt;/i&gt; 刷新&lt;/a&gt;&nbsp; 
+            &lt;a class="btn btn-danger" v-on="click:delSelect('id')" title="删除" href="javascript:;"&gt;&lt;i class="icon icon-trash-o"&gt;&lt;/i&gt; 删除&lt;/a&gt;&nbsp; 
+            &lt;a class="btn btn-default" href="javascript:;" v-on="click:filterShow=!filterShow"&gt;&lt;i v-class="icon-eye:filterShow,icon-eye-slash:!filterShow" class="icon"&gt;&lt;/i&gt; 筛选&lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="page-content"&gt;
+        &lt;form v-if="filterShow" class="form-inline" v-on="submit:search"&gt;
+            &lt;div class="form-group"&gt;&lt;input class="form-control" placeholder="名称" v-model="filters.name" /&gt;&lt;/div&gt;
+            &lt;div class="form-group"&gt;&lt;div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"&gt;&lt;/div&gt;&lt;/div&gt;
+            &lt;div class="form-group"&gt;&lt;div class="form-control date" style="width:160px" v-component="date" v-with="date:filter.date"&gt;&lt;/div&gt;&lt;/div&gt;
+            &lt;div class="form-group"&gt;&lt;button class="btn btn-primary"&gt;确定&lt;/button&gt;&lt;/div&gt;
+            &lt;div class="form-group"&gt;&lt;button v-on="click:search(null)" type="button" class="btn btn-default"&gt;重置&lt;/button&gt;&lt;/div&gt;
+        &lt;/form&gt;
+
+        &lt;table class="table table-bordered table-hover"&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th v-on="click: selectAll"&gt;&lt;i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"&gt;&lt;/i&gt;&lt;/th&gt;
+                    &lt;th&gt;id&lt;/th&gt;
+                    &lt;th&gt;姓名&lt;/th&gt;
+                    &lt;th&gt;角色&lt;/th&gt;
+                    &lt;th&gt;ip&lt;/th&gt;
+                    &lt;th&gt;时间&lt;/th&gt;
+                    &lt;th&gt;状态&lt;/th&gt;
+                    &lt;th&gt;&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                &lt;tr v-repeat="data"&gt;
+                    &lt;td v-on="click: select(this)"&gt;&lt;i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"&gt;&lt;/i&gt;&lt;/td&gt;
+                    &lt;td&gt;{{id}}&lt;/td&gt;
+                    &lt;td v-editable="name"&gt;&lt;/td&gt;
+                    &lt;td&gt;{{role}}&lt;/td&gt;
+                    &lt;td&gt;{{ip}}&lt;/td&gt;
+                    &lt;td&gt;{{time}}&lt;/td&gt;
+                    &lt;td&gt;{{status}}&lt;/td&gt;
+                    &lt;td&gt;&lt;label v-on="click: updateModel(this)" class="label label-info"&gt;保存&lt;/label&gt;&lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/body&gt;
+        &lt;/table&gt;
+        
+        &lt;div v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    selected: {{getSelected()}}
     &lt;br /&gt;
     Current Url: {{currentUrl}}
 
