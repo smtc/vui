@@ -235,5 +235,8 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
+
+        if (this.$el.getAttribute('clear') === 'true')
+            this.value = ''
     }
 }

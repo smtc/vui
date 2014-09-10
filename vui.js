@@ -7890,6 +7890,7 @@ module.exports = {
         form.addEventListener('submit', function (event) {
             event.preventDefault()
             this.$broadcast('check')
+            this.valid = true
 
             utils.forEach(this.controls, function (v, k) {
                 this.valid = this.valid && v
@@ -8170,6 +8171,9 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
+
+        if (this.$el.getAttribute('clear') === 'true')
+            this.value = ''
     }
 }
 
