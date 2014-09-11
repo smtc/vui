@@ -7861,10 +7861,104 @@ require.register("vui/src/components/form.js", function(exports, require, module
 var utils       = require('../utils'),
     request     = require('../request'),
     location    = require('../location'),
+    lang        = require('../lang/lang'),
     loading     = require('./loading'),
     message     = require('./message')
 
+function getStruct(struct) {
+    struct = struct || []
+    var hs = []
+    utils.forEach(struct, function (v, i) {
+        if (v.edit) hs.push(v)
+    })
+    return hs
+}
+
+// buttons =========================================================
+var EDIT_OP = {
+    "back": '<a class="btn btn-info" href="javascript:;" v-on="click:back"><i class="icon icon-reply"></i> {text}</a>'
+}
+
+function getEditOp(src) {
+    var ops = [],
+        op = '',
+        obj
+    src = src || {}
+    utils.forEach(src, function (v, k) {
+        op = EDIT_OP[k]
+        if (!op) return
+        obj = {
+            // {{key}} replace {{d.key}}，模板需要用d.key取值
+            op: v.replace(/\{\{([^{}]*)\}\}/g, "{{d.$1}}"),
+            text: lang.get('button.' + k)
+        }
+        ops.push(utils.substitute(op, obj))
+    })
+    return ops.join('&nbsp; ')
+}
+
+// form controls ====================================================
+function getControls(struct) {
+    var controls = [],
+        str
+
+    function addIf(k, s) {
+        if (s[k] === undefined) return ''
+        return k + '="' + s[k] + '" '
+    }
+
+    function getCol(s) {
+        var str = ''
+        if (s.maxlen) {
+            if (s.maxlen < 30) {
+                str += 'col=",6" '
+            } else {
+                str += 'col=",12" '
+            }
+        } else {
+            switch (s.type) {
+                case 'integer':
+                case 'select':
+                    str += 'col=",4" '
+                    break
+            }
+        }
+        return str
+    }
+
+    function getType(s) {
+        if (s.type === undefined || s.type === 'text' || s.type === 'textarea') {
+            if (s.maxlen < 120)
+                return 'type="text" '
+            else
+                return 'type="textarea" rows="6" '
+        }
+
+        if (s.type === 'bool')
+            return 'type="checkbox" options="\'{text}\':true" '
+
+        return 'type="' + s.type + '" '
+    }
+
+    struct.forEach(function (s) {
+        str = '<form-control '
+        str += 'label="{text}" '
+        str += 'name="{key}" '
+        str += 'v-with="value:model.{key}" '
+        str += getCol(s)
+        str += getType(s)
+        utils.forEach(['min', 'max', 'minlen', 'maxlen', 'src', 'require'], function (k) {
+            str += addIf(k, s)
+        })
+        str += '></form-control>'
+        controls.push(utils.substitute(str, s))
+    })
+    controls.push(utils.substitute('<form-control><button class="btn btn-primary" type="submit">{text}</button></form-control>', {text:lang.get('button.submit')}))
+    return controls.join('')
+}
+
 module.exports = {
+    template: require('./form.html'),
     methods: {
         back: function () {
             window.history.back()
@@ -7875,12 +7969,54 @@ module.exports = {
         }
     },
 
+    data: {
+        struct: null,
+        content: ''
+    },
+
     created: function () {
         this.valid = true
         this.controls = {}
         this.model = {}
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
+
+        var struct = this.$el.getAttribute("struct")
+        if (struct) {
+            loading.start()
+            // use sync 
+            request.get(struct).end(function (res) {
+                loading.end()
+                if (res.status !== 200 || res.body.status !== 1) {
+                    message.error(res.body.errors, res.status)
+                    return
+                }
+
+                this.struct = getStruct(res.body.struct)
+                // if struct has src, use struct.src
+                if (res.body.src)
+                    this.src = res.body.src
+                this.content = getControls(this.struct)
+            }.bind(this), true)
+        }
+
+    },
+
+    ready: function () {
+        var node = location.node(true),
+            search = node.search,
+            hash = node.hash
+        request.get(this.src + hash).query(search).end(function (res) {
+            if (res.status === 200) {
+                if (res.body.status === 1)
+                    this.model = res.body.data || {}
+                else if (res.body.errors)
+                    message.error(res.body.errors)
+            } else {
+                //message.error('', res.status)
+            }
+        }.bind(this))
+
 
         var form = this.$el;
         if (form.tagName != "FORM")
@@ -7910,23 +8046,6 @@ module.exports = {
                         message.error('', res.status)
                     }
                 }.bind(this))
-            }
-        }.bind(this))
-
-    },
-
-    ready: function () {
-        var node = location.node(true),
-            search = node.search,
-            hash = node.hash
-        request.get(this.src + hash).query(search).end(function (res) {
-            if (res.status === 200) {
-                if (res.body.status === 1)
-                    this.model = res.body.data || {}
-                else if (res.body.errors)
-                    message.error(res.body.errors)
-            } else {
-                //message.error('', res.status)
             }
         }.bind(this))
     }
@@ -8002,7 +8121,7 @@ function _len(val, t) {
         t += '_cb'
    
     if (t.indexOf('len') >= 0)
-        len = this.value.length
+        len = this.value.toString().length
     else
         len = parseInt(this.value) || 0
 
@@ -8171,9 +8290,6 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
-
-        if (this.$el.getAttribute('clear') === 'true')
-            this.value = ''
     }
 }
 
@@ -8308,7 +8424,7 @@ function openbox(opts) {
 
         data = utils.extend({
             title: opts.title,
-            width: opts.width || 600,
+            width: opts.width || 6,
             model: {},
             btns: [],
             body: opts.body,
@@ -8322,8 +8438,6 @@ function openbox(opts) {
                 show: function () {
                     //utils.addClass(this.$el, 'open')
                     this.$open = true
-                    var box = this.$el.querySelector('.openbox-content')
-                    box.style.width = this.width
                 },
                 bgclose: function (e) {
                     var box = this.$el.querySelector('.openbox-content')
@@ -8383,6 +8497,7 @@ openbox.confirm = function (message, callback) {
     openbox({
         title: "Confirm",
         show: true,
+        width: 6,
         body: message,
         btns: ['ok', 'close'],
         callback: callback
@@ -8432,10 +8547,17 @@ module.exports = {
         },
 
         setCheckboxValue: function (el, value) {
-            if (el.checked)
-                this.value.push(value)
-            else
-                utils.arrayRemove(this.value, value)
+            if (this.$single) {
+                if (el.checked)
+                    this.value = value
+                else
+                    this.value = null
+            } else {
+                if (el.checked)
+                    this.value.push(value)
+                else
+                    utils.arrayRemove(this.value, value)
+            }
         },
 
         setRadioValue: function (el, value) {
@@ -8466,12 +8588,18 @@ module.exports = {
         if (utils.toBoolean(this.inline))
             this.className = this.type + '-inline'
 
+        function judge() {
+            this.$single = utils.size(this.options) === 1
+        }
+
         if (this.options) {
             this.options = formatOption(this.options)
+            judge.call(this)
         } else if (!this.options && src) {
             this.options = {}
             request.get(src).end(function (res) {
                 this.options = formatOption(res.body)
+                judge.call(this)
             }.bind(this))
         }
 
@@ -8490,16 +8618,14 @@ module.exports = {
                 this.value = this.value.split(',')
         }
 
-        this.$watch('value', function () {
+        this.$watch('value', function (value, mut) {
             if (this.type === 'radio')
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
             else {
-                var vals = this.value
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
-                    el.checked = contains(vals, el.value)
+                    el.checked = value.toString() === el.value.toString() || contains(value, el.value)
                 }.bind(this))
             }
-                
         }.bind(this))
     }
 }
@@ -8549,10 +8675,10 @@ var FILTERS = {
     bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
     date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}${filter}"></div>'
 }
-function getFilter(structs) {
-    structs = structs || []
+function getFilter(struct) {
+    struct = struct || []
     var filter = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.filter) return
         var el = utils.substitute(FILTERS[v.type], v)
         filter.push(el)
@@ -8560,10 +8686,10 @@ function getFilter(structs) {
     return filter
 }
 
-function getHeader(structs) {
-    structs = structs || []
+function getStruct(struct) {
+    struct = struct || []
     var hs = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.hide) hs.push(v)
     })
     return hs
@@ -8780,7 +8906,7 @@ module.exports = {
         pager: {},
         total: 0,
         sort: {},
-        struct: false,
+        struct: null,
         pageable: false
     },
     created: function () {
@@ -8797,9 +8923,8 @@ module.exports = {
                     return
                 }
 
-                this.struct = true
-                this.header = getHeader(res.body.structs)
-                this.filterTpl = getFilter(res.body.structs)
+                this.struct = getStruct(res.body.struct)
+                this.filterTpl = getFilter(res.body.struct)
                 // if struct has src, use struct.src
                 if (res.body.src)
                     this.src = res.body.src
@@ -8944,7 +9069,7 @@ module.exports = {
 
         if (this.src === 'bool') {
             this.options = lang.get('boolSelect')
-        } else {
+        } else if (this.src) {
             request.get(this.src).end(function (res) {
                 self.options = res.body
                 self.setValue(self.value)
@@ -9242,17 +9367,20 @@ module.exports = {
 require.register("vui/src/components/date.html", function(exports, require, module){
 module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
+require.register("vui/src/components/form.html", function(exports, require, module){
+module.exports = '<form v-show="struct" class="form-horizontal" v-html="content" role="form"></form>\n<content></content>\n';
+});
 require.register("vui/src/components/form-control.html", function(exports, require, module){
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content col-md-{{width}}">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.register("vui/src/components/option.html", function(exports, require, module){
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
 });
 require.register("vui/src/components/page.html", function(exports, require, module){
-module.exports = '<content></content>\n<div v-if="struct">\n<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-if="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:header">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:header" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n</div>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
+module.exports = '<content></content>\n<div v-if="struct">\n<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-if="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:struct">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:struct" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n</div>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';

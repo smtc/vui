@@ -49,7 +49,7 @@ module.exports = {
 
         if (this.src === 'bool') {
             this.options = lang.get('boolSelect')
-        } else {
+        } else if (this.src) {
             request.get(this.src).end(function (res) {
                 self.options = res.body
                 self.setValue(self.value)

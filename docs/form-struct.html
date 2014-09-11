@@ -1,0 +1,30 @@
+<div>
+    <h1 class="page-header">表单及验证(struct)</h1>
+
+    <p>表单（使用json定义自动生成）</p>
+
+    <h3>Example</h3>
+
+    <div class="bs-example bs-example-type">
+        <div struct="json/form-struct.json" v-component="form"></div>
+    </div>
+    <pre v-pre class="prettyprint">
+&lt;div struct="json/form-struct.json" v-component="form"&gt;&lt;/div&gt;
+
+//======================================
+{
+    "status": 1,
+    "src": "json/form.json",
+    "struct": [
+        { "key": "id", "text": "id", "hide": true }, 
+        { "key": "name", "text": "姓名", "type": "text", "edit": true, "minlen": 3, "maxlen": 20 }, 
+        { "key": "role", "text": "角色", "type": "select", "require": true, "edit": true, "src": "json/select.json" },
+        { "key": "time", "text": "时间", "edit": true, "type": "date" },
+        { "key": "status", "text": "状态", "edit": true, "type": "bool" },
+        { "key": "content", "text": "文本", "maxlen": 600, "edit": true }
+    ]
+}
+
+    </pre>
+
+</div>

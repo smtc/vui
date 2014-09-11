@@ -41,10 +41,10 @@ var FILTERS = {
     bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
     date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}${filter}"></div>'
 }
-function getFilter(structs) {
-    structs = structs || []
+function getFilter(struct) {
+    struct = struct || []
     var filter = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.filter) return
         var el = utils.substitute(FILTERS[v.type], v)
         filter.push(el)
@@ -52,10 +52,10 @@ function getFilter(structs) {
     return filter
 }
 
-function getHeader(structs) {
-    structs = structs || []
+function getStruct(struct) {
+    struct = struct || []
     var hs = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.hide) hs.push(v)
     })
     return hs
@@ -272,7 +272,7 @@ module.exports = {
         pager: {},
         total: 0,
         sort: {},
-        struct: false,
+        struct: null,
         pageable: false
     },
     created: function () {
@@ -289,9 +289,8 @@ module.exports = {
                     return
                 }
 
-                this.struct = true
-                this.header = getHeader(res.body.structs)
-                this.filterTpl = getFilter(res.body.structs)
+                this.struct = getStruct(res.body.struct)
+                this.filterTpl = getFilter(res.body.struct)
                 // if struct has src, use struct.src
                 if (res.body.src)
                     this.src = res.body.src

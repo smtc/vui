@@ -28,6 +28,7 @@
     ],
     "templates": [
         "src/components/date.html",
+        "src/components/form.html",
         "src/components/form-control.html",
         "src/components/openbox.html",
         "src/components/option.html",

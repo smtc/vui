@@ -66,7 +66,7 @@ function _len(val, t) {
         t += '_cb'
    
     if (t.indexOf('len') >= 0)
-        len = this.value.length
+        len = this.value.toString().length
     else
         len = parseInt(this.value) || 0
 
@@ -235,8 +235,5 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
-
-        if (this.$el.getAttribute('clear') === 'true')
-            this.value = ''
     }
 }

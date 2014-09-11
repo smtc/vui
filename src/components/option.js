@@ -37,10 +37,17 @@ module.exports = {
         },
 
         setCheckboxValue: function (el, value) {
-            if (el.checked)
-                this.value.push(value)
-            else
-                utils.arrayRemove(this.value, value)
+            if (this.$single) {
+                if (el.checked)
+                    this.value = value
+                else
+                    this.value = null
+            } else {
+                if (el.checked)
+                    this.value.push(value)
+                else
+                    utils.arrayRemove(this.value, value)
+            }
         },
 
         setRadioValue: function (el, value) {
@@ -71,12 +78,18 @@ module.exports = {
         if (utils.toBoolean(this.inline))
             this.className = this.type + '-inline'
 
+        function judge() {
+            this.$single = utils.size(this.options) === 1
+        }
+
         if (this.options) {
             this.options = formatOption(this.options)
+            judge.call(this)
         } else if (!this.options && src) {
             this.options = {}
             request.get(src).end(function (res) {
                 this.options = formatOption(res.body)
+                judge.call(this)
             }.bind(this))
         }
 
@@ -95,16 +108,14 @@ module.exports = {
                 this.value = this.value.split(',')
         }
 
-        this.$watch('value', function () {
+        this.$watch('value', function (value, mut) {
             if (this.type === 'radio')
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
             else {
-                var vals = this.value
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
-                    el.checked = contains(vals, el.value)
+                    el.checked = value.toString() === el.value.toString() || contains(value, el.value)
                 }.bind(this))
             }
-                
         }.bind(this))
     }
 }

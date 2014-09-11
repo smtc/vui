@@ -14,7 +14,7 @@ function openbox(opts) {
 
         data = utils.extend({
             title: opts.title,
-            width: opts.width || 600,
+            width: opts.width || 6,
             model: {},
             btns: [],
             body: opts.body,
@@ -28,8 +28,6 @@ function openbox(opts) {
                 show: function () {
                     //utils.addClass(this.$el, 'open')
                     this.$open = true
-                    var box = this.$el.querySelector('.openbox-content')
-                    box.style.width = this.width
                 },
                 bgclose: function (e) {
                     var box = this.$el.querySelector('.openbox-content')
@@ -89,6 +87,7 @@ openbox.confirm = function (message, callback) {
     openbox({
         title: "Confirm",
         show: true,
+        width: 6,
         body: message,
         btns: ['ok', 'close'],
         callback: callback
