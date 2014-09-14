@@ -10,7 +10,7 @@
         <pre class="prettyprint">
 vui.openbox({
     show: true,
-    width: 900,
+    width: 8,
     src: url,
     title: 'Openbox',
     btns: ['ok', 'close'],
@@ -24,7 +24,7 @@ vui.openbox({
         <h4>参数</h4>
         <p>
             show - 是否立即打开，默认为<code>false</code>。<br />
-            width - 宽度，可为空。<br />
+            width - 宽度(值为1-12)，默认值：6。使用.col-md-*<br />
             src - 页面内容地址。<br />
             title - 显示的title。<br />
             btns - 页脚显示按钮，'ok', 'close'为内置按钮，如果要自定义，按照<code>{ text: '按钮', type:'default', fn: function }</code>格式添加。<br />
@@ -51,7 +51,7 @@ vui.Vue.component('openbox-example', {
         open: function (url) {
             vui.openbox({
                 show: true,
-                width: 900,
+                width: 8,
                 src: url,
                 title: 'Openbox',
                 btns: ['ok', 'close'],

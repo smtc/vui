@@ -1433,13 +1433,13 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .openbox-inner.open,.openbox.open{display:block}
 .openbox-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1040;background-color:#000;opacity:.3;filter:alpha(opacity=30)}
 .openbox-inner{overflow:auto;overflow-y:scroll;z-index:1050;-webkit-overflow-scrolling:touch}
-.openbox-content{position:relative;margin:60px auto;background-color:#fff;border:1px solid #999;border:1px solid rgba(0,0,0,.2);z-index:1050;border-radius:6px}
+.openbox-content{position:relative;margin:60px auto;background-color:#fff;border:1px solid #999;border:1px solid rgba(0,0,0,.2);z-index:1050;border-radius:6px;float:none}
 .openbox-content .close{position:absolute;right:10px;top:10px}
 .openbox-header{padding:0 20px 10px;border-bottom:1px solid rgba(0,0,0,.2)}
 .openbox-body{padding:20px;min-width:600px;transition:all .3s ease}
 .openbox-footer{text-align:right;padding:15px 20px;border-top:1px solid rgba(0,0,0,.2)}
 .openbox-footer button{margin-left:10px}
-.form-control{width:;color:#555}
+.form-control{width:none;color:#555}
 .form-inline{font-size:0;margin-bottom:14px}
 .form-inline .form-group{display:inline-box;margin:0 6px 10px 0}
 .help-block{clear:both}

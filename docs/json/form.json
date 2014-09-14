@@ -3,6 +3,7 @@
     "data": {
         "email": "admin@example.com",
         "select": 2,
-        "tree": "account.user.roles"
+        "tree": "account.user.roles",
+        "status": true
     }
 }
