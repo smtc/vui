@@ -97,8 +97,8 @@ function getControls(struct) {
     return controls.join('')
 }
 
-module.exports = {
-    template: require('./form.html'),
+var component = {
+    //template: require('./form.html'),
     methods: {
         back: function () {
             window.history.back()
@@ -162,7 +162,6 @@ module.exports = {
         if (form.tagName != "FORM")
             form = form.querySelector('form')
 
-        // submit 使用 put 方法
         form.addEventListener('submit', function (event) {
             event.preventDefault()
             this.$broadcast('check')
@@ -189,4 +188,12 @@ module.exports = {
             }
         }.bind(this))
     }
+}
+
+var component_struct = utils.copy(component)
+component_struct.template = '<form v-show="struct" class="form-horizontal" v-html="content" role="form"></form>'
+
+module.exports = {
+    'form': component,
+    'form-struct': component_struct
 }

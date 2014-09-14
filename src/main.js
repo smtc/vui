@@ -7,6 +7,7 @@ var Vue             = require('vue'),
     loading         = require('./components/loading'),
     message         = require('./components/message'),
     tree            = require('./components/tree'),
+    form            = require('./components/form'),
     lang            = require('./lang/lang'),
     $data           = {},
     initialized     = false,
@@ -17,7 +18,8 @@ require('./prototype')
 
 var components = {
     'date': require('./components/date'),
-    'form': require('./components/form'),
+    'form': form.form,
+    'form-struct': form['form-struct'],
     'form-control': require('./components/form-control'),
     'loading': loading.component,
     'message': message.component,
