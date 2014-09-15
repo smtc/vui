@@ -6,7 +6,6 @@
         "src/main.js",
         "src/utils.js",
         "src/location.js",
-        "src/node.js",
         "src/route.js",
         "src/request.js",
         "src/directives/href.js",

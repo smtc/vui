@@ -302,6 +302,11 @@ var component = {
                 }
             }.bind(this), true)
         }
+
+        if (this.src) {
+            var colon = _location.node(true).colon
+            this.src = utils.substitute(this.src, colon)
+        }
     },
     ready: function () {
         if (this.routeChange)

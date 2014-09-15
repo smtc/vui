@@ -111,15 +111,17 @@ describe('vui.utils', function(){
     })
 
     it('urlResolve', function () {
-        var origin = 'http://example.com/path/index.html?a=1&b=2#abc',
+        var origin = 'http://example.com/path/index.html:a=3&b=4?a=1&b=2#abc',
             url = utils.urlResolve(origin)
 
         url.href.should.eql(origin)
-        url.pathname.should.eql('/path/index.html')
+        url.pathname.should.eql('/path/index.html:a=3&b=4')
         url.host.should.eql('example.com')
         url.protocol.should.eql('http')
         url.search.should.eql('a=1&b=2')
         url.hash.should.eql('abc')
+        console.log(utils.equals({a:"3",b:"4"}, url.colon))
+        expect(utils.equals({a:"3",b:"4"}, url.colon)).to.be.true
     })
 
     it('hashCode', function () {
