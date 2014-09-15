@@ -99,8 +99,7 @@ function getMultOp(src, filter) {
     return ops
 }
 
-module.exports = {
-    template: require('./page.html'),
+var component = {
 
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
@@ -237,6 +236,7 @@ module.exports = {
             this.filters = {}
             this.sort = {}
             this.pageable = !(this.$el.getAttribute('pageable') === 'false')
+            if (!this.pageable) this.pager = {}
 
             function setFilter(v, k) {
                 if (k.indexOf('f.') !== 0) return
@@ -302,6 +302,10 @@ module.exports = {
                 }
             }.bind(this), true)
         }
+    },
+    ready: function () {
+        if (this.routeChange)
+            route.bind(routeChange.bind(this))
 
         if (!this.delay) this.update()
 
@@ -312,12 +316,16 @@ module.exports = {
             })
         }
     },
-    ready: function () {
-        if (this.routeChange)
-            route.bind(routeChange.bind(this))
-    },
     beforeDestroy: function () {
         if (this.routeChange)
             route.unbind(routeChange.bind(this))
     }
+}
+
+var component_struct = utils.copy(component)
+component_struct.template = require('./page.html')
+
+module.exports = {
+    'page': component,
+    'page-struct': component_struct
 }

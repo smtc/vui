@@ -6058,6 +6058,7 @@ var Vue             = require('vue'),
     message         = require('./components/message'),
     tree            = require('./components/tree'),
     form            = require('./components/form'),
+    page            = require('./components/page'),
     lang            = require('./lang/lang'),
     $data           = {},
     initialized     = false,
@@ -6074,7 +6075,8 @@ var components = {
     'loading': loading.component,
     'message': message.component,
     'option': require('./components/option'),
-    'page': require('./components/page'),
+    'page': page.page,
+    'page-struct': page['page-struct'],
     'pagination': require('./components/pagination'),
     'scope': require('./components/scope'),
     'select': require('./components/select'),
@@ -8742,8 +8744,7 @@ function getMultOp(src, filter) {
     return ops
 }
 
-module.exports = {
-    template: require('./page.html'),
+var component = {
 
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
@@ -8880,6 +8881,7 @@ module.exports = {
             this.filters = {}
             this.sort = {}
             this.pageable = !(this.$el.getAttribute('pageable') === 'false')
+            if (!this.pageable) this.pager = {}
 
             function setFilter(v, k) {
                 if (k.indexOf('f.') !== 0) return
@@ -8945,6 +8947,10 @@ module.exports = {
                 }
             }.bind(this), true)
         }
+    },
+    ready: function () {
+        if (this.routeChange)
+            route.bind(routeChange.bind(this))
 
         if (!this.delay) this.update()
 
@@ -8955,14 +8961,18 @@ module.exports = {
             })
         }
     },
-    ready: function () {
-        if (this.routeChange)
-            route.bind(routeChange.bind(this))
-    },
     beforeDestroy: function () {
         if (this.routeChange)
             route.unbind(routeChange.bind(this))
     }
+}
+
+var component_struct = utils.copy(component)
+component_struct.template = require('./page.html')
+
+module.exports = {
+    'page': component,
+    'page-struct': component_struct
 }
 
 });
@@ -9389,7 +9399,7 @@ require.register("vui/src/components/option.html", function(exports, require, mo
 module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
 });
 require.register("vui/src/components/page.html", function(exports, require, module){
-module.exports = '<content></content>\n<div v-if="struct">\n<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-if="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:struct">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:struct" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n</div>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
+module.exports = '<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-show="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:struct">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:struct" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
