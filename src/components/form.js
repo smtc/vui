@@ -179,7 +179,7 @@ var component = {
                         if (res.body.status === 1) {
                             this.success(res.body)
                         } else {
-                            message.error(res.body.error)
+                            message.error(res.body.errors)
                         }
                     } else {
                         message.error('', res.status)
