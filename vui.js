@@ -6046,6 +6046,7 @@ Date.prototype.format = function (fmt) { //author: meizz
     return fmt;
 }
 
+
 });
 require.register("vui/src/main.js", function(exports, require, module){
 var Vue             = require('vue'),
@@ -7153,6 +7154,16 @@ function substitute(str, obj) {
     })
 }
 
+
+function format(str, arr) {
+    return str.replace(/{(\d+)}/g, function(match, number) { 
+        return typeof arr[number] != 'undefined'
+            ? arr[number] 
+            : match
+    })
+}
+
+
 var hasClassList    = 'classList' in document.documentElement,
     urlParsingNode  = document.createElement("a")
 
@@ -7221,7 +7232,7 @@ if (isNaN(msie)) {
 function urlResolve(url, fixHash) {
     var href = url,
         pathname,
-        colon = {}
+        colon = []
 
     if (msie) {
         // Normalize before parse.  Refer Implementation Notes on why this is
@@ -7243,8 +7254,8 @@ function urlResolve(url, fixHash) {
 
     pathname = urlParsingNode.pathname
     if (pathname.indexOf(':') >= 0) {
-        var cstr = pathname.substr(pathname.indexOf(':') + 1)
-        colon = parseKeyValue(cstr)
+        var cs = pathname.substr(pathname.indexOf(':') + 1)
+        colon = cs.split('/')
     }
 
     // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
@@ -7365,6 +7376,7 @@ module.exports = {
     'encodeUriQuery': encodeUriQuery,
     'encodeUriSegment': encodeUriSegment,
     'substitute': substitute,
+    'format': format,
     isDescendant: isDescendant,
     addClass: addClass,
     hasClass: hasClass,
@@ -8950,7 +8962,7 @@ var component = {
 
         if (this.src) {
             var colon = _location.node(true).colon
-            this.src = utils.substitute(this.src, colon)
+            this.src = utils.format(this.src, colon)
         }
     },
     ready: function () {

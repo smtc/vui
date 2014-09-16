@@ -111,17 +111,17 @@ describe('vui.utils', function(){
     })
 
     it('urlResolve', function () {
-        var origin = 'http://example.com/path/index.html:a=3&b=4?a=1&b=2#abc',
+        var origin = 'http://example.com/path/index.html:3/4/5?a=1&b=2#abc',
             url = utils.urlResolve(origin)
 
         url.href.should.eql(origin)
-        url.pathname.should.eql('/path/index.html:a=3&b=4')
+        url.pathname.should.eql('/path/index.html:3/4/5')
         url.host.should.eql('example.com')
         url.protocol.should.eql('http')
         url.search.should.eql('a=1&b=2')
         url.hash.should.eql('abc')
-        console.log(utils.equals({a:"3",b:"4"}, url.colon))
-        expect(utils.equals({a:"3",b:"4"}, url.colon)).to.be.true
+        url.colon.should.eql(['3','4','5'])
+        //expect(utils.equals({a:"3",b:"4"}, url.colon)).to.be.true
     })
 
     it('hashCode', function () {
@@ -215,6 +215,14 @@ describe('vui.utils', function(){
 
         var c = utils.substitute(str, obj)
         c.should.eql('1!=2')
+    })
+
+    it('string format', function () {
+        var obj = ['3', '4', 2],
+            str = '{0}-{1}!={2}'
+
+        var c = utils.format(str, obj)
+        c.should.eql('3-4!=2')
     })
 
     ////////////////////////////////////////////////////////////////////
