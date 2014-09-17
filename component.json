@@ -22,6 +22,7 @@
         "src/components/scope.js",
         "src/components/select.js",
         "src/components/tree.js",
+        "src/filters/string.js",
         "src/lang/lang.js",
         "src/lang/zh-cn.js"
     ],

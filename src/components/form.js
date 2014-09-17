@@ -1,6 +1,6 @@
 var utils       = require('../utils'),
     request     = require('../request'),
-    location    = require('../location'),
+    _location    = require('../location'),
     lang        = require('../lang/lang'),
     loading     = require('./loading'),
     message     = require('./message')
@@ -140,15 +140,19 @@ var component = {
             }.bind(this), true)
         }
 
+        if (this.src) {
+            this.colon = _location.node(true).colon
+            this.src = utils.format(this.src, this.colon)
+        }
     },
 
     ready: function () {
-        var node = location.node(true),
+        var node = _location.node(true),
             search = node.search,
             hash = node.hash
         request.get(this.src + hash).query(search).end(function (res) {
             if (res.status === 200) {
-                if (res.body.status === 1)
+                if (res.body.status === 1 || res.body.data)
                     this.model = res.body.data || {}
                 else if (res.body.errors)
                     message.error(res.body.errors)

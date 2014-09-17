@@ -10,6 +10,7 @@ var Vue             = require('vue'),
     form            = require('./components/form'),
     page            = require('./components/page'),
     lang            = require('./lang/lang'),
+    string          = require('./filters/string'),
     $data           = {},
     initialized     = false,
     vm
@@ -53,6 +54,7 @@ function init() {
         },
 
         filters: {
+            format: string.format
         },
 
         components: components,

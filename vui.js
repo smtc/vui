@@ -6061,6 +6061,7 @@ var Vue             = require('vue'),
     form            = require('./components/form'),
     page            = require('./components/page'),
     lang            = require('./lang/lang'),
+    string          = require('./filters/string'),
     $data           = {},
     initialized     = false,
     vm
@@ -6104,6 +6105,7 @@ function init() {
         },
 
         filters: {
+            format: string.format
         },
 
         components: components,
@@ -7876,7 +7878,7 @@ module.exports = {
 require.register("vui/src/components/form.js", function(exports, require, module){
 var utils       = require('../utils'),
     request     = require('../request'),
-    location    = require('../location'),
+    _location    = require('../location'),
     lang        = require('../lang/lang'),
     loading     = require('./loading'),
     message     = require('./message')
@@ -8016,15 +8018,19 @@ var component = {
             }.bind(this), true)
         }
 
+        if (this.src) {
+            this.colon = _location.node(true).colon
+            this.src = utils.format(this.src, this.colon)
+        }
     },
 
     ready: function () {
-        var node = location.node(true),
+        var node = _location.node(true),
             search = node.search,
             hash = node.hash
         request.get(this.src + hash).query(search).end(function (res) {
             if (res.status === 200) {
-                if (res.body.status === 1)
+                if (res.body.status === 1 || res.body.data)
                     this.model = res.body.data || {}
                 else if (res.body.errors)
                     message.error(res.body.errors)
@@ -8961,8 +8967,8 @@ var component = {
         }
 
         if (this.src) {
-            var colon = _location.node(true).colon
-            this.src = utils.format(this.src, colon)
+            this.colon = _location.node(true).colon
+            this.src = utils.format(this.src, this.colon)
         }
     },
     ready: function () {
@@ -9308,6 +9314,17 @@ module.exports = {
     tree:   tree,
     folder: folder,
     file:   file
+}
+
+});
+require.register("vui/src/filters/string.js", function(exports, require, module){
+var utils = require('../utils')
+
+module.exports = {
+    format: function (value, arr) {
+        arr = arr || []
+        return utils.format(value, arr)
+    }
 }
 
 });

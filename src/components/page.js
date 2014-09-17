@@ -304,8 +304,8 @@ var component = {
         }
 
         if (this.src) {
-            var colon = _location.node(true).colon
-            this.src = utils.format(this.src, colon)
+            this.colon = _location.node(true).colon
+            this.src = utils.format(this.src, this.colon)
         }
     },
     ready: function () {
