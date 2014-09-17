@@ -88,7 +88,12 @@ module.exports = {
         } else if (!this.options && src) {
             this.options = {}
             request.get(src).end(function (res) {
-                this.options = formatOption(res.body)
+                if (res.body instanceof Array) {
+                    this.options = formatOption(res.body)
+                } else if (res.body.status === 1) {
+                    this.options = formatOption(res.body.data)
+                }
+                //this.options = formatOption(res.body)
                 judge.call(this)
             }.bind(this))
         }

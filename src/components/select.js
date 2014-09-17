@@ -51,7 +51,11 @@ module.exports = {
             this.options = lang.get('boolSelect')
         } else if (this.src) {
             request.get(this.src).end(function (res) {
-                self.options = res.body
+                if (res.body instanceof Array) {
+                    self.options = res.body
+                } else if (res.body.status === 1) {
+                    self.options = res.body.data
+                }
                 self.setValue(self.value)
             })
         }
