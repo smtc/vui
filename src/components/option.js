@@ -117,6 +117,10 @@ module.exports = {
             if (this.type === 'radio')
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
             else {
+                if (typeof value === 'string') {
+                    if (value === '') this.value = []
+                    else this.value = this.value.split(',')
+                }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
                     el.checked = value.toString() === el.value.toString() || contains(value, el.value)
                 }.bind(this))
