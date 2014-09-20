@@ -54,7 +54,8 @@ function init() {
         },
 
         filters: {
-            format: string.format
+            format: string.format,
+            icon: require('./filters/icon')
         },
 
         components: components,
