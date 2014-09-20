@@ -8950,9 +8950,11 @@ var component = {
     },
     created: function () {
         this.init()
+        this.colon = _location.node(true).colon
 
         var struct = this.$el.getAttribute("struct")
         if (struct) {
+            struct = utils.format(struct, this.colon)
             loading.start()
             // use sync 
             request.get(struct).end(function (res) {
@@ -8977,7 +8979,6 @@ var component = {
         }
 
         if (this.src) {
-            this.colon = _location.node(true).colon
             this.src = utils.format(this.src, this.colon)
         }
     },
