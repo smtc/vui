@@ -50,7 +50,7 @@ function getControls(struct) {
     function getCol(s) {
         var str = ''
         if (s.maxlen) {
-            if (s.maxlen < 30) {
+            if (s.maxlen < 50) {
                 str += 'col=",6" '
             } else {
                 str += 'col=",12" '
@@ -68,7 +68,7 @@ function getControls(struct) {
 
     function getType(s) {
         if (s.type === undefined || s.type === 'text' || s.type === 'textarea') {
-            if (s.maxlen < 120)
+            if (s.maxlen < 200)
                 return 'type="text" '
             else
                 return 'type="textarea" rows="6" '
@@ -82,12 +82,17 @@ function getControls(struct) {
 
     struct.forEach(function (s) {
         str = '<form-control '
-        str += 'label="{text}" '
+
+        if (s.type !== 'bool') str += 'label="{text}" '
+
         str += 'name="{key}" '
-        str += 'v-with="value:model.{key}" '
+
+        if (s.equal) str += 'v-with="value:model.{key},equal:model.{equal}" '
+        else str += 'v-with="value:model.{key}" '
+
         str += getCol(s)
         str += getType(s)
-        utils.forEach(['min', 'max', 'minlen', 'maxlen', 'src', 'require'], function (k) {
+        utils.forEach(['min', 'max', 'minlen', 'maxlen', 'src', 'require', 'tip'], function (k) {
             str += addIf(k, s)
         })
         str += '></form-control>'
@@ -118,11 +123,13 @@ var component = {
         this.valid = true
         this.controls = {}
         this.model = {}
+        this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
 
         var struct = this.$el.getAttribute("struct")
         if (struct) {
+            struct = utils.format(struct, this.colon)
             loading.start()
             // use sync 
             request.get(struct).end(function (res) {
@@ -141,7 +148,6 @@ var component = {
         }
 
         if (this.src) {
-            this.colon = _location.node(true).colon
             this.src = utils.format(this.src, this.colon)
         }
     },

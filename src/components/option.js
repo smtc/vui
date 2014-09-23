@@ -114,14 +114,18 @@ module.exports = {
         }
 
         this.$watch('value', function (value, mut) {
-            if (this.type === 'radio')
+            if (this.type === 'radio') {
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
-            else {
+            } else {
                 if (typeof value === 'string') {
                     if (value === '') this.value = []
                     else this.value = this.value.split(',')
                 }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
+                    if (value === null) {
+                        el.checked = false
+                        return
+                    }
                     el.checked = value.toString() === el.value.toString() || contains(value, el.value)
                 }.bind(this))
             }
