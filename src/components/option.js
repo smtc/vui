@@ -7,9 +7,17 @@ function formatOption(opts) {
 
     if ('string' === typeof opts) {
         opts = opts.trim()
+        if (opts.charAt(0) === '[')
+            return eval('(' + opts + ')')
+
         if (opts.charAt(0) !== '{')
              opts = '{' + opts + '}'
-        opts = eval('(' + opts + ')')
+
+        var arr = []
+        utils.forEach(eval('(' + opts + ')'), function (v, k) {
+            arr.push({ text:k, value:v })
+        })
+        opts = arr
     }
 
     return opts
