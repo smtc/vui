@@ -16,14 +16,14 @@
         </p>
         <h4>数据格式</h4>
         <p>
-            json格式，key为选项显示内容，value为值。
+            json格式，text为选项显示内容，value为值。
 <pre class="prettyprint">
-{
-    "选项一": "options 1",
-    "选项二": "options 2",
-    "选项三": "options 3",
-    "选项四": "options 4"
-}
+[
+    {"text": "选项一", "value": "options 1"},
+    {"text": "选项二", "value": "options 2"},
+    {"text": "选项三", "value": "options 3"},
+    {"text": "选项四", "value": "options 4"}
+]
 </pre>
         </p>
     </div> 
@@ -33,7 +33,7 @@
     <h3>Example Options</h3>
     <div class="bs-example bs-example-type">
         <div type="checkbox" v-component="option" v-with="value:cb1" options="'option 1':1,'option 2':2,'option 3':3"></div>
-        <div type="radio" v-component="option" v-with="value:ra1" options="'option 1':1,'option 2':2"></div>
+        <div type="radio" v-component="option" v-with="value:ra1" options="[{text:'option 1', value:1}, {text:'option 2', value:2}]"></div>
 
         <button style="button" v-on="click:ra1=2" class="btn btn-default">set radio 2</button>
         <button style="button" v-on="click:cb1=[2,3]" class="btn btn-default">set checkbox 2,3</button>
@@ -43,7 +43,7 @@
     </div>
     <pre v-pre class="prettyprint">
 &lt;div type="checkbox" v-component="option" v-with="value:cb1" options="'option 1':1,'option 2':2,'option 3':3"&gt;&lt;/div&gt;
-&lt;div type="radio" v-component="option" v-with="value:ra1" options="'option 1':1,'option 2':2"&gt;&lt;/div&gt;
+&lt;div type="radio" v-component="option" v-with="value:ra1" options="[{text:'option 1', value:1}, {text:'option 2', value:2}]"&gt;&lt;/div&gt;
 
 checkbox: {{cb1}}&lt;br /&gt;
 radio: {{ra1}}
