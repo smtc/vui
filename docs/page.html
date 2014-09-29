@@ -55,8 +55,8 @@
         </div>
     </div>
     <div class="page-content">
-        <form v-if="filterShow" class="form-inline" v-on="submit:search">
-            <div class="form-group"><input class="form-control" placeholder="名称" v-model="filters.name" /></div>
+        <form v-show="filterShow" class="form-inline" v-on="submit:search">
+            <div class="form-group"><input class="form-control" name="name" placeholder="名称" v-model="filters.name" /></div>
             <div class="form-group"><div src="json/select.json" class="form-control" style="width:160px" placeholder="type" v-component="select" v-with="value:filters.type"></div></div>
             <div class="form-group"><div class="form-control date" style="width:160px" v-component="date" v-with="date:filter.date"></div></div>
             <div class="form-group"><button class="btn btn-primary">确定</button></div>
@@ -66,7 +66,7 @@
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
-                    <th v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>
+                    <th v-html="'selectall'|icon"></th>
                     <th>id</th>
                     <th>姓名</th>
                     <th>角色</th>
@@ -78,13 +78,13 @@
             </thead>
             <tbody>
                 <tr v-repeat="data">
-                    <td v-on="click: select(this)"><i v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"></i></td>
+                    <td v-html="'select'|icon"></td>
                     <td>{{id}}</td>
                     <td v-editable="name"></td>
                     <td>{{role}}</td>
                     <td>{{ip}}</td>
                     <td>{{time}}</td>
-                    <td>{{status}}</td>
+                    <td style="text-align:center;" v-html="status|icon"></td>
                     <td><label v-on="click: updateModel(this)" class="label label-info">保存</label></td>
                 </tr>
             </body>
@@ -143,7 +143,7 @@
                     &lt;td&gt;{{role}}&lt;/td&gt;
                     &lt;td&gt;{{ip}}&lt;/td&gt;
                     &lt;td&gt;{{time}}&lt;/td&gt;
-                    &lt;td&gt;{{status}}&lt;/td&gt;
+                    &lt;td style="text-align:center;" v-html="status|icon"&gt;&lt;/td&gt;
                     &lt;td&gt;&lt;label v-on="click: updateModel(this)" class="label label-info"&gt;保存&lt;/label&gt;&lt;/td&gt;
                 &lt;/tr&gt;
             &lt;/body&gt;
