@@ -6105,6 +6105,8 @@ function init() {
         },
 
         filters: {
+            date: string.date,
+            datetime: string.datetime,
             format: string.format,
             icon: require('./filters/icon')
         },
@@ -7713,6 +7715,7 @@ function Day(d) {
     this.date = d.getDate()
     this.weekday = d.getDay()
     this.str = this.year + '-' + pad(this.month + 1) + '-' + pad(this.date)
+    this.timestamp = Math.ceil(d.getTime() / 1000)
 }
 
 var STATUS = { DAY:1, MONTH:2, YEAR:3 }
@@ -7720,7 +7723,7 @@ var STATUS = { DAY:1, MONTH:2, YEAR:3 }
 module.exports = {
     template: require('./date.html'),
     replace: true,
-    paramAttributes: ['placeholder'],
+    paramAttributes: ['placeholder', 'unixtime'],
 
     methods: {
         open: function () {
@@ -7748,7 +7751,8 @@ module.exports = {
         },
 
         set: function (day, event) {
-            this.date = day.str
+            this.date = this.unixtime ? day.timestamp : day.str
+            this.text = day.str
             this.currentDate = {
                 year: day.year,
                 month: day.month,
@@ -7847,6 +7851,15 @@ module.exports = {
         var self = this,
             d = new Date()
 
+        if (this.$el.getAttribute('up') === 'true')
+            this.pickerUp = true
+
+        if (this.unixtime && this.date) {
+            if (typeof this.date === 'string')
+                this.date = parseInt(this.date)
+            this.date = this.date * 1000
+        }
+
         if (this.date)
             d = new Date(this.date)
 
@@ -7860,9 +7873,6 @@ module.exports = {
 
         this.draw()
         this.changeYear(0)
-
-        if (this.$el.getAttribute('up') === 'true')
-            this.pickerUp = true
 
         // 点击页面空白关闭
         this.$closeHandle = function (event) {
@@ -8116,7 +8126,7 @@ var TEMPLATES = {
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
         'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
         'tree': '<ul v-with="value:value" selectable="{{_selectable}}" select="{{_select}}" src="{{_src}}" v-component="tree"></ul>',
-        'date': '<div class="form-control date col-sm-{{_col[1]}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+        'date': '<div class="form-control date col-sm-{{_col[1]}}" unixtime="{{_unixtime}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
         'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'alpha': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'alphanum': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
@@ -8128,7 +8138,7 @@ var TEMPLATES = {
         'email': /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i,
         'url': /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/,
         'number': /^\s*(\-|\+)?(\d+|(\d*(\.\d*)))\s*$/,
-        'date': /^(\d{4})-(\d{2})-(\d{2})$/,
+        //'date': /^(\d{4})-(\d{2})-(\d{2})$/,
         'alpha': /^[a-z ._-]+$/i,
         'alphanum': /^[a-z0-9_]+$/i,
         'password': /^[\x00-\xff]+$/,
@@ -8284,7 +8294,7 @@ module.exports = {
         this.checkList = []
 
         // set attr
-        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'tip', 'selectable', 'select'], function (attr) {
+        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'tip', 'selectable', 'select', 'unixtime'], function (attr) {
             this['_' + attr] = this.$el.getAttribute(attr)
             this.$el.removeAttribute(attr)
         }.bind(this))
@@ -9375,10 +9385,26 @@ module.exports = function (value) {
 require.register("vui/src/filters/string.js", function(exports, require, module){
 var utils = require('../utils')
 
+function formatTime(timestamp, ft) {
+    if (typeof timestamp === 'string')
+        timestamp = parseInt(timestamp)
+
+    var time = new Date(timestamp * 1000)
+    return time.format(ft)
+}
+
 module.exports = {
     format: function (value, arr) {
         arr = arr || []
         return utils.format(value, arr)
+    },
+
+    date: function (timestamp) {
+        return formatTime(timestamp, 'yyyy-MM-dd')
+    },
+
+    datetime: function (timestamp) {
+        return formatTime(timestamp, 'yyyy-MM-dd hh:mm:ss')
     }
 }
 
@@ -9473,7 +9499,7 @@ module.exports = {
 
 
 require.register("vui/src/components/date.html", function(exports, require, module){
-module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="date-picker-handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
+module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="date-picker-handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 });
 require.register("vui/src/components/form.html", function(exports, require, module){
 module.exports = '<form v-show="struct" class="form-horizontal" v-html="content" role="form"></form>\n<content></content>\n';

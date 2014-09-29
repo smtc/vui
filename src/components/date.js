@@ -13,6 +13,7 @@ function Day(d) {
     this.date = d.getDate()
     this.weekday = d.getDay()
     this.str = this.year + '-' + pad(this.month + 1) + '-' + pad(this.date)
+    this.timestamp = Math.ceil(d.getTime() / 1000)
 }
 
 var STATUS = { DAY:1, MONTH:2, YEAR:3 }
@@ -20,7 +21,7 @@ var STATUS = { DAY:1, MONTH:2, YEAR:3 }
 module.exports = {
     template: require('./date.html'),
     replace: true,
-    paramAttributes: ['placeholder'],
+    paramAttributes: ['placeholder', 'unixtime'],
 
     methods: {
         open: function () {
@@ -48,7 +49,8 @@ module.exports = {
         },
 
         set: function (day, event) {
-            this.date = day.str
+            this.date = this.unixtime ? day.timestamp : day.str
+            this.text = day.str
             this.currentDate = {
                 year: day.year,
                 month: day.month,
@@ -147,6 +149,15 @@ module.exports = {
         var self = this,
             d = new Date()
 
+        if (this.$el.getAttribute('up') === 'true')
+            this.pickerUp = true
+
+        if (this.unixtime && this.date) {
+            if (typeof this.date === 'string')
+                this.date = parseInt(this.date)
+            this.date = this.date * 1000
+        }
+
         if (this.date)
             d = new Date(this.date)
 
@@ -160,9 +171,6 @@ module.exports = {
 
         this.draw()
         this.changeYear(0)
-
-        if (this.$el.getAttribute('up') === 'true')
-            this.pickerUp = true
 
         // 点击页面空白关闭
         this.$closeHandle = function (event) {

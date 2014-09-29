@@ -54,6 +54,8 @@ function init() {
         },
 
         filters: {
+            date: string.date,
+            datetime: string.datetime,
             format: string.format,
             icon: require('./filters/icon')
         },
