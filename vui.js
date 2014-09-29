@@ -9272,6 +9272,12 @@ var tree = {
                     message.error(null, res.status)
                     return
                 }
+                if (utils.isArray(res.body)) {
+                    res.body = {
+                        status: 1,
+                        data: res.body
+                    }
+                }
                 if (res.body.status == 1) {
                     self.data = initData(res.body.data, self.list)
                     if (self.value && !self.$initialized) {
