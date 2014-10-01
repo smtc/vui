@@ -176,6 +176,37 @@ var component = {
             })
         },
 
+        remove: function (val, key) {
+            key = key || 'id'
+            var self = this
+            openbox.confirm(lang.get('page.del_confirm', {count: 1}), function (status) {
+                if (!status) return
+
+                loading.start()
+                request.del(self.src).send(val).end(function (res) {
+                    loading.end()
+
+                    if (res.status !== 200) {
+                        message.error('', res.status)
+                        return
+                    }
+                    if (res.body.status === 0) {
+                        message.error(res.body.errors || res.body.msg)
+                        return
+                    }
+
+                    var index = -1
+                    for (var i=0; i<self.data.length; i++) {
+                        if (self.data[i][key] === val) {
+                            index = i
+                            break
+                        }
+                    }
+                    if (index >= 0) self.data.splice(index, 1)
+                })
+            })
+        },
+
         del: function (data) {
             var self = this
             function _del() {
@@ -189,7 +220,7 @@ var component = {
                     if (res.body.status === 1)
                         self.update()
                     else
-                        message.error(res.body.errors)
+                        message.error(res.body.errors || res.body.msg)
                 })
             }
             
