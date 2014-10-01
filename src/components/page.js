@@ -129,6 +129,38 @@ var component = {
             })
         },
 
+        edit: function (title, src, key, val) {
+            key = key || 'id'
+            var dm = {}
+            for (var i=0; i<this.data.length; i++) {
+                if (this.data[i][key] === val) {
+                    dm = this.data[i]
+                    break
+                }
+            }
+            var box = openbox({
+                title: title,
+                show: true,
+                width: 8,
+                src: src,
+                btns: ['close'],
+                data: { 
+                    model: utils.copy(dm)
+                },
+                callback: function (model) {
+                    var index = -1
+                    for (var i=0; i<this.data.length; i++) {
+                        if (this.data[i][key] === model[key]) {
+                            index = i
+                            break
+                        }
+                    }
+                    if (index >= 0) this.data.splice(index, 1)
+                    this.data.unshift(model)
+                }.bind(this)
+            })
+        },
+
         updateModel: function (item) {
             loading.start()
             request.put(this.src).send(item.$data).end(function (res) {

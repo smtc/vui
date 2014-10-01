@@ -36,6 +36,30 @@ var components = {
     'tree-file': tree.file
 }
 
+var filters = {
+    date: string.date,
+    datetime: string.datetime,
+    format: string.format,
+    icon: require('./filters/icon')
+}
+
+var directives = {
+    editable: require('./directives/editable'),
+    href: require('./directives/href')
+}
+
+utils.forEach(components, function (v, k) {
+    Vue.component(k, v)
+})
+
+utils.forEach(filters, function (v, k) {
+    Vue.filter(k, v)
+})
+
+utils.forEach(directives, function (v, k) {
+    Vue.directive(k, v)
+})
+
 function init() {
     if (initialized) return
     initialized = true
@@ -47,20 +71,6 @@ function init() {
         methods: {
             openbox: openbox
         },
-
-        directives: {
-            editable: require('./directives/editable'),
-            href: require('./directives/href')
-        },
-
-        filters: {
-            date: string.date,
-            datetime: string.datetime,
-            format: string.format,
-            icon: require('./filters/icon')
-        },
-
-        components: components,
 
         data: $data
 

@@ -6087,6 +6087,30 @@ var components = {
     'tree-file': tree.file
 }
 
+var filters = {
+    date: string.date,
+    datetime: string.datetime,
+    format: string.format,
+    icon: require('./filters/icon')
+}
+
+var directives = {
+    editable: require('./directives/editable'),
+    href: require('./directives/href')
+}
+
+utils.forEach(components, function (v, k) {
+    Vue.component(k, v)
+})
+
+utils.forEach(filters, function (v, k) {
+    Vue.filter(k, v)
+})
+
+utils.forEach(directives, function (v, k) {
+    Vue.directive(k, v)
+})
+
 function init() {
     if (initialized) return
     initialized = true
@@ -6098,20 +6122,6 @@ function init() {
         methods: {
             openbox: openbox
         },
-
-        directives: {
-            editable: require('./directives/editable'),
-            href: require('./directives/href')
-        },
-
-        filters: {
-            date: string.date,
-            datetime: string.datetime,
-            format: string.format,
-            icon: require('./filters/icon')
-        },
-
-        components: components,
 
         data: $data
 
@@ -7991,15 +8001,32 @@ function getControls(struct) {
     return controls.join('')
 }
 
+function getCallback(str) {
+    if (!str)
+        return function () {
+            window.history.back()
+        }
+
+    if (str.indexOf('(function') !== 0) {
+        str = "(function (res) {" + str + "})";
+    }
+
+    return eval(str)
+}
+
 var component = {
     //template: require('./form.html'),
     methods: {
         back: function () {
             window.history.back()
         },
-        
+
         success: function (json) {
-            this.back()
+            try {
+                this.callback.call(this, json)
+            } catch (e) {
+                console.log(e)
+            }
         }
     },
 
@@ -8015,6 +8042,8 @@ var component = {
         this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
+        this.delay = this.$el.getAttribute('delay') === 'true'
+        this.callback = getCallback(this.$el.getAttribute('callback'))
 
         var struct = this.$el.getAttribute("struct")
         if (struct) {
@@ -8045,17 +8074,18 @@ var component = {
         var node = _location.node(true),
             search = node.search,
             hash = node.hash
-        request.get(this.src + hash).query(search).end(function (res) {
-            if (res.status === 200) {
-                if (res.body.status === 1 || res.body.data)
-                    this.model = res.body.data || {}
-                else if (res.body.errors)
-                    message.error(res.body.errors)
-            } else {
-                //message.error('', res.status)
-            }
-        }.bind(this))
 
+        if (!this.delay)
+            request.get(this.src + hash).query(search).end(function (res) {
+                if (res.status === 200) {
+                    if (res.body.status === 1 || res.body.data)
+                        this.model = res.body.data || {}
+                    else if (res.body.errors)
+                        message.error(res.body.errors)
+                } else {
+                    //message.error('', res.status)
+                }
+            }.bind(this))
 
         var form = this.$el;
         if (form.tagName != "FORM")
@@ -8827,6 +8857,38 @@ var component = {
                 }
                 self.data = res.body.data
                 self.total = res.body.total
+            })
+        },
+
+        edit: function (title, src, key, val) {
+            key = key || 'id'
+            var dm = {}
+            for (var i=0; i<this.data.length; i++) {
+                if (this.data[i][key] === val) {
+                    dm = this.data[i]
+                    break
+                }
+            }
+            var box = openbox({
+                title: title,
+                show: true,
+                width: 8,
+                src: src,
+                btns: ['close'],
+                data: { 
+                    model: utils.copy(dm)
+                },
+                callback: function (model) {
+                    var index = -1
+                    for (var i=0; i<this.data.length; i++) {
+                        if (this.data[i][key] === model[key]) {
+                            index = i
+                            break
+                        }
+                    }
+                    if (index >= 0) this.data.splice(index, 1)
+                    this.data.unshift(model)
+                }.bind(this)
             })
         },
 
