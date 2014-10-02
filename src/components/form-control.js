@@ -24,6 +24,7 @@ var TEMPLATES = {
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
         'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'mult-select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" single="{{_single}}" v-with="value:value" v-component="mult-select"></div>',
         'tree': '<ul v-with="value:value" selectable="{{_selectable}}" select="{{_select}}" src="{{_src}}" v-component="tree"></ul>',
         'date': '<div class="form-control date col-sm-{{_col[1]}}" unixtime="{{_unixtime}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
         'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
@@ -193,7 +194,7 @@ module.exports = {
         this.checkList = []
 
         // set attr
-        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'tip', 'selectable', 'select', 'unixtime'], function (attr) {
+        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'single', 'tip', 'selectable', 'select', 'unixtime'], function (attr) {
             this['_' + attr] = this.$el.getAttribute(attr)
             this.$el.removeAttribute(attr)
         }.bind(this))

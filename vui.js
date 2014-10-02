@@ -6076,6 +6076,7 @@ var components = {
     'form-control': require('./components/form-control'),
     'loading': loading.component,
     'message': message.component,
+    'mult-select': require('./components/mult-select'),
     'option': require('./components/option'),
     'page': page.page,
     'page-struct': page['page-struct'],
@@ -8155,6 +8156,7 @@ var TEMPLATES = {
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
         'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'mult-select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" single="{{_single}}" v-with="value:value" v-component="mult-select"></div>',
         'tree': '<ul v-with="value:value" selectable="{{_selectable}}" select="{{_select}}" src="{{_src}}" v-component="tree"></ul>',
         'date': '<div class="form-control date col-sm-{{_col[1]}}" unixtime="{{_unixtime}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
         'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
@@ -8324,7 +8326,7 @@ module.exports = {
         this.checkList = []
 
         // set attr
-        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'tip', 'selectable', 'select', 'unixtime'], function (attr) {
+        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'single', 'tip', 'selectable', 'select', 'unixtime'], function (attr) {
             this['_' + attr] = this.$el.getAttribute(attr)
             this.$el.removeAttribute(attr)
         }.bind(this))
@@ -8480,6 +8482,100 @@ module.exports = {
     messages: messages,
 
     component: component
+}
+
+});
+require.register("vui/src/components/mult-select.js", function(exports, require, module){
+var request = require('../request'),
+    utils   = require('../utils'),
+    lang    = require('../lang/lang'),
+    forEach = utils.forEach
+
+module.exports = {
+    template: require('./mult-select.html'),
+    replace: true,
+    paramAttributes: ['src', 'placeholder', 'single'],
+    methods: {
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
+        },
+        select: function (item) {
+            if (this.single) {
+                this.text = item.text
+                if (item.value != this.value)
+                    this.value = item.value
+            } else {
+                var index = this.values.indexOf(item)
+                if (index === -1) {
+                    this.values.push(item)
+                } else {
+                    this.values.splice(index, 1)
+                }
+                var v = [], t = []
+                this.values.forEach(function (i) {
+                    v.push(i.value)
+                    t.push(i.text)
+                })
+                this.value = v.join(',')
+                this.text = t.join(',')
+            }
+        },
+        setValue: function (value) {
+            if (undefined === value) {
+                this.text = null
+            }
+
+            forEach(this.options, function (item) {
+                if (value === item.value)
+                    this.select(item)
+            }.bind(this))
+        }
+    },
+    data: {
+        options: [],
+        values: []
+    },
+    created: function () {
+        var self = this
+        this.values = []
+        utils.addClass(this.$el, 'select')
+
+        if (this.src === 'bool') {
+            this.options = lang.get('boolSelect')
+        } else if (this.src) {
+            request.get(this.src).end(function (res) {
+                if (res.body instanceof Array) {
+                    self.options = res.body
+                } else if (res.body.status === 1) {
+                    self.options = res.body.data
+                }
+                self.setValue(self.value)
+            })
+        }
+
+        this.$closeHandle = function (evt) {
+            if (utils.isDescendant(self.$el, evt.target)) return
+            self.close()
+        }
+    },
+    ready: function () {
+        var self = this
+        self.$watch('value', function () {
+            //self.setValue(self.value)
+        })
+    }
 }
 
 });
@@ -9599,6 +9695,9 @@ module.exports = '<form v-show="struct" class="form-horizontal" v-html="content"
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
+});
+require.register("vui/src/components/mult-select.html", function(exports, require, module){
+module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="mult-select-items"><li v-repeat="d:options"><a v-on="click:select(d)" v-class="active: value==d.value || values.indexOf(d) >= 0" href="javascript:;">{{d.text}}</a></li></ul>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
 module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content col-md-{{width}}">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';

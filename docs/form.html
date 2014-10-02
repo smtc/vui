@@ -60,6 +60,7 @@
             <form-control label="多选" type="checkbox" minlen="1" maxlen="2" name="checkbox" v-with="value:model.checkbox" options="'option 1':1,'option 2':2"></form-control>
             <form-control type="radio" name="radio" inline="true" v-with="value:model.radio" src="json/options.json"></form-control>
             <form-control label="下拉框" require src="json/select.json" col="2,4" type="select" v-with="value:model.select"></form-control>
+            <form-control label="多选下拉" require src="json/mult-select.json" col="2,8" type="mult-select" v-with="value:model.multselect"></form-control>
             <form-control label="文本框" col=",10" type="textarea" rows="6" v-with="value:model.textarea"></form-control>
             <form-control label="treeview" col=",10" type="tree" src="json/tree.json" selectable="true" select="id" v-with="value:model.tree"></form-control>
 

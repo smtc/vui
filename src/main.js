@@ -25,6 +25,7 @@ var components = {
     'form-control': require('./components/form-control'),
     'loading': loading.component,
     'message': message.component,
+    'mult-select': require('./components/mult-select'),
     'option': require('./components/option'),
     'page': page.page,
     'page-struct': page['page-struct'],
