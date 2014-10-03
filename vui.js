@@ -8511,7 +8511,7 @@ module.exports = {
             utils.removeClass(this.$el, 'active')
             document.body.removeEventListener('click', this.$closeHandle)
         },
-        select: function (item) {
+        select: function (item, setOnly) {
             if (this.single) {
                 this.text = item.text
                 if (item.value != this.value)
@@ -8520,7 +8520,7 @@ module.exports = {
                 var index = this.values.indexOf(item)
                 if (index === -1) {
                     this.values.push(item)
-                } else {
+                } else if (!setOnly) {
                     this.values.splice(index, 1)
                 }
                 var v = [], t = []
@@ -8528,18 +8528,25 @@ module.exports = {
                     v.push(i.value)
                     t.push(i.text)
                 })
-                this.value = v.join(',')
-                this.text = t.join(',')
+
+                var vs = v.join(',')
+                if (vs !== this.value) {
+                    this.value = vs
+                    this.text = t.join(',')
+                }
             }
         },
         setValue: function (value) {
             if (undefined === value) {
                 this.text = null
+                return
             }
 
+            var values = this.single ? [value.toString()] : value.split(',')
+
             forEach(this.options, function (item) {
-                if (value === item.value)
-                    this.select(item)
+                if (values.indexOf(item.value.toString()) >= 0)
+                    this.select(item, true)
             }.bind(this))
         }
     },
@@ -8571,10 +8578,9 @@ module.exports = {
         }
     },
     ready: function () {
-        var self = this
-        self.$watch('value', function () {
-            //self.setValue(self.value)
-        })
+        this.$watch('value', function (value, mut) {
+            this.setValue(value)
+        }.bind(this))
     }
 }
 
