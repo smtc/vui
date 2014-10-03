@@ -8,7 +8,7 @@
             </div>
             <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>
             <div class="openbox-body" v-if="body" v-html="body"></div>
-            <div class="openbox-footer">
+            <div v-show="btns.length > 0" class="openbox-footer">
                 <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>
             </div>
         </div>

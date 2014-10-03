@@ -143,7 +143,6 @@ var component = {
                 show: true,
                 width: 8,
                 src: src,
-                btns: ['close'],
                 data: { 
                     model: utils.copy(dm)
                 },
