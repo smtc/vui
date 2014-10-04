@@ -7892,6 +7892,11 @@ module.exports = {
 
             self.close()
         }
+
+        var inited = false
+        this.$watch('date', function (value) {
+            this.text = this.unixtime ? (new Date(value * 1000)).format("yyyy-MM-dd") : value
+        }.bind(this))
     }
 
 }
