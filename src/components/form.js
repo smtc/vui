@@ -214,6 +214,9 @@ var component = {
                     } else {
                         message.error('', res.status)
                     }
+
+                    if (res.body.msg)
+                        message.info(res.body.msg)
                 }.bind(this))
             }
         }.bind(this))
