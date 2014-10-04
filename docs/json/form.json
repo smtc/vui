@@ -5,6 +5,7 @@
         "select": 2,
         "tree": "account.user.roles",
         "status": true,
+        "checkbox": "1",
         "date": "2010-12-12",
         "unixtime": 1414684800
     }

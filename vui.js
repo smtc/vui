@@ -8798,7 +8798,6 @@ module.exports = {
                 } else if (res.body.status === 1) {
                     this.options = formatOption(res.body.data)
                 }
-                //this.options = formatOption(res.body)
                 judge.call(this)
             }.bind(this))
         }
@@ -9734,7 +9733,7 @@ require.register("vui/src/components/openbox.html", function(exports, require, m
 module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content col-md-{{width}}">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div v-show="btns.length > 0" class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.register("vui/src/components/option.html", function(exports, require, module){
-module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue(value, $event)" name="{{name}}" value="{{value}}" /> {{text}}</label> \n</div>\n';
+module.exports = '<div v-repeat="o:options" class="{{className}}">\n    <label><input type="{{type}}" v-attr="checked:value==o.value" v-on="change:setValue(o.value, $event)" name="{{name}}" value="{{o.value}}" /> {{o.text}}</label> \n</div>\n';
 });
 require.register("vui/src/components/page.html", function(exports, require, module){
 module.exports = '<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-show="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:struct">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:struct" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n    <div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n</div>\n';

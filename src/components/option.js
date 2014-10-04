@@ -101,7 +101,6 @@ module.exports = {
                 } else if (res.body.status === 1) {
                     this.options = formatOption(res.body.data)
                 }
-                //this.options = formatOption(res.body)
                 judge.call(this)
             }.bind(this))
         }
