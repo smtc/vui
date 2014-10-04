@@ -1,6 +1,8 @@
 var utils = require('../utils')
 
 function formatTime(timestamp, ft) {
+    if (!timestamp) return ""
+
     if (typeof timestamp === 'string')
         timestamp = parseInt(timestamp)
 
@@ -14,11 +16,13 @@ module.exports = {
         return utils.format(value, arr)
     },
 
-    date: function (timestamp) {
-        return formatTime(timestamp, 'yyyy-MM-dd')
+    date: function (timestamp, ft) {
+        ft = ft || 'yyyy-MM-dd'
+        return formatTime(timestamp, ft)
     },
 
-    datetime: function (timestamp) {
-        return formatTime(timestamp, 'yyyy-MM-dd hh:mm:ss')
+    datetime: function (timestamp, ft) {
+        ft = ft || 'yyyy-MM-dd hh:mm:ss'
+        return formatTime(timestamp, ft)
     }
 }
