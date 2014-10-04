@@ -8152,7 +8152,10 @@ function getCol(str, label) {
                 ss[i] = parseInt(s)
             } catch (e) {}
         })
-        col = [ ss[0] || 2, ss[1] || 6 ]
+        if (ss[0] === 0)
+            col = [0, 0]
+        else 
+            col = [ ss[0] || 2, ss[1] || 6 ]
     }
 
     return col
@@ -8377,6 +8380,15 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
+    },
+
+    computed: {
+        labelClass: function () {
+            return this._col[0] === 0 ? "" : "col-sm-" + this._col[0]
+        },
+        controlClass: function () {
+            return this._col[0] === 0 ? "" : "col-sm-" + (12 - this._col[0])
+        }
     }
 }
 
@@ -9724,7 +9736,7 @@ require.register("vui/src/components/form.html", function(exports, require, modu
 module.exports = '<form v-show="struct" class="form-horizontal" v-html="content" role="form"></form>\n<content></content>\n';
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
-module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
+module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="{{labelClass}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="{{controlClass}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="{{controlClass}}"><content></content></div>\n</div>\n';
 });
 require.register("vui/src/components/mult-select.html", function(exports, require, module){
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="mult-select-items"><li v-repeat="d:options"><a v-on="click:select(d)" v-class="active: value==d.value || values.indexOf(d) >= 0" href="javascript:;">{{d.text}}</a></li></ul>\n</div>\n';

@@ -11,7 +11,10 @@ function getCol(str, label) {
                 ss[i] = parseInt(s)
             } catch (e) {}
         })
-        col = [ ss[0] || 2, ss[1] || 6 ]
+        if (ss[0] === 0)
+            col = [0, 0]
+        else 
+            col = [ ss[0] || 2, ss[1] || 6 ]
     }
 
     return col
@@ -236,5 +239,14 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
+    },
+
+    computed: {
+        labelClass: function () {
+            return this._col[0] === 0 ? "" : "col-sm-" + this._col[0]
+        },
+        controlClass: function () {
+            return this._col[0] === 0 ? "" : "col-sm-" + (12 - this._col[0])
+        }
     }
 }
