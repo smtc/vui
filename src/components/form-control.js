@@ -236,6 +236,9 @@ module.exports = {
     },
 
     ready: function () {
+        if (this.$el.hasAttribute('value'))
+            this.value = this.$el.getAttribute('value')
+
         this.$watch('value', function () {
             this.check()
         }.bind(this))

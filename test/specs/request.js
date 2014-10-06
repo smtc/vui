@@ -39,7 +39,7 @@ describe('vui.request', function () {
         }
 
         function s2() {
-            localStorage.getItem('Authentication').should.eql('abcdefg')
+            //localStorage.getItem('Authentication').should.eql('abcdefg')
             request.post('/api/oauth/test')
                 .end(function (res) {
                     res.body.status.should.eql(1)
