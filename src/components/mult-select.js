@@ -44,8 +44,8 @@ module.exports = {
                 var vs = v.join(',')
                 if (vs !== this.value) {
                     this.value = vs
-                    this.text = t.join(',')
                 }
+                this.text = t.join(',')
             }
         },
         setValue: function (value) {
