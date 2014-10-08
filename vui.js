@@ -4961,20 +4961,18 @@ var reduce = require('reduce');
 var Authentication = "Authentication",
     token = null;
 
-// 获取token,localStorage 不安全
+// 获取token
 function getToken() {
-    /*
 	token = token === null 
 			? localStorage.getItem(Authentication)
 			: token
-    */
 	return token
 }
 
 function setToken(t) {
     if (!t) return
 	token = t
-	//localStorage.setItem(Authentication, t)
+	localStorage.setItem(Authentication, t)
 }
 
 /**
