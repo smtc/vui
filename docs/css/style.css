@@ -1460,6 +1460,8 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .form-inline .form-group{display:inline-box;margin:0 6px 10px 0}
 .help-block{clear:both}
 .help-inline{color:#737373;margin:5px auto auto 10px;display:inline-block}
+.progress-out{position:relative;margin:6px 25px}
+.progress-out .progress-handle{display:block;width:40px;height:22px;border:1px solid #ccc;border-radius:3px;position:absolute;z-index:10;top:50%;left:0;margin:-11px 0 0 -25px;background-color:#fff}
 .checkbox-inline label,.radio-inline label{font-weight:400}
 .placeholder{color:#999}
 .table>tbody>tr>td,.table>tbody>tr>th,.table>tfoot>tr>td,.table>tfoot>tr>th,.table>thead>tr>td,.table>thead>tr>th{vertical-align:middle}

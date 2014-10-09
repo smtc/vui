@@ -30,6 +30,7 @@ var components = {
     'page': page.page,
     'page-struct': page['page-struct'],
     'pagination': require('./components/pagination'),
+    'progress': require('./components/progress'),
     'scope': require('./components/scope'),
     'select': require('./components/select'),
     'tree': tree.tree,

@@ -35,7 +35,9 @@ function openbox(opts) {
                     this.close()
                 },
                 close: function (suc) {
-                    if (suc && callback) callback(this.model)
+                    if (callback) {
+                        callback(suc ? this.model : undefined)
+                    }
                     this.$destroy()
                 },
                 getComponent: function () {

@@ -6081,6 +6081,7 @@ var components = {
     'page': page.page,
     'page-struct': page['page-struct'],
     'pagination': require('./components/pagination'),
+    'progress': require('./components/progress'),
     'scope': require('./components/scope'),
     'select': require('./components/select'),
     'tree': tree.tree,
@@ -8174,6 +8175,7 @@ var TEMPLATES = {
         'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'alpha': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'alphanum': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'progress': '<div v-with="progress:value" class="col-sm-{{_col[1]}}" v-component="progress" />',
         'default': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
         'empty': ''
     },
@@ -8647,7 +8649,9 @@ function openbox(opts) {
                     this.close()
                 },
                 close: function (suc) {
-                    if (suc && callback) callback(this.model)
+                    if (callback) {
+                        callback(suc ? this.model : undefined)
+                    }
                     this.$destroy()
                 },
                 getComponent: function () {
@@ -9003,6 +9007,7 @@ var component = {
                     model: utils.copy(dm)
                 },
                 callback: function (model) {
+                    if (!model) return
                     var index = -1
                     for (var i=0; i<this.data.length; i++) {
                         if (this.data[i][key] === model[key]) {
@@ -9308,6 +9313,85 @@ module.exports = {
         this.$watch('total', function () {
             self.compose()
         })
+    }
+}
+
+});
+require.register("vui/src/components/progress.js", function(exports, require, module){
+module.exports = {
+    template: require('./progress.html'),
+    methods: {
+        set: function () {
+        }
+    },
+    data: {
+        progress: 0
+    },
+    created: function () {
+    },
+    ready: function () {
+        if (typeof this.progress === 'string') 
+            this.progress = parseInt(this.progress)
+        this.progress = this.progress || 0
+
+        var self = this,
+            el = this.$el.querySelector('.progress'),
+            handle = this.$el.querySelector('.progress-handle'),
+            bar = this.$el.querySelector('.progress-bar'),
+            _left = 0,
+            _width = 0,
+            _last = 0,
+            _start = false
+
+        var getPer = function (left) {
+            if (_width === 0)
+                _width = el.offsetWidth
+            var per = Math.ceil(left * 100 / _width) 
+            if (per >= 99) per = 100
+            self.progress = per
+            return per
+        }
+
+        var start = function (ev) {
+            //ev.stopPropagation()
+            //handle.style.cursor = 'move'
+            if (_width === 0)
+                _width = el.offsetWidth
+            if (_left === 0)
+                _left = ev.clientX - ev.offsetX - handle.offsetLeft
+            _start = true
+        }
+
+        var end = function (ev) {
+            //ev.stopPropagation()
+            _start = false
+        }
+
+        var move = function (ev) {
+            //ev.stopPropagation()
+            if (!_start) return
+
+            var left = ev.clientX - _left
+            if (left < 0) left = 0
+            if (left > _width) left = _width
+            handle.style.left = left + 'px'
+            _set(left)
+        }
+
+        var _set = function (left) {
+            bar.style.width = getPer(left) + '%'
+        }
+
+        var set = function (ev) {
+            handle.style.left = ev.offsetX + 'px'
+        }
+
+        handle.addEventListener('mousedown', start, false)
+        handle.addEventListener('mousemove', move, false)
+        handle.addEventListener('mouseup', end, false)
+        el.addEventListener('mouseout', end, false)
+        //el.addEventListener('click', set, false)
+        
     }
 }
 
@@ -9755,6 +9839,9 @@ module.exports = '<div class="page-header">\n    <div class="buttons" v-html="mu
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
+});
+require.register("vui/src/components/progress.html", function(exports, require, module){
+module.exports = '<div class="progress-out">\n    <div class="progress"><div class="progress-bar" style="width:{{progress}}%;">{{progress}}%</div></div>\n    <a href="javascript:;" class="progress-handle" style="left:{{progress}}%"></a>\n</div>\n';
 });
 require.register("vui/src/components/select.html", function(exports, require, module){
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
