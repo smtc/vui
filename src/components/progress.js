@@ -1,13 +1,7 @@
 module.exports = {
     template: require('./progress.html'),
-    methods: {
-        set: function () {
-        }
-    },
     data: {
         progress: 0
-    },
-    created: function () {
     },
     ready: function () {
         if (typeof this.progress === 'string') 
@@ -33,8 +27,6 @@ module.exports = {
         }
 
         var start = function (ev) {
-            //ev.stopPropagation()
-            //handle.style.cursor = 'move'
             if (_width === 0)
                 _width = el.offsetWidth
             if (_left === 0)
@@ -43,12 +35,10 @@ module.exports = {
         }
 
         var end = function (ev) {
-            //ev.stopPropagation()
             _start = false
         }
 
         var move = function (ev) {
-            //ev.stopPropagation()
             if (!_start) return
 
             var left = ev.clientX - _left
@@ -70,7 +60,5 @@ module.exports = {
         handle.addEventListener('mousemove', move, false)
         handle.addEventListener('mouseup', end, false)
         el.addEventListener('mouseout', end, false)
-        //el.addEventListener('click', set, false)
-        
     }
 }
