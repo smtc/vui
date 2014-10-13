@@ -65,7 +65,8 @@ if (isNaN(msie)) {
  */
 function urlResolve(url, fixHash) {
     var href = url,
-        pathname
+        pathname,
+        colon
 
     if (msie) {
         // Normalize before parse.  Refer Implementation Notes on why this is
@@ -83,6 +84,10 @@ function urlResolve(url, fixHash) {
         href = pathname + urlParsingNode.hash.substr(3);
         urlParsingNode.setAttribute('href', href);
         href = urlParsingNode.href;
+    }
+
+    if (pathname.indexOf(':') >= 0) {
+        var cstr = pathname.substr(pathname.indexOf(':') + 1)
     }
 
     // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils

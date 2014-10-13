@@ -6046,6 +6046,7 @@ Date.prototype.format = function (fmt) { //author: meizz
     return fmt;
 }
 
+
 });
 require.register("vui/src/main.js", function(exports, require, module){
 var Vue             = require('vue'),
@@ -6057,7 +6058,10 @@ var Vue             = require('vue'),
     loading         = require('./components/loading'),
     message         = require('./components/message'),
     tree            = require('./components/tree'),
+    form            = require('./components/form'),
+    page            = require('./components/page'),
     lang            = require('./lang/lang'),
+    string          = require('./filters/string'),
     $data           = {},
     initialized     = false,
     vm
@@ -6067,19 +6071,47 @@ require('./prototype')
 
 var components = {
     'date': require('./components/date'),
-    'form': require('./components/form'),
+    'form': form.form,
+    'form-struct': form['form-struct'],
     'form-control': require('./components/form-control'),
     'loading': loading.component,
     'message': message.component,
+    'mult-select': require('./components/mult-select'),
     'option': require('./components/option'),
-    'page': require('./components/page'),
+    'page': page.page,
+    'page-struct': page['page-struct'],
     'pagination': require('./components/pagination'),
+    'progress': require('./components/progress'),
     'scope': require('./components/scope'),
     'select': require('./components/select'),
     'tree': tree.tree,
     'tree-folder': tree.folder,
     'tree-file': tree.file
 }
+
+var filters = {
+    date: string.date,
+    datetime: string.datetime,
+    format: string.format,
+    icon: require('./filters/icon')
+}
+
+var directives = {
+    editable: require('./directives/editable'),
+    href: require('./directives/href')
+}
+
+utils.forEach(components, function (v, k) {
+    Vue.component(k, v)
+})
+
+utils.forEach(filters, function (v, k) {
+    Vue.filter(k, v)
+})
+
+utils.forEach(directives, function (v, k) {
+    Vue.directive(k, v)
+})
 
 function init() {
     if (initialized) return
@@ -6092,16 +6124,6 @@ function init() {
         methods: {
             openbox: openbox
         },
-
-        directives: {
-            editable: require('./directives/editable'),
-            href: require('./directives/href')
-        },
-
-        filters: {
-        },
-
-        components: components,
 
         data: $data
 
@@ -6147,7 +6169,6 @@ var hasOwnProp      = Object.prototype.hasOwnProperty,
     slice           = [].slice,
     //push            = [].push,
     toString        = Object.prototype.toString,
-    node            = require('./node'),
     uid             = ['A', '0', '0', '0']
  
 
@@ -7151,8 +7172,189 @@ function substitute(str, obj) {
 }
 
 
+function format(str, arr) {
+    return str.replace(/{(\d+)}/g, function(match, number) { 
+        return typeof arr[number] != 'undefined'
+            ? arr[number] 
+            : match
+    })
+}
+
+
+var hasClassList    = 'classList' in document.documentElement,
+    urlParsingNode  = document.createElement("a")
+
+
+/**
+ * IE 11 changed the format of the UserAgent string.
+ * See http://msdn.microsoft.com/en-us/library/ms537503.aspx
+ */
+var msie = parseInt((/msie (\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1]);
+if (isNaN(msie)) {
+    msie = parseInt((/trident\/.*; rv:(\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1]);
+}
+
+/**
+ *
+ * Implementation Notes for non-IE browsers
+ * ----------------------------------------
+ * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
+ * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
+ * URL will be resolved into an absolute URL in the context of the application document.
+ * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
+ * properties are all populated to reflect the normalized URL.  This approach has wide
+ * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
+ * http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
+ *
+ * Implementation Notes for IE
+ * ---------------------------
+ * IE >= 8 and <= 10 normalizes the URL when assigned to the anchor node similar to the other
+ * browsers.  However, the parsed components will not be set if the URL assigned did not specify
+ * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
+ * work around that by performing the parsing in a 2nd step by taking a previously normalized
+ * URL (e.g. by assigning to a.href) and assigning it a.href again.  This correctly populates the
+ * properties such as protocol, hostname, port, etc.
+ *
+ * IE7 does not normalize the URL when assigned to an anchor node.  (Apparently, it does, if one
+ * uses the inner HTML approach to assign the URL as part of an HTML snippet -
+ * http://stackoverflow.com/a/472729)  However, setting img[src] does normalize the URL.
+ * Unfortunately, setting img[src] to something like "javascript:foo" on IE throws an exception.
+ * Since the primary usage for normalizing URLs is to sanitize such URLs, we can't use that
+ * method and IE < 8 is unsupported.
+ *
+ * References:
+ *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
+ *   http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
+ *   http://url.spec.whatwg.org/#urlutils
+ *   https://github.com/angular/angular.js/pull/2902
+ *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
+ *
+ * @function
+ * @param {string} url The URL to be parsed.
+ * @description Normalizes and parses a URL.
+ * @returns {object} Returns the normalized URL as a dictionary.
+ *
+ *   | member name   | Description    |
+ *   |---------------|----------------|
+ *   | href          | A normalized version of the provided URL if it was not an absolute URL |
+ *   | protocol      | The protocol including the trailing colon                              |
+ *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
+ *   | search        | The search params, minus the question mark                             |
+ *   | hash          | The hash string, minus the hash symbol
+ *   | hostname      | The hostname
+ *   | port          | The port, without ":"
+ *   | pathname      | The pathname, beginning with "/"
+ *
+ */
+function urlResolve(url, fixHash) {
+    var href = url,
+        pathname,
+        colon = []
+
+    if (msie) {
+        // Normalize before parse.  Refer Implementation Notes on why this is
+        // done in two steps on IE.
+        urlParsingNode.setAttribute("href", href);
+        href = urlParsingNode.href;
+    }
+
+    urlParsingNode.setAttribute('href', href);
+
+    if (fixHash && urlParsingNode.href.indexOf('#!/') > 0) {
+        pathname = urlParsingNode.pathname;
+        var end = pathname.lastIndexOf('/');
+        pathname = pathname.substr(0, end+1);
+        href = pathname + urlParsingNode.hash.substr(3);
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+    }
+
+    pathname = urlParsingNode.pathname
+    if (pathname.indexOf(':') >= 0) {
+        var cs = pathname.substr(pathname.indexOf(':') + 1)
+        colon = cs.split('/')
+    }
+
+    // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+    return {
+        href: urlParsingNode.href,
+        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+        host: urlParsingNode.host,
+        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+        hostname: urlParsingNode.hostname,
+        port: urlParsingNode.port,
+        colon: colon,
+        pathname: (urlParsingNode.pathname.charAt(0) === '/')
+            ? urlParsingNode.pathname
+            : '/' + urlParsingNode.pathname
+    };
+}
+
+
+if(typeof String.prototype.trim !== 'function') {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, ''); 
+    }
+}
+
+
+/**
+ *  add class for IE9
+ *  uses classList if available
+ */
+function addClass(el, cls) {
+    if (hasClassList) {
+        el.classList.add(cls)
+    } else {
+        var cur = ' ' + el.className + ' '
+        if (cur.indexOf(' ' + cls + ' ') < 0) {
+            el.className = (cur + cls).trim()
+        }
+    }
+}
+
+/**
+ *  remove class for IE9
+ */
+function removeClass(el, cls) {
+    if (hasClassList) {
+        el.classList.remove(cls)
+    } else {
+        var cur = ' ' + el.className + ' ',
+            tar = ' ' + cls + ' '
+        while (cur.indexOf(tar) >= 0) {
+            cur = cur.replace(tar, ' ')
+        }
+        el.className = cur.trim()
+    }
+}
+
+function hasClass(el, cls) {
+    var cur = ' ' + el.className + ' '
+    return cur.indexOf(' ' + cls + ' ') >= 0
+}
+
+function toggleClass(el, cls) {
+    if (hasClass(el, cls))
+        removeClass(el, cls)
+    else
+        addClass(el, cls)
+}
+
+function isDescendant(parent, child) {
+     var node = child.parentNode;
+     while (node != null) {
+         if (node == parent) {
+             return true;
+         }
+         node = node.parentNode;
+     }
+     return false;
+}
+
 // 合并 ./node
-module.exports = extend({
+module.exports = {
     'copy': copy,
     'shallowCopy': shallowCopy,
     'size': size,
@@ -7190,14 +7392,21 @@ module.exports = extend({
     'nextUid': nextUid,
     'encodeUriQuery': encodeUriQuery,
     'encodeUriSegment': encodeUriSegment,
-    'substitute': substitute
-}, node)
+    'substitute': substitute,
+    'format': format,
+    isDescendant: isDescendant,
+    addClass: addClass,
+    hasClass: hasClass,
+    removeClass: removeClass,
+    toggleClass: toggleClass,
+    urlResolve: urlResolve
+}
 
 });
 require.register("vui/src/location.js", function(exports, require, module){
 var utils            = require("./utils"),
     encodeUriSegment = utils.encodeUriSegment,
-    urlResolve       = require('./node').urlResolve,
+    urlResolve       = utils.urlResolve,
     lastBrowserUrl   = originUrl,
     html5Mode        = false,
     originUrl        = urlResolve(window.location.href, true),
@@ -7344,187 +7553,11 @@ _location = module.exports = {
 
 
 });
-require.register("vui/src/node.js", function(exports, require, module){
-var hasClassList    = 'classList' in document.documentElement,
-    urlParsingNode  = document.createElement("a")
-
-
-/**
- * IE 11 changed the format of the UserAgent string.
- * See http://msdn.microsoft.com/en-us/library/ms537503.aspx
- */
-var msie = parseInt((/msie (\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1]);
-if (isNaN(msie)) {
-    msie = parseInt((/trident\/.*; rv:(\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1]);
-}
-
-/**
- *
- * Implementation Notes for non-IE browsers
- * ----------------------------------------
- * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
- * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
- * URL will be resolved into an absolute URL in the context of the application document.
- * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
- * properties are all populated to reflect the normalized URL.  This approach has wide
- * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
- * http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
- *
- * Implementation Notes for IE
- * ---------------------------
- * IE >= 8 and <= 10 normalizes the URL when assigned to the anchor node similar to the other
- * browsers.  However, the parsed components will not be set if the URL assigned did not specify
- * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
- * work around that by performing the parsing in a 2nd step by taking a previously normalized
- * URL (e.g. by assigning to a.href) and assigning it a.href again.  This correctly populates the
- * properties such as protocol, hostname, port, etc.
- *
- * IE7 does not normalize the URL when assigned to an anchor node.  (Apparently, it does, if one
- * uses the inner HTML approach to assign the URL as part of an HTML snippet -
- * http://stackoverflow.com/a/472729)  However, setting img[src] does normalize the URL.
- * Unfortunately, setting img[src] to something like "javascript:foo" on IE throws an exception.
- * Since the primary usage for normalizing URLs is to sanitize such URLs, we can't use that
- * method and IE < 8 is unsupported.
- *
- * References:
- *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
- *   http://wcg.aptana.com/reference/html/api/HTMLAnchorElement.html
- *   http://url.spec.whatwg.org/#urlutils
- *   https://github.com/angular/angular.js/pull/2902
- *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
- *
- * @function
- * @param {string} url The URL to be parsed.
- * @description Normalizes and parses a URL.
- * @returns {object} Returns the normalized URL as a dictionary.
- *
- *   | member name   | Description    |
- *   |---------------|----------------|
- *   | href          | A normalized version of the provided URL if it was not an absolute URL |
- *   | protocol      | The protocol including the trailing colon                              |
- *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
- *   | search        | The search params, minus the question mark                             |
- *   | hash          | The hash string, minus the hash symbol
- *   | hostname      | The hostname
- *   | port          | The port, without ":"
- *   | pathname      | The pathname, beginning with "/"
- *
- */
-function urlResolve(url, fixHash) {
-    var href = url,
-        pathname
-
-    if (msie) {
-        // Normalize before parse.  Refer Implementation Notes on why this is
-        // done in two steps on IE.
-        urlParsingNode.setAttribute("href", href);
-        href = urlParsingNode.href;
-    }
-
-    urlParsingNode.setAttribute('href', href);
-
-    if (fixHash && urlParsingNode.href.indexOf('#!/') > 0) {
-        pathname = urlParsingNode.pathname;
-        var end = pathname.lastIndexOf('/');
-        pathname = pathname.substr(0, end+1);
-        href = pathname + urlParsingNode.hash.substr(3);
-        urlParsingNode.setAttribute('href', href);
-        href = urlParsingNode.href;
-    }
-
-    // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-    return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-        host: urlParsingNode.host,
-        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-        hostname: urlParsingNode.hostname,
-        port: urlParsingNode.port,
-        pathname: (urlParsingNode.pathname.charAt(0) === '/')
-            ? urlParsingNode.pathname
-            : '/' + urlParsingNode.pathname
-    };
-}
-
-
-if(typeof String.prototype.trim !== 'function') {
-    String.prototype.trim = function() {
-        return this.replace(/^\s+|\s+$/g, ''); 
-    }
-}
-
-
-/**
- *  add class for IE9
- *  uses classList if available
- */
-function addClass(el, cls) {
-    if (hasClassList) {
-        el.classList.add(cls)
-    } else {
-        var cur = ' ' + el.className + ' '
-        if (cur.indexOf(' ' + cls + ' ') < 0) {
-            el.className = (cur + cls).trim()
-        }
-    }
-}
-
-/**
- *  remove class for IE9
- */
-function removeClass(el, cls) {
-    if (hasClassList) {
-        el.classList.remove(cls)
-    } else {
-        var cur = ' ' + el.className + ' ',
-            tar = ' ' + cls + ' '
-        while (cur.indexOf(tar) >= 0) {
-            cur = cur.replace(tar, ' ')
-        }
-        el.className = cur.trim()
-    }
-}
-
-function hasClass(el, cls) {
-    var cur = ' ' + el.className + ' '
-    return cur.indexOf(' ' + cls + ' ') >= 0
-}
-
-function toggleClass(el, cls) {
-    if (hasClass(el, cls))
-        removeClass(el, cls)
-    else
-        addClass(el, cls)
-}
-
-function isDescendant(parent, child) {
-     var node = child.parentNode;
-     while (node != null) {
-         if (node == parent) {
-             return true;
-         }
-         node = node.parentNode;
-     }
-     return false;
-}
-
-module.exports = {
-    isDescendant: isDescendant,
-    addClass: addClass,
-    hasClass: hasClass,
-    removeClass: removeClass,
-    toggleClass: toggleClass,
-    urlResolve: urlResolve
-}
-
-});
 require.register("vui/src/route.js", function(exports, require, module){
 var Vue         = require('vue'),
     utils       = require('./utils'),
-    node        = require('./node'),
     _location   = require('./location'),
-    urlResolve  = node.urlResolve,
+    urlResolve  = utils.urlResolve,
     request     = require('./request'),
     lastPath    = urlResolve(_location.url()).pathname,
     fns         = {},
@@ -7694,6 +7727,7 @@ function Day(d) {
     this.date = d.getDate()
     this.weekday = d.getDay()
     this.str = this.year + '-' + pad(this.month + 1) + '-' + pad(this.date)
+    this.timestamp = Math.ceil(d.getTime() / 1000)
 }
 
 var STATUS = { DAY:1, MONTH:2, YEAR:3 }
@@ -7701,7 +7735,7 @@ var STATUS = { DAY:1, MONTH:2, YEAR:3 }
 module.exports = {
     template: require('./date.html'),
     replace: true,
-    paramAttributes: ['placeholder'],
+    paramAttributes: ['placeholder', 'unixtime'],
 
     methods: {
         open: function () {
@@ -7729,7 +7763,8 @@ module.exports = {
         },
 
         set: function (day, event) {
-            this.date = day.str
+            this.date = this.unixtime ? day.timestamp : day.str
+            this.text = day.str
             this.currentDate = {
                 year: day.year,
                 month: day.month,
@@ -7828,6 +7863,15 @@ module.exports = {
         var self = this,
             d = new Date()
 
+        if (this.$el.getAttribute('up') === 'true')
+            this.pickerUp = true
+
+        if (this.unixtime && this.date) {
+            if (typeof this.date === 'string')
+                this.date = parseInt(this.date)
+            this.date = this.date * 1000
+        }
+
         if (this.date)
             d = new Date(this.date)
 
@@ -7842,9 +7886,6 @@ module.exports = {
         this.draw()
         this.changeYear(0)
 
-        if (this.$el.getAttribute('up') === 'true')
-            this.pickerUp = true
-
         // 点击页面空白关闭
         this.$closeHandle = function (event) {
             if (utils.isDescendant(self.$el, event.target))
@@ -7852,6 +7893,12 @@ module.exports = {
 
             self.close()
         }
+
+        var inited = false
+        this.$watch('date', function (value) {
+            if (value)
+                this.text = this.unixtime ? (new Date(value * 1000)).format("yyyy-MM-dd") : value
+        }.bind(this))
     }
 
 }
@@ -7860,36 +7907,202 @@ module.exports = {
 require.register("vui/src/components/form.js", function(exports, require, module){
 var utils       = require('../utils'),
     request     = require('../request'),
-    location    = require('../location'),
+    _location    = require('../location'),
+    lang        = require('../lang/lang'),
     loading     = require('./loading'),
     message     = require('./message')
 
-module.exports = {
+function getStruct(struct) {
+    struct = struct || []
+    var hs = []
+    utils.forEach(struct, function (v, i) {
+        if (v.edit) hs.push(v)
+    })
+    return hs
+}
+
+// buttons =========================================================
+var EDIT_OP = {
+    "back": '<a class="btn btn-info" href="javascript:;" v-on="click:back"><i class="icon icon-reply"></i> {text}</a>'
+}
+
+function getEditOp(src) {
+    var ops = [],
+        op = '',
+        obj
+    src = src || {}
+    utils.forEach(src, function (v, k) {
+        op = EDIT_OP[k]
+        if (!op) return
+        obj = {
+            // {{key}} replace {{d.key}}，模板需要用d.key取值
+            op: v.replace(/\{\{([^{}]*)\}\}/g, "{{d.$1}}"),
+            text: lang.get('button.' + k)
+        }
+        ops.push(utils.substitute(op, obj))
+    })
+    return ops.join('&nbsp; ')
+}
+
+// form controls ====================================================
+function getControls(struct) {
+    var controls = [],
+        str
+
+    function addIf(k, s) {
+        if (s[k] === undefined) return ''
+        return k + '="' + s[k] + '" '
+    }
+
+    function getCol(s) {
+        var str = ''
+        if (s.maxlen) {
+            if (s.maxlen < 50) {
+                str += 'col=",6" '
+            } else {
+                str += 'col=",12" '
+            }
+        } else {
+            switch (s.type) {
+                case 'integer':
+                case 'select':
+                    str += 'col=",4" '
+                    break
+            }
+        }
+        return str
+    }
+
+    function getType(s) {
+        if (s.type === undefined || s.type === 'text' || s.type === 'textarea') {
+            if (s.maxlen < 200)
+                return 'type="text" '
+            else
+                return 'type="textarea" rows="6" '
+        }
+
+        if (s.type === 'bool')
+            return 'type="checkbox" options="\'{text}\':true" '
+
+        return 'type="' + s.type + '" '
+    }
+
+    struct.forEach(function (s) {
+        str = '<form-control '
+
+        if (s.type !== 'bool') str += 'label="{text}" '
+
+        str += 'name="{key}" '
+
+        if (s.equal) str += 'v-with="value:model.{key},equal:model.{equal}" '
+        else str += 'v-with="value:model.{key}" '
+
+        str += getCol(s)
+        str += getType(s)
+        utils.forEach(['min', 'max', 'minlen', 'maxlen', 'src', 'require', 'tip'], function (k) {
+            str += addIf(k, s)
+        })
+        str += '></form-control>'
+        controls.push(utils.substitute(str, s))
+    })
+    controls.push(utils.substitute('<form-control><button class="btn btn-primary" type="submit">{text}</button></form-control>', {text:lang.get('button.submit')}))
+    return controls.join('')
+}
+
+function getCallback(str) {
+    if (!str)
+        return function () {
+            window.history.back()
+        }
+
+    if (str.indexOf('(function') !== 0) {
+        str = "(function (res) {" + str + "})";
+    }
+
+    return eval(str)
+}
+
+var component = {
+    //template: require('./form.html'),
     methods: {
         back: function () {
             window.history.back()
         },
-        
+
         success: function (json) {
-            this.back()
+            try {
+                this.callback.call(this, json)
+            } catch (e) {
+                console.log(e)
+            }
         }
+    },
+
+    data: {
+        struct: null,
+        content: ''
     },
 
     created: function () {
         this.valid = true
         this.controls = {}
         this.model = {}
+        this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
+        this.delay = this.$el.getAttribute('delay') === 'true'
+        this.callback = getCallback(this.$el.getAttribute('callback'))
+
+        var struct = this.$el.getAttribute("struct")
+        if (struct) {
+            struct = utils.format(struct, this.colon)
+            loading.start()
+            // use sync 
+            request.get(struct).end(function (res) {
+                loading.end()
+                if (res.status !== 200 || res.body.status !== 1) {
+                    message.error(res.body.errors, res.status)
+                    return
+                }
+
+                this.struct = getStruct(res.body.struct)
+                // if struct has src, use struct.src
+                if (res.body.src)
+                    this.src = res.body.src
+                this.content = getControls(this.struct)
+            }.bind(this), true)
+        }
+
+        if (this.src) {
+            this.src = utils.format(this.src, this.colon)
+        }
+    },
+
+    ready: function () {
+        var node = _location.node(true),
+            search = node.search,
+            hash = node.hash
+
+        if (!this.delay)
+            request.get(this.src + hash).query(search).end(function (res) {
+                if (res.status === 200) {
+                    if (res.body.status === 1 || res.body.data)
+                        this.model = res.body.data || {}
+                    else if (res.body.errors)
+                        message.error(res.body.errors)
+                } else {
+                    //message.error('', res.status)
+                }
+            }.bind(this))
 
         var form = this.$el;
         if (form.tagName != "FORM")
             form = form.querySelector('form')
 
-        // submit 使用 put 方法
         form.addEventListener('submit', function (event) {
             event.preventDefault()
             this.$broadcast('check')
+            this.valid = true
 
             utils.forEach(this.controls, function (v, k) {
                 this.valid = this.valid && v
@@ -7903,32 +8116,26 @@ module.exports = {
                         if (res.body.status === 1) {
                             this.success(res.body)
                         } else {
-                            message.error(res.body.error)
+                            message.error(res.body.errors)
                         }
                     } else {
                         message.error('', res.status)
                     }
+
+                    if (res.body.msg)
+                        message.info(res.body.msg)
                 }.bind(this))
             }
         }.bind(this))
-
-    },
-
-    ready: function () {
-        var node = location.node(true),
-            search = node.search,
-            hash = node.hash
-        request.get(this.src + hash).query(search).end(function (res) {
-            if (res.status === 200) {
-                if (res.body.status === 1)
-                    this.model = res.body.data || {}
-                else if (res.body.errors)
-                    message.error(res.body.errors)
-            } else {
-                //message.error('', res.status)
-            }
-        }.bind(this))
     }
+}
+
+var component_struct = utils.copy(component)
+component_struct.template = '<form v-show="struct" class="form-horizontal" v-html="content" role="form"></form>'
+
+module.exports = {
+    'form': component,
+    'form-struct': component_struct
 }
 
 });
@@ -7946,7 +8153,10 @@ function getCol(str, label) {
                 ss[i] = parseInt(s)
             } catch (e) {}
         })
-        col = [ ss[0] || 2, ss[1] || 6 ]
+        if (ss[0] === 0)
+            col = [0, 0]
+        else 
+            col = [ ss[0] || 2, ss[1] || 6 ]
     }
 
     return col
@@ -7959,11 +8169,13 @@ var TEMPLATES = {
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
         'select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" v-with="value:value" v-component="select"></div>',
+        'mult-select': '<div class="form-control select col-sm-{{_col[1]}}" src="{{_src}}" single="{{_single}}" v-with="value:value" v-component="mult-select"></div>',
         'tree': '<ul v-with="value:value" selectable="{{_selectable}}" select="{{_select}}" src="{{_src}}" v-component="tree"></ul>',
-        'date': '<div class="form-control date col-sm-{{_col[1]}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
+        'date': '<div class="form-control date col-sm-{{_col[1]}}" unixtime="{{_unixtime}}" v-component="date" v-with="date:value" id="{{id}}" name="{{_name}}"></div>',
         'integer': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'alpha': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
         'alphanum': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="text" />',
+        'progress': '<div v-with="progress:value" class="col-sm-{{_col[1]}}" v-component="progress" />',
         'default': '<input class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" id="{{id}}" v-model="value" name="{{_name}}" type="{{_type}}" />',
         'empty': ''
     },
@@ -7972,7 +8184,7 @@ var TEMPLATES = {
         'email': /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i,
         'url': /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/,
         'number': /^\s*(\-|\+)?(\d+|(\d*(\.\d*)))\s*$/,
-        'date': /^(\d{4})-(\d{2})-(\d{2})$/,
+        //'date': /^(\d{4})-(\d{2})-(\d{2})$/,
         'alpha': /^[a-z ._-]+$/i,
         'alphanum': /^[a-z0-9_]+$/i,
         'password': /^[\x00-\xff]+$/,
@@ -8001,7 +8213,7 @@ function _len(val, t) {
         t += '_cb'
    
     if (t.indexOf('len') >= 0)
-        len = this.value.length
+        len = this.value.toString().length
     else
         len = parseInt(this.value) || 0
 
@@ -8128,7 +8340,7 @@ module.exports = {
         this.checkList = []
 
         // set attr
-        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'tip', 'selectable', 'select'], function (attr) {
+        utils.forEach(['label', 'src', 'text', 'name', 'rows', 'readonly', 'options', 'inline', 'single', 'tip', 'selectable', 'select', 'unixtime'], function (attr) {
             this['_' + attr] = this.$el.getAttribute(attr)
             this.$el.removeAttribute(attr)
         }.bind(this))
@@ -8167,9 +8379,21 @@ module.exports = {
     },
 
     ready: function () {
+        if (this.$el.hasAttribute('value'))
+            this.value = this.$el.getAttribute('value')
+
         this.$watch('value', function () {
             this.check()
         }.bind(this))
+    },
+
+    computed: {
+        labelClass: function () {
+            return this._col[0] === 0 ? "" : "col-sm-" + this._col[0]
+        },
+        controlClass: function () {
+            return this._col[0] === 0 ? "" : "col-sm-" + (12 - this._col[0])
+        }
     }
 }
 
@@ -8287,6 +8511,106 @@ module.exports = {
 }
 
 });
+require.register("vui/src/components/mult-select.js", function(exports, require, module){
+var request = require('../request'),
+    utils   = require('../utils'),
+    lang    = require('../lang/lang'),
+    forEach = utils.forEach
+
+module.exports = {
+    template: require('./mult-select.html'),
+    replace: true,
+    paramAttributes: ['src', 'placeholder', 'single'],
+    methods: {
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
+        },
+        select: function (item, setOnly) {
+            if (this.single) {
+                this.text = item.text
+                if (item.value != this.value)
+                    this.value = item.value
+            } else {
+                var index = this.values.indexOf(item)
+                if (index === -1) {
+                    this.values.push(item)
+                } else if (!setOnly) {
+                    this.values.splice(index, 1)
+                }
+                var v = [], t = []
+                this.values.forEach(function (i) {
+                    v.push(i.value)
+                    t.push(i.text)
+                })
+
+                var vs = v.join(',')
+                if (vs !== this.value) {
+                    this.value = vs
+                }
+                this.text = t.join(',')
+            }
+        },
+        setValue: function (value) {
+            if (undefined === value) {
+                this.text = null
+                return
+            }
+
+            var values = this.single ? [value.toString()] : value.split(',')
+
+            forEach(this.options, function (item) {
+                if (values.indexOf(item.value.toString()) >= 0)
+                    this.select(item, true)
+            }.bind(this))
+        }
+    },
+    data: {
+        options: [],
+        values: []
+    },
+    created: function () {
+        var self = this
+        this.values = []
+        utils.addClass(this.$el, 'select')
+
+        if (this.src === 'bool') {
+            this.options = lang.get('boolSelect')
+        } else if (this.src) {
+            request.get(this.src).end(function (res) {
+                if (res.body instanceof Array) {
+                    self.options = res.body
+                } else if (res.body.status === 1) {
+                    self.options = res.body.data
+                }
+                self.setValue(self.value)
+            })
+        }
+
+        this.$closeHandle = function (evt) {
+            if (utils.isDescendant(self.$el, evt.target)) return
+            self.close()
+        }
+    },
+    ready: function () {
+        this.$watch('value', function (value, mut) {
+            this.setValue(value)
+        }.bind(this))
+    }
+}
+
+});
 require.register("vui/src/components/openbox.js", function(exports, require, module){
 var Vue     = require('vue'),
     utils   = require('../utils'),
@@ -8304,7 +8628,7 @@ function openbox(opts) {
 
         data = utils.extend({
             title: opts.title,
-            width: opts.width || 600,
+            width: opts.width || 6,
             model: {},
             btns: [],
             body: opts.body,
@@ -8318,8 +8642,6 @@ function openbox(opts) {
                 show: function () {
                     //utils.addClass(this.$el, 'open')
                     this.$open = true
-                    var box = this.$el.querySelector('.openbox-content')
-                    box.style.width = this.width
                 },
                 bgclose: function (e) {
                     var box = this.$el.querySelector('.openbox-content')
@@ -8327,7 +8649,9 @@ function openbox(opts) {
                     this.close()
                 },
                 close: function (suc) {
-                    if (suc && callback) callback(this.model)
+                    if (callback) {
+                        callback(suc ? this.model : undefined)
+                    }
                     this.$destroy()
                 },
                 getComponent: function () {
@@ -8379,6 +8703,7 @@ openbox.confirm = function (message, callback) {
     openbox({
         title: "Confirm",
         show: true,
+        width: 6,
         body: message,
         btns: ['ok', 'close'],
         callback: callback
@@ -8398,9 +8723,17 @@ function formatOption(opts) {
 
     if ('string' === typeof opts) {
         opts = opts.trim()
+        if (opts.charAt(0) === '[')
+            return eval('(' + opts + ')')
+
         if (opts.charAt(0) !== '{')
              opts = '{' + opts + '}'
-        opts = eval('(' + opts + ')')
+
+        var arr = []
+        utils.forEach(eval('(' + opts + ')'), function (v, k) {
+            arr.push({ text:k, value:v })
+        })
+        opts = arr
     }
 
     return opts
@@ -8428,10 +8761,17 @@ module.exports = {
         },
 
         setCheckboxValue: function (el, value) {
-            if (el.checked)
-                this.value.push(value)
-            else
-                utils.arrayRemove(this.value, value)
+            if (this.$single) {
+                if (el.checked)
+                    this.value = value
+                else
+                    this.value = null
+            } else {
+                if (el.checked)
+                    this.value.push(value)
+                else
+                    utils.arrayRemove(this.value, value)
+            }
         },
 
         setRadioValue: function (el, value) {
@@ -8462,12 +8802,22 @@ module.exports = {
         if (utils.toBoolean(this.inline))
             this.className = this.type + '-inline'
 
+        function judge() {
+            this.$single = utils.size(this.options) === 1
+        }
+
         if (this.options) {
             this.options = formatOption(this.options)
+            judge.call(this)
         } else if (!this.options && src) {
             this.options = {}
             request.get(src).end(function (res) {
-                this.options = formatOption(res.body)
+                if (res.body instanceof Array) {
+                    this.options = formatOption(res.body)
+                } else if (res.body.status === 1) {
+                    this.options = formatOption(res.body.data)
+                }
+                judge.call(this)
             }.bind(this))
         }
 
@@ -8486,16 +8836,22 @@ module.exports = {
                 this.value = this.value.split(',')
         }
 
-        this.$watch('value', function () {
-            if (this.type === 'radio')
+        this.$watch('value', function (value, mut) {
+            if (this.type === 'radio') {
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
-            else {
-                var vals = this.value
+            } else {
+                if (typeof value === 'string') {
+                    if (value === '') this.value = []
+                    else this.value = this.value.split(',')
+                }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
-                    el.checked = contains(vals, el.value)
+                    if (value === null) {
+                        el.checked = false
+                        return
+                    }
+                    el.checked = value.toString() === el.value.toString() || contains(value, el.value)
                 }.bind(this))
             }
-                
         }.bind(this))
     }
 }
@@ -8545,10 +8901,10 @@ var FILTERS = {
     bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
     date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}${filter}"></div>'
 }
-function getFilter(structs) {
-    structs = structs || []
+function getFilter(struct) {
+    struct = struct || []
     var filter = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.filter) return
         var el = utils.substitute(FILTERS[v.type], v)
         filter.push(el)
@@ -8556,10 +8912,10 @@ function getFilter(structs) {
     return filter
 }
 
-function getHeader(structs) {
-    structs = structs || []
+function getStruct(struct) {
+    struct = struct || []
     var hs = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.hide) hs.push(v)
     })
     return hs
@@ -8603,8 +8959,7 @@ function getMultOp(src, filter) {
     return ops
 }
 
-module.exports = {
-    template: require('./page.html'),
+var component = {
 
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
@@ -8634,6 +8989,38 @@ module.exports = {
             })
         },
 
+        edit: function (title, src, key, val) {
+            key = key || 'id'
+            var dm = {}
+            for (var i=0; i<this.data.length; i++) {
+                if (this.data[i][key] === val) {
+                    dm = this.data[i]
+                    break
+                }
+            }
+            var box = openbox({
+                title: title,
+                show: true,
+                width: 8,
+                src: src,
+                data: { 
+                    model: utils.copy(dm)
+                },
+                callback: function (model) {
+                    if (!model) return
+                    var index = -1
+                    for (var i=0; i<this.data.length; i++) {
+                        if (this.data[i][key] === model[key]) {
+                            index = i
+                            break
+                        }
+                    }
+                    if (index >= 0) this.data.splice(index, 1)
+                    this.data.unshift(model)
+                }.bind(this)
+            })
+        },
+
         updateModel: function (item) {
             loading.start()
             request.put(this.src).send(item.$data).end(function (res) {
@@ -8646,6 +9033,50 @@ module.exports = {
                     message.success(res.body.msg || 'success')
                 else
                     message.error(res.body.errors)
+            })
+        },
+
+        act: function (src, data, key, val, method) {
+            method = method || 'post'
+            var self = this
+            loading.start()
+            request[method](src).send(data).end(function (res) {
+                loading.end()
+
+                if (res.status !== 200) {
+                    message.error('', res.status)
+                    return
+                }
+                if (res.body.status === 0) {
+                    message.error(res.body.errors || res.body.msg)
+                    return
+                }
+
+                var index = -1
+                for (var i=0; i<self.data.length; i++) {
+                    if (self.data[i][key] === val) {
+                        index = i
+                        break
+                    }
+                }
+                if (index >= 0) {
+                    self.data.splice(index, 1)
+                    if (res.body.data)
+                        self.data.unshift(res.body.data)
+                }
+                if (res.body.msg) {
+                    message.info(res.body.msg)
+                }
+            })
+        },
+
+        remove: function (val, key) {
+            key = key || 'id'
+            var self = this
+            openbox.confirm(lang.get('page.del_confirm', {count: 1}), function (status) {
+                if (!status) return
+
+                self.act(self.src, val, key, val, 'del')
             })
         },
 
@@ -8662,7 +9093,7 @@ module.exports = {
                     if (res.body.status === 1)
                         self.update()
                     else
-                        message.error(res.body.errors)
+                        message.error(res.body.errors || res.body.msg)
                 })
             }
             
@@ -8741,6 +9172,7 @@ module.exports = {
             this.filters = {}
             this.sort = {}
             this.pageable = !(this.$el.getAttribute('pageable') === 'false')
+            if (!this.pageable) this.pager = {}
 
             function setFilter(v, k) {
                 if (k.indexOf('f.') !== 0) return
@@ -8776,14 +9208,16 @@ module.exports = {
         pager: {},
         total: 0,
         sort: {},
-        struct: false,
+        struct: null,
         pageable: false
     },
     created: function () {
         this.init()
+        this.colon = _location.node(true).colon
 
         var struct = this.$el.getAttribute("struct")
         if (struct) {
+            struct = utils.format(struct, this.colon)
             loading.start()
             // use sync 
             request.get(struct).end(function (res) {
@@ -8793,9 +9227,8 @@ module.exports = {
                     return
                 }
 
-                this.struct = true
-                this.header = getHeader(res.body.structs)
-                this.filterTpl = getFilter(res.body.structs)
+                this.struct = getStruct(res.body.struct)
+                this.filterTpl = getFilter(res.body.struct)
                 // if struct has src, use struct.src
                 if (res.body.src)
                     this.src = res.body.src
@@ -8808,6 +9241,14 @@ module.exports = {
             }.bind(this), true)
         }
 
+        if (this.src) {
+            this.src = utils.format(this.src, this.colon)
+        }
+    },
+    ready: function () {
+        if (this.routeChange)
+            route.bind(routeChange.bind(this))
+
         if (!this.delay) this.update()
 
         var form = this.$el.querySelector('form')
@@ -8817,14 +9258,18 @@ module.exports = {
             })
         }
     },
-    ready: function () {
-        if (this.routeChange)
-            route.bind(routeChange.bind(this))
-    },
     beforeDestroy: function () {
         if (this.routeChange)
             route.unbind(routeChange.bind(this))
     }
+}
+
+var component_struct = utils.copy(component)
+component_struct.template = require('./page.html')
+
+module.exports = {
+    'page': component,
+    'page-struct': component_struct
 }
 
 });
@@ -8868,6 +9313,73 @@ module.exports = {
         this.$watch('total', function () {
             self.compose()
         })
+    }
+}
+
+});
+require.register("vui/src/components/progress.js", function(exports, require, module){
+module.exports = {
+    template: require('./progress.html'),
+    data: {
+        progress: 0
+    },
+    ready: function () {
+        if (typeof this.progress === 'string') 
+            this.progress = parseInt(this.progress)
+        this.progress = this.progress || 0
+
+        var self = this,
+            el = this.$el.querySelector('.progress'),
+            handle = this.$el.querySelector('.progress-handle'),
+            bar = this.$el.querySelector('.progress-bar'),
+            _left = 0,
+            _width = 0,
+            _last = 0,
+            _start = false
+
+        var getPer = function (left) {
+            if (_width === 0)
+                _width = el.offsetWidth
+            var per = Math.ceil(left * 100 / _width) 
+            if (per >= 99) per = 100
+            self.progress = per
+            return per
+        }
+
+        var start = function (ev) {
+            if (_width === 0)
+                _width = el.offsetWidth
+            if (_left === 0)
+                _left = ev.clientX - ev.offsetX - handle.offsetLeft
+            _start = true
+        }
+
+        var end = function (ev) {
+            _start = false
+        }
+
+        var move = function (ev) {
+            if (!_start) return
+
+            var left = ev.clientX - _left
+            if (left < 0) left = 0
+            if (left > _width) left = _width
+            handle.style.left = left + 'px'
+            _set(left)
+        }
+
+        var _set = function (left) {
+            bar.style.width = getPer(left) + '%'
+        }
+
+        var set = function (ev) {
+            handle.style.left = ev.offsetX + 'px'
+        }
+
+        handle.addEventListener('mousedown', start, false)
+        handle.addEventListener('mousemove', move, false)
+        handle.addEventListener('mouseup', end, false)
+        el.addEventListener('mouseout', end, false)
     }
 }
 
@@ -8940,9 +9452,13 @@ module.exports = {
 
         if (this.src === 'bool') {
             this.options = lang.get('boolSelect')
-        } else {
+        } else if (this.src) {
             request.get(this.src).end(function (res) {
-                self.options = res.body
+                if (res.body instanceof Array) {
+                    self.options = res.body
+                } else if (res.body.status === 1) {
+                    self.options = res.body.data
+                }
                 self.setValue(self.value)
             })
         }
@@ -9068,6 +9584,12 @@ var tree = {
                     message.error(null, res.status)
                     return
                 }
+                if (utils.isArray(res.body)) {
+                    res.body = {
+                        status: 1,
+                        data: res.body
+                    }
+                }
                 if (res.body.status == 1) {
                     self.data = initData(res.body.data, self.list)
                     if (self.value && !self.$initialized) {
@@ -9143,6 +9665,53 @@ module.exports = {
     tree:   tree,
     folder: folder,
     file:   file
+}
+
+});
+require.register("vui/src/filters/icon.js", function(exports, require, module){
+module.exports = function (value) {
+    if (value === true || value === 'true')
+        return '<i class="icon icon-check text-success"></i>'
+
+    if (value === false || value === 'false')
+        return '<i class="icon icon-times text-danger"></i>'
+
+    if (value === 'selectall')
+        return '<i v-on="click: selectAll" v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i>'
+
+    if (value === 'select')
+       return '<i v-on="click: select(this)" v-class="icon-check-square-o:vui_checked, icon-square-o:!vui_checked" class="icon"></i>' 
+}
+
+});
+require.register("vui/src/filters/string.js", function(exports, require, module){
+var utils = require('../utils')
+
+function formatTime(timestamp, ft) {
+    if (!timestamp) return ""
+
+    if (typeof timestamp === 'string')
+        timestamp = parseInt(timestamp)
+
+    var time = new Date(timestamp * 1000)
+    return time.format(ft)
+}
+
+module.exports = {
+    format: function (value, arr) {
+        arr = arr || []
+        return utils.format(value, arr)
+    },
+
+    date: function (timestamp, ft) {
+        ft = ft || 'yyyy-MM-dd'
+        return formatTime(timestamp, ft)
+    },
+
+    datetime: function (timestamp, ft) {
+        ft = ft || 'yyyy-MM-dd hh:mm:ss'
+        return formatTime(timestamp, ft)
+    }
 }
 
 });
@@ -9236,22 +9805,31 @@ module.exports = {
 
 
 require.register("vui/src/components/date.html", function(exports, require, module){
-module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="date"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="header">\n            <a href="javascript:;" class="handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
+module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="date-picker-handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
+});
+require.register("vui/src/components/form.html", function(exports, require, module){
+module.exports = '<form v-show="struct" class="form-horizontal" v-html="content" role="form"></form>\n<content></content>\n';
 });
 require.register("vui/src/components/form-control.html", function(exports, require, module){
-module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="col-sm-{{_col[0]}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="col-sm-{{12-_col[0]}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="col-sm-{{12-_col[0]}}"><content></content></div>\n</div>\n';
+module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="{{labelClass}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="{{controlClass}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="{{controlClass}}"><content></content></div>\n</div>\n';
+});
+require.register("vui/src/components/mult-select.html", function(exports, require, module){
+module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="mult-select-items"><li v-repeat="d:options"><a v-on="click:select(d)" v-class="active: value==d.value || values.indexOf(d) >= 0" href="javascript:;">{{d.text}}</a></li></ul>\n</div>\n';
 });
 require.register("vui/src/components/openbox.html", function(exports, require, module){
-module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content">\n            <a href="script:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
+module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content col-md-{{width}}">\n            <a href="javascript:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div v-show="btns.length > 0" class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 });
 require.register("vui/src/components/option.html", function(exports, require, module){
-module.exports = '<div v-repeat="options" class="{{className}}">\n    <label><input type="{{type}}" v-on="change:setValue($value, $event)" name="{{name}}" value="{{$value}}" /> {{$key}}</label> \n</div>\n';
+module.exports = '<div v-repeat="o:options" class="{{className}}">\n    <label><input type="{{type}}" v-attr="checked:value==o.value" v-on="change:setValue(o.value, $event)" name="{{name}}" value="{{o.value}}" /> {{o.text}}</label> \n</div>\n';
 });
 require.register("vui/src/components/page.html", function(exports, require, module){
-module.exports = '<content></content>\n<div v-if="struct">\n<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-if="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:header">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:header" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n</div>\n</div>\n<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n';
+module.exports = '<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-show="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:struct">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:struct" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n    <div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n</div>\n';
 });
 require.register("vui/src/components/pagination.html", function(exports, require, module){
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
+});
+require.register("vui/src/components/progress.html", function(exports, require, module){
+module.exports = '<div class="progress-out">\n    <div class="progress"><div class="progress-bar" style="width:{{progress}}%;">{{progress}}%</div></div>\n    <a href="javascript:;" class="progress-handle" style="left:{{progress}}%"></a>\n</div>\n';
 });
 require.register("vui/src/components/select.html", function(exports, require, module){
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';

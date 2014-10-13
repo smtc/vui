@@ -1,6 +1,6 @@
-{
-    "选项一": "options 1",
-    "选项二": "options 2",
-    "选项三": "options 3",
-    "选项四": "options 4"
-}
+[
+    {"text": "选项一", "value": "options 1"},
+    {"text": "选项二", "value": "options 2"},
+    {"text": "选项三", "value": "options 3"},
+    {"text": "选项四", "value": "options 4"}
+]

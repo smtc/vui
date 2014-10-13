@@ -7,7 +7,10 @@ var Vue             = require('vue'),
     loading         = require('./components/loading'),
     message         = require('./components/message'),
     tree            = require('./components/tree'),
+    form            = require('./components/form'),
+    page            = require('./components/page'),
     lang            = require('./lang/lang'),
+    string          = require('./filters/string'),
     $data           = {},
     initialized     = false,
     vm
@@ -17,19 +20,47 @@ require('./prototype')
 
 var components = {
     'date': require('./components/date'),
-    'form': require('./components/form'),
+    'form': form.form,
+    'form-struct': form['form-struct'],
     'form-control': require('./components/form-control'),
     'loading': loading.component,
     'message': message.component,
+    'mult-select': require('./components/mult-select'),
     'option': require('./components/option'),
-    'page': require('./components/page'),
+    'page': page.page,
+    'page-struct': page['page-struct'],
     'pagination': require('./components/pagination'),
+    'progress': require('./components/progress'),
     'scope': require('./components/scope'),
     'select': require('./components/select'),
     'tree': tree.tree,
     'tree-folder': tree.folder,
     'tree-file': tree.file
 }
+
+var filters = {
+    date: string.date,
+    datetime: string.datetime,
+    format: string.format,
+    icon: require('./filters/icon')
+}
+
+var directives = {
+    editable: require('./directives/editable'),
+    href: require('./directives/href')
+}
+
+utils.forEach(components, function (v, k) {
+    Vue.component(k, v)
+})
+
+utils.forEach(filters, function (v, k) {
+    Vue.filter(k, v)
+})
+
+utils.forEach(directives, function (v, k) {
+    Vue.directive(k, v)
+})
 
 function init() {
     if (initialized) return
@@ -42,16 +73,6 @@ function init() {
         methods: {
             openbox: openbox
         },
-
-        directives: {
-            editable: require('./directives/editable'),
-            href: require('./directives/href')
-        },
-
-        filters: {
-        },
-
-        components: components,
 
         data: $data
 

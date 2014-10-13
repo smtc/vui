@@ -7,9 +7,17 @@ function formatOption(opts) {
 
     if ('string' === typeof opts) {
         opts = opts.trim()
+        if (opts.charAt(0) === '[')
+            return eval('(' + opts + ')')
+
         if (opts.charAt(0) !== '{')
              opts = '{' + opts + '}'
-        opts = eval('(' + opts + ')')
+
+        var arr = []
+        utils.forEach(eval('(' + opts + ')'), function (v, k) {
+            arr.push({ text:k, value:v })
+        })
+        opts = arr
     }
 
     return opts
@@ -37,10 +45,17 @@ module.exports = {
         },
 
         setCheckboxValue: function (el, value) {
-            if (el.checked)
-                this.value.push(value)
-            else
-                utils.arrayRemove(this.value, value)
+            if (this.$single) {
+                if (el.checked)
+                    this.value = value
+                else
+                    this.value = null
+            } else {
+                if (el.checked)
+                    this.value.push(value)
+                else
+                    utils.arrayRemove(this.value, value)
+            }
         },
 
         setRadioValue: function (el, value) {
@@ -71,12 +86,22 @@ module.exports = {
         if (utils.toBoolean(this.inline))
             this.className = this.type + '-inline'
 
+        function judge() {
+            this.$single = utils.size(this.options) === 1
+        }
+
         if (this.options) {
             this.options = formatOption(this.options)
+            judge.call(this)
         } else if (!this.options && src) {
             this.options = {}
             request.get(src).end(function (res) {
-                this.options = formatOption(res.body)
+                if (res.body instanceof Array) {
+                    this.options = formatOption(res.body)
+                } else if (res.body.status === 1) {
+                    this.options = formatOption(res.body.data)
+                }
+                judge.call(this)
             }.bind(this))
         }
 
@@ -95,16 +120,22 @@ module.exports = {
                 this.value = this.value.split(',')
         }
 
-        this.$watch('value', function () {
-            if (this.type === 'radio')
+        this.$watch('value', function (value, mut) {
+            if (this.type === 'radio') {
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
-            else {
-                var vals = this.value
+            } else {
+                if (typeof value === 'string') {
+                    if (value === '') this.value = []
+                    else this.value = this.value.split(',')
+                }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
-                    el.checked = contains(vals, el.value)
+                    if (value === null) {
+                        el.checked = false
+                        return
+                    }
+                    el.checked = value.toString() === el.value.toString() || contains(value, el.value)
                 }.bind(this))
             }
-                
         }.bind(this))
     }
 }

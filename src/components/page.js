@@ -41,10 +41,10 @@ var FILTERS = {
     bool: '<div class="form-control" src="bool" style="width:60px" placeholder="{text}" v-component="select" v-with="value:filters.{key}${filter}"></div>',
     date: '<div class="form-control date" style="width:140px" placeholder="{text}" v-component="date" v-with="date:filters.{key}${filter}"></div>'
 }
-function getFilter(structs) {
-    structs = structs || []
+function getFilter(struct) {
+    struct = struct || []
     var filter = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.filter) return
         var el = utils.substitute(FILTERS[v.type], v)
         filter.push(el)
@@ -52,10 +52,10 @@ function getFilter(structs) {
     return filter
 }
 
-function getHeader(structs) {
-    structs = structs || []
+function getStruct(struct) {
+    struct = struct || []
     var hs = []
-    utils.forEach(structs, function (v, i) {
+    utils.forEach(struct, function (v, i) {
         if (!v.hide) hs.push(v)
     })
     return hs
@@ -99,8 +99,7 @@ function getMultOp(src, filter) {
     return ops
 }
 
-module.exports = {
-    template: require('./page.html'),
+var component = {
 
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
@@ -130,6 +129,38 @@ module.exports = {
             })
         },
 
+        edit: function (title, src, key, val) {
+            key = key || 'id'
+            var dm = {}
+            for (var i=0; i<this.data.length; i++) {
+                if (this.data[i][key] === val) {
+                    dm = this.data[i]
+                    break
+                }
+            }
+            var box = openbox({
+                title: title,
+                show: true,
+                width: 8,
+                src: src,
+                data: { 
+                    model: utils.copy(dm)
+                },
+                callback: function (model) {
+                    if (!model) return
+                    var index = -1
+                    for (var i=0; i<this.data.length; i++) {
+                        if (this.data[i][key] === model[key]) {
+                            index = i
+                            break
+                        }
+                    }
+                    if (index >= 0) this.data.splice(index, 1)
+                    this.data.unshift(model)
+                }.bind(this)
+            })
+        },
+
         updateModel: function (item) {
             loading.start()
             request.put(this.src).send(item.$data).end(function (res) {
@@ -142,6 +173,50 @@ module.exports = {
                     message.success(res.body.msg || 'success')
                 else
                     message.error(res.body.errors)
+            })
+        },
+
+        act: function (src, data, key, val, method) {
+            method = method || 'post'
+            var self = this
+            loading.start()
+            request[method](src).send(data).end(function (res) {
+                loading.end()
+
+                if (res.status !== 200) {
+                    message.error('', res.status)
+                    return
+                }
+                if (res.body.status === 0) {
+                    message.error(res.body.errors || res.body.msg)
+                    return
+                }
+
+                var index = -1
+                for (var i=0; i<self.data.length; i++) {
+                    if (self.data[i][key] === val) {
+                        index = i
+                        break
+                    }
+                }
+                if (index >= 0) {
+                    self.data.splice(index, 1)
+                    if (res.body.data)
+                        self.data.unshift(res.body.data)
+                }
+                if (res.body.msg) {
+                    message.info(res.body.msg)
+                }
+            })
+        },
+
+        remove: function (val, key) {
+            key = key || 'id'
+            var self = this
+            openbox.confirm(lang.get('page.del_confirm', {count: 1}), function (status) {
+                if (!status) return
+
+                self.act(self.src, val, key, val, 'del')
             })
         },
 
@@ -158,7 +233,7 @@ module.exports = {
                     if (res.body.status === 1)
                         self.update()
                     else
-                        message.error(res.body.errors)
+                        message.error(res.body.errors || res.body.msg)
                 })
             }
             
@@ -237,6 +312,7 @@ module.exports = {
             this.filters = {}
             this.sort = {}
             this.pageable = !(this.$el.getAttribute('pageable') === 'false')
+            if (!this.pageable) this.pager = {}
 
             function setFilter(v, k) {
                 if (k.indexOf('f.') !== 0) return
@@ -272,14 +348,16 @@ module.exports = {
         pager: {},
         total: 0,
         sort: {},
-        struct: false,
+        struct: null,
         pageable: false
     },
     created: function () {
         this.init()
+        this.colon = _location.node(true).colon
 
         var struct = this.$el.getAttribute("struct")
         if (struct) {
+            struct = utils.format(struct, this.colon)
             loading.start()
             // use sync 
             request.get(struct).end(function (res) {
@@ -289,9 +367,8 @@ module.exports = {
                     return
                 }
 
-                this.struct = true
-                this.header = getHeader(res.body.structs)
-                this.filterTpl = getFilter(res.body.structs)
+                this.struct = getStruct(res.body.struct)
+                this.filterTpl = getFilter(res.body.struct)
                 // if struct has src, use struct.src
                 if (res.body.src)
                     this.src = res.body.src
@@ -304,6 +381,14 @@ module.exports = {
             }.bind(this), true)
         }
 
+        if (this.src) {
+            this.src = utils.format(this.src, this.colon)
+        }
+    },
+    ready: function () {
+        if (this.routeChange)
+            route.bind(routeChange.bind(this))
+
         if (!this.delay) this.update()
 
         var form = this.$el.querySelector('form')
@@ -313,12 +398,16 @@ module.exports = {
             })
         }
     },
-    ready: function () {
-        if (this.routeChange)
-            route.bind(routeChange.bind(this))
-    },
     beforeDestroy: function () {
         if (this.routeChange)
             route.unbind(routeChange.bind(this))
     }
+}
+
+var component_struct = utils.copy(component)
+component_struct.template = require('./page.html')
+
+module.exports = {
+    'page': component,
+    'page-struct': component_struct
 }

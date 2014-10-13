@@ -47,27 +47,31 @@
 
     <h3>Example</h3>
 
-    <div src="json/form.json" class="bs-example bs-example-type" v-component="form">
-        <form class="form-horizontal" role="form">
+    <div class="bs-example bs-example-type">
+        <form class="form-horizontal" src="json/form.json" v-component="form" role="form">
             <form-control label="文本" col=",10" type="text" name="text" readonly="true" v-with="value:model.text"></form-control>
             <form-control label="Email" type="email" inline="true" require name="email" v-with="value:model.email"></form-control>
             <form-control label="字符" type="alphanum" require name="alphanum" v-with="value:model.alphanum"></form-control>
             <form-control label="密码" maxlen="12" minlen="6" col="2,5" type="password" name="password" v-with="value:model.password"></form-control>
             <form-control label="重复密码" col="2,5" tip="必须和密码相等" type="password" name="password" v-with="value:model.re_password, equal:model.password"></form-control>
             <form-control label="日期" col="2,4" type="date" name="start" v-with="value:model.date"></form-control>
+            <form-control label="unixtime" col="2,4" type="date" unixtime="true" name="start" v-with="value:model.unixtime"></form-control>
             <form-control label="整数" col="2,4" max="256" type="integer" name="integer" v-with="value:model.integer"></form-control>
             <form-control label="多选" type="checkbox" minlen="1" maxlen="2" name="checkbox" v-with="value:model.checkbox" options="'option 1':1,'option 2':2"></form-control>
+            <form-control label="status" type="checkbox" name="status" v-with="value:model.status" options="'status':true"></form-control>
             <form-control type="radio" name="radio" inline="true" v-with="value:model.radio" src="json/options.json"></form-control>
+            <form-control label="进度条" col="2, 8" type="progress" v-with="value:model.progress"></form-control>
             <form-control label="下拉框" require src="json/select.json" col="2,4" type="select" v-with="value:model.select"></form-control>
+            <form-control label="多选下拉" require src="json/mult-select.json" col="2,8" type="mult-select" v-with="value:model.multselect"></form-control>
             <form-control label="文本框" col=",10" type="textarea" rows="6" v-with="value:model.textarea"></form-control>
             <form-control label="treeview" col=",10" type="tree" src="json/tree.json" selectable="true" select="id" v-with="value:model.tree"></form-control>
 
             <form-control>
                 <button class="btn btn-primary" type="submit">提 交</button>
             </form-control>
+        {{model}}
         </form>
 
-        {{model}}
     </div>
     <pre v-pre class="prettyprint">
 &lt;form action="/api/form/test" class="form-horizontal" role="form" v-component="form"&gt;
@@ -77,10 +81,13 @@
     &lt;form-control label="密码" maxlen="12" minlen="6" col="2,5" type="password" name="password" v-with="value:model.password"&gt;&lt;/form-control&gt;
     &lt;form-control label="重复密码" col="2,5" tip="必须和密码相等" type="password" name="password" v-with="value:model.re_password, equal:model.password"&gt;&lt;/form-control&gt;
     &lt;form-control label="日期" col="2,4" type="date" name="start" v-with="value:model.date"&gt;&lt;/form-control&gt;
+    &lt;form-control label="unixtime" col="2,4" type="date" unixtime="true" name="start" v-with="value:model.unixtime"&gt;&lt;/form-control&gt;
     &lt;form-control label="整数" col="2,4" max="256" type="integer" name="integer" v-with="value:model.integer"&gt;&lt;/form-control&gt;
     &lt;form-control label="多选" type="checkbox" minlen="1" maxlen="2" name="checkbox" v-with="value:model.checkbox" options="'option 1':1,'option 2':2"&gt;&lt;/form-control&gt;
+    &lt;form-control label="status" type="checkbox" name="status" v-with="value:model.status" options="'status':true"&gt;&lt;/form-control&gt;
     &lt;form-control type="radio" name="radio" inline="true" v-with="value:model.radio" src="json/options.json"&gt;&lt;/form-control&gt;
     &lt;form-control label="下拉框" require src="json/select.json" col="2,4" type="select" v-with="value:model.select"&gt;&lt;/form-control&gt;
+    &lt;form-control label="多选下拉" require src="json/mult-select.json" col="2,8" type="mult-select" v-with="value:model.multselect"&gt;&lt;/form-control&gt;
     &lt;form-control label="文本框" col=",10" type="textarea" rows="6" v-with="value:model.textarea"&gt;&lt;/form-control&gt;
     &lt;form-control label="treeview" col=",10" type="tree" src="json/tree.json" selectable="true" select="id" v-with="value:model.tree"&gt;&lt;/form-control&gt;
 

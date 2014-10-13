@@ -1396,9 +1396,9 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .date .icon-calendar{position:absolute;right:8px;top:8px}
 .date.active .date-picker{display:inline-block}
 .date .date-picker{display:none;z-index:1050;border:1px solid #e3e3e3;background-color:#f5f5f5;border-radius:3px;padding:3px;width:280px;position:absolute;top:35px;left:0;-webkit-box-shadow:0 6px 12px rgba(0,0,0,.175);box-shadow:0 6px 12px rgba(0,0,0,.175)}
-.date .date-picker .header{height:30px;line-height:30px;text-align:center}
-.date .date-picker .header .handle{padding:4px 6px;color:#555;display:inline-block;border:1px solid #ddd;background-color:#fff;border-radius:3px}
-.date .date-picker .header .year{padding:0;width:208px;font-size:16px;color:#000;border:none;background:0 0;text-decoration:none}
+.date .date-picker .date-picker-header{height:30px;line-height:30px;text-align:center}
+.date .date-picker .date-picker-header .date-picker-handle{padding:4px 6px;line-height:12px;color:#555;display:inline-block;border:1px solid #ddd;background-color:#fff;border-radius:3px}
+.date .date-picker .date-picker-header .year{padding:0;width:208px;font-size:16px;color:#000;border:none;background:0 0;text-decoration:none}
 .date .date-picker .inner{padding:2px;text-align:center}
 .date .date-picker .inner button,.date .date-picker .inner div{width:36px;padding:4px 0;margin:1px;color:#555;font-size:14px;text-align:center;display:inline-block}
 .date .date-picker .inner .day,.date .date-picker .inner .month,.date .date-picker .inner .year{border:1px solid #ddd;background-color:#fff;border-radius:3px}
@@ -1423,8 +1423,24 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .select .dropdown-menu li a{padding:3px 10px}
 .select .dropdown-menu li a.active{background-color:#eee;color:#333}
 .select .dropdown-menu li a:hover{color:#fff;background-color:#428bca}
-.select.active .dropdown-menu{display:block}
+.select.active .dropdown-menu,.select.active .mult-select-items{display:block}
 .select .caret{position:absolute;right:10px;top:14px}
+.select .mult-select-items{position:absolute;top:100%;min-width:100%;max-height:300px;overflow:auto;width:530px;display:none;left:0;z-index:1000;float:left;padding:10px;margin:2px 0 0;list-style:none;font-size:14px;background-color:#fff;border:1px solid #ccc;border:1px solid rgba(0,0,0,.15);border-radius:4px;-webkit-box-shadow:0 6px 12px rgba(0,0,0,.175);box-shadow:0 6px 12px rgba(0,0,0,.175);background-clip:padding-box}
+.select .mult-select-items li{display:inline-block;width:100px}
+.select .mult-select-items li a{display:inline-block;color:#999;padding:3px 24px 3px 8px;text-decoration:none}
+.select .mult-select-items li .active{color:#d9534f;font-weight:700}
+.select-100-4 .mult-select-items{width:430}
+.select-100-4 .mult-select-items li{width:100}
+.select-100-5 .mult-select-items{width:530}
+.select-100-5 .mult-select-items li{width:100}
+.select-100-6 .mult-select-items{width:630}
+.select-100-6 .mult-select-items li{width:100}
+.select-150-3 .mult-select-items{width:480}
+.select-150-3 .mult-select-items li{width:150}
+.select-150-4 .mult-select-items{width:630}
+.select-150-4 .mult-select-items li{width:150}
+.select-150-5 .mult-select-items{width:780}
+.select-150-5 .mult-select-items li{width:150}
 .pageinfo{margin:20px;display:inline-block;vertical-align:middle}
 .pagination{vertical-align:middle}
 .openbox{transition:all .3s ease}
@@ -1433,17 +1449,19 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .openbox-inner.open,.openbox.open{display:block}
 .openbox-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1040;background-color:#000;opacity:.3;filter:alpha(opacity=30)}
 .openbox-inner{overflow:auto;overflow-y:scroll;z-index:1050;-webkit-overflow-scrolling:touch}
-.openbox-content{position:relative;margin:60px auto;background-color:#fff;border:1px solid #999;border:1px solid rgba(0,0,0,.2);z-index:1050;border-radius:6px}
+.openbox-content{position:relative;margin:60px auto;background-color:#fff;border:1px solid #999;border:1px solid rgba(0,0,0,.2);z-index:1050;border-radius:6px;float:none}
 .openbox-content .close{position:absolute;right:10px;top:10px}
 .openbox-header{padding:0 20px 10px;border-bottom:1px solid rgba(0,0,0,.2)}
 .openbox-body{padding:20px;min-width:600px;transition:all .3s ease}
 .openbox-footer{text-align:right;padding:15px 20px;border-top:1px solid rgba(0,0,0,.2)}
 .openbox-footer button{margin-left:10px}
-.form-control{width:;color:#555}
+.form-control{width:none;color:#555}
 .form-inline{font-size:0;margin-bottom:14px}
 .form-inline .form-group{display:inline-box;margin:0 6px 10px 0}
 .help-block{clear:both}
 .help-inline{color:#737373;margin:5px auto auto 10px;display:inline-block}
+.progress-out{position:relative;margin:6px 25px}
+.progress-out .progress-handle{display:block;width:40px;height:22px;border:1px solid #ccc;border-radius:3px;position:absolute;z-index:10;top:50%;left:0;margin:-11px 0 0 -25px;background-color:#fff}
 .checkbox-inline label,.radio-inline label{font-weight:400}
 .placeholder{color:#999}
 .table>tbody>tr>td,.table>tbody>tr>th,.table>tfoot>tr>td,.table>tfoot>tr>th,.table>thead>tr>td,.table>thead>tr>th{vertical-align:middle}

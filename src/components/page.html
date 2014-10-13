@@ -1,10 +1,8 @@
-<content></content>
-<div v-if="struct">
 <div class="page-header">
     <div class="buttons" v-html="multOp"></div>
 </div>
 <div class="page-content">
-    <form v-if="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">
+    <form v-show="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">
         <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>
     </form>
     <table class="table table-hover">
@@ -12,17 +10,16 @@
             <tr>
                 <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>
                 <th></th>
-                <th v-repeat="h:header">{{h.text}}</th>
+                <th v-repeat="h:struct">{{h.text}}</th>
             </tr>
         </thead>
         <tbody>
             <tr v-repeat="d:data">
                 <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>
                 <td v-html="unitOp"></td>
-                <td v-repeat="h:header" v-html="d[h.key]"></td>
+                <td v-repeat="h:struct" v-html="d[h.key]"></td>
             </tr>
         </body>
     </table>
+    <div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
 </div>
-</div>
-<div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>
