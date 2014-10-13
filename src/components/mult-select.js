@@ -1,7 +1,8 @@
 var request = require('../request'),
     utils   = require('../utils'),
     lang    = require('../lang/lang'),
-    forEach = utils.forEach
+    forEach = utils.forEach,
+    caches  = {}
 
 module.exports = {
     template: require('./mult-select.html'),
@@ -71,25 +72,28 @@ module.exports = {
         this.values = []
         utils.addClass(this.$el, 'select')
 
-        if (this.src === 'bool') {
-            this.options = lang.get('boolSelect')
-        } else if (this.src) {
-            request.get(this.src).end(function (res) {
-                if (res.body instanceof Array) {
-                    self.options = res.body
-                } else if (res.body.status === 1) {
-                    self.options = res.body.data
-                }
-                self.setValue(self.value)
-            })
+        if (this.src) {
+            if (caches[this.src]) {
+                this.options = caches[this.src]
+                this.setValue(this.value)
+            } else {
+                request.get(this.src).end(function (res) {
+                    if (res.body instanceof Array) {
+                        self.options = res.body
+                    } else if (res.body.status === 1) {
+                        self.options = res.body.data
+                    }
+                    self.setValue(self.value)
+                    caches[self.src] = self.options
+                })
+            }
         }
 
         this.$closeHandle = function (evt) {
             if (utils.isDescendant(self.$el, evt.target)) return
             self.close()
         }
-    },
-    ready: function () {
+
         this.$watch('value', function (value, mut) {
             this.setValue(value)
         }.bind(this))
