@@ -20,7 +20,7 @@ module.exports = {
         if (typeof this.progress === 'string') 
             this.progress = parseInt(this.progress)
         this.progress = this.progress || 0
-        this.width = this.progress / (_max - _min)
+        this.width = this.progress / (_max - _min) * 100
 
         this.$drag = this.$el.getAttribute('drag') === 'true' 
         this.unit = this.$el.getAttribute('unit') || '%'
@@ -82,11 +82,14 @@ module.exports = {
 
             var set = function (evt) {
                 self.progress = self.tip
-                bar.style.width = tip.style.left
             }
 
             el.addEventListener('mousemove', showTip, false)
             el.addEventListener('click', set, false)
         }
+
+        this.$watch('progress', function (value) {
+            this.width = value / (_max - _min) * 100
+        }.bind(this))
     }
 }

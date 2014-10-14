@@ -1460,7 +1460,7 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .form-inline .form-group{display:inline-box;margin:0 6px 10px 0}
 .help-block{clear:both}
 .help-inline{color:#737373;margin:5px auto auto 10px;display:inline-block}
-.progress-out{position:relative;margin:6px 0}
+.progress-out{position:relative;margin:6px 0;cursor:pointer}
 .progress-out.progress-drag{margin:6px 25px}
 .progress-out .progress-handle{display:block;width:40px;height:22px;border:1px solid #ccc;border-radius:3px;position:absolute;z-index:10;top:50%;left:0;margin:-11px 0 0 -25px;background-color:#fff}
 .progress-out .progress-tip{position:absolute;display:none;top:-30px;width:80px;margin-left:-40px;text-align:center;padding:3px 0;font-size:12px;color:#fff;border-radius:7px;opacity:.7;filter:alpha(opacity=70);background-color:#000;z-index:999}
