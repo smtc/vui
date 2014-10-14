@@ -15,14 +15,10 @@
 
     <div class="bs-example bs-example-type">
         <div v-component="progress" v-with="progress:progress"></div>
-        <br /><br />
-        <p>{{progress}}%</p>
+        <div v-component="progress" min="10" max="10000" unit="kg" v-with="progress:progress2"></div>
     </div>
     <pre v-pre class="prettyprint">
-&lt;div class="form-control date" v-component="date" v-with="date:date"&gt;&lt;/div&gt;
-&lt;div class="form-control date" unixtime="true" up="true" v-component="date" v-with="date:date2"&gt;&lt;/div&gt;
-&lt;br /&gt;
-&lt;p&gt;当前选择日期：{{date}} - {{date2}}&lt;/p&gt;
-</pre>
-        
+&lt;div v-component="progress" v-with="progress:progress"&gt;&lt;/div&gt;
+&lt;div v-component="progress" min="10" max="10000" unit="kg" v-with="progress:progress2"&gt;&lt;/div&gt; 
+    </pre>
 </div>
