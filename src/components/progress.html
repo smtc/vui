@@ -1,4 +1,5 @@
-<div class="progress-out">
-    <div class="progress"><div class="progress-bar" style="width:{{progress}}%;">{{progress}}%</div></div>
-    <a href="javascript:;" class="progress-handle" style="left:{{progress}}%"></a>
+<div v-class="progress-drag:$drag" class="progress-out">
+    <div class="progress"><div class="progress-bar" style="width:{{width}}%;">{{progress}}{{unit}}</div></div>
+    <span v-show="!$drag" class="progress-tip">{{tip}}{{unit}}</span>
+    <a v-show="$drag" href="javascript:;" class="progress-handle" style="left:{{width}}%"></a>
 </div>

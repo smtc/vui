@@ -1460,12 +1460,24 @@ td.visible-print,th.visible-print{display:table-cell!important}}
 .form-inline .form-group{display:inline-box;margin:0 6px 10px 0}
 .help-block{clear:both}
 .help-inline{color:#737373;margin:5px auto auto 10px;display:inline-block}
-.progress-out{position:relative;margin:6px 25px}
+.progress-out{position:relative;margin:6px 0}
+.progress-out.progress-drag{margin:6px 25px}
 .progress-out .progress-handle{display:block;width:40px;height:22px;border:1px solid #ccc;border-radius:3px;position:absolute;z-index:10;top:50%;left:0;margin:-11px 0 0 -25px;background-color:#fff}
+.progress-out .progress-tip{position:absolute;display:none;top:-30px;width:80px;margin-left:-40px;text-align:center;padding:3px 0;font-size:12px;color:#fff;border-radius:7px;opacity:.7;filter:alpha(opacity=70);background-color:#000;z-index:999}
+.progress-out .progress-tip:before{top:100%;left:50%;border:solid transparent;content:" ";height:0;width:0;position:absolute;pointer-events:none;border-color:#000 transparent transparent;border-width:8px;margin-left:-8px}
+.progress-out:hover .progress-tip{display:block}
 .checkbox-inline label,.radio-inline label{font-weight:400}
 .placeholder{color:#999}
 .table>tbody>tr>td,.table>tbody>tr>th,.table>tfoot>tr>td,.table>tfoot>tr>th,.table>thead>tr>td,.table>thead>tr>th{vertical-align:middle}
 .table .check{width:32px;overflow:hidden}
+.message{width:600px;position:fixed;z-index:99999;top:10px;left:50%;margin:0 -300px}
+.message .alert{transition:all .3s ease;-webkit-box-shadow:0 5px 15px rgba(0,0,0,.3);box-shadow:0 5px 15px rgba(0,0,0,.3)}
+.message .alert.v-enter,.message .alert.v-leave{opacity:0;height:0}
+.loading{transition:all .3s ease;position:fixed;left:0;right:0;top:0;bottom:0}
+.loading label{position:absolute;left:50%;top:80px;width:200px;text-align:center;margin:0 0 0 -105px;padding:5px;background-color:#fff;font-size:12px;font-weight:400;z-index:99999}
+.loading label img{margin:-2px 12px 0 0}
+.loading.v-enter,.loading.v-leave{opacity:0;height:0}
+.overlay{position:absolute;left:0;right:0;top:0;bottom:0;background-color:#000;opacity:.2;filter:alpha(opacity=20)}
 body,html{height:100%}
 .sidebar{width:300px;position:fixed;left:0;top:0;bottom:0}
 .sidebar .list{padding:60px;font-size:18px}
@@ -1479,14 +1491,6 @@ body,html{height:100%}
 .page-header .buttons{position:absolute;right:10px;top:0}
 .page-filter{width:100%;transition:all .3s ease;padding:10px 10px 0;background-color:#f1f1f1}
 .page-filter.v-enter,.page-filter.v-leave{height:0;padding:0 10px;opacity:0;margin:0}
-.message{width:600px;position:fixed;z-index:99999;top:10px;left:50%;margin:0 -300px}
-.message .alert{transition:all .3s ease;-webkit-box-shadow:0 5px 15px rgba(0,0,0,.3);box-shadow:0 5px 15px rgba(0,0,0,.3)}
-.message .alert.v-enter,.message .alert.v-leave{opacity:0;height:0}
-.loading{transition:all .3s ease;position:fixed;left:0;right:0;top:0;bottom:0}
-.loading label{position:absolute;left:50%;top:80px;width:200px;text-align:center;margin:0 0 0 -105px;padding:5px;background-color:#fff;font-size:12px;font-weight:400;z-index:99999}
-.loading label img{margin:-2px 12px 0 0}
-.loading.v-enter,.loading.v-leave{opacity:0;height:0}
-.overlay{position:absolute;left:0;right:0;top:0;bottom:0;background-color:#000;opacity:.2;filter:alpha(opacity=20)}
 .bs-callout{margin:20px 0;padding:20px;border-left:3px solid #eee}
 .bs-callout h4{margin-top:0;margin-bottom:5px}
 .bs-callout p:last-child{margin-bottom:0}

@@ -9325,65 +9325,93 @@ require.register("vui/src/components/progress.js", function(exports, require, mo
 module.exports = {
     template: require('./progress.html'),
     data: {
-        progress: 0
+        progress: 0,
+        width: 0
     },
     ready: function () {
-        if (typeof this.progress === 'string') 
-            this.progress = parseInt(this.progress)
-        this.progress = this.progress || 0
-
         var self = this,
             el = this.$el.querySelector('.progress'),
             handle = this.$el.querySelector('.progress-handle'),
+            tip = this.$el.querySelector('.progress-tip'),
             bar = this.$el.querySelector('.progress-bar'),
             _left = 0,
             _width = 0,
             _last = 0,
-            _start = false
+            _start = false,
+            _min = parseInt(this.$el.getAttribute('min')) || 0,
+            _max = parseInt(this.$el.getAttribute('max')) || 100
+        
+        if (typeof this.progress === 'string') 
+            this.progress = parseInt(this.progress)
+        this.progress = this.progress || 0
+        this.width = this.progress / (_max - _min)
 
-        var getPer = function (left) {
-            if (_width === 0)
-                _width = el.offsetWidth
-            var per = Math.ceil(left * 100 / _width) 
-            if (per >= 99) per = 100
-            self.progress = per
-            return per
+        this.$drag = this.$el.getAttribute('drag') === 'true' 
+        this.unit = this.$el.getAttribute('unit') || '%'
+
+        if (this.$drag) {
+            var getPer = function (left) {
+                if (_width === 0)
+                    _width = el.offsetWidth
+                var per = Math.ceil(left * 100 / _width) 
+                if (per >= 99) per = 100
+                self.width = per
+                self.progress = _max * per / 100 + _min
+                return per
+            }
+
+            var start = function (ev) {
+                if (_width === 0)
+                    _width = el.offsetWidth
+                if (_left === 0)
+                    _left = ev.clientX - ev.offsetX - handle.offsetLeft
+                _start = true
+            }
+
+            var end = function (ev) {
+                _start = false
+            }
+
+            var move = function (ev) {
+                if (!_start) return
+
+                var left = ev.clientX - _left
+                if (left < 0) left = 0
+                if (left > _width) left = _width
+                handle.style.left = left + 'px'
+                _set(left)
+            }
+
+            var _set = function (left) {
+                bar.style.width = getPer(left) + '%'
+            }
+
+            var set = function (ev) {
+                handle.style.left = ev.offsetX + 'px'
+            }
+
+            handle.addEventListener('mousedown', start, false)
+            handle.addEventListener('mousemove', move, false)
+            handle.addEventListener('mouseup', end, false)
+            el.addEventListener('mouseout', end, false)
+        } else {
+            var showTip = function (evt) {
+                var left = evt.offsetX
+                if (_width === 0)
+                    _width = el.offsetWidth
+                var per = Math.ceil(left * 100 / _width) 
+                self.tip = _max * per / 100 + _min
+                tip.style.left = per + '%'
+            }
+
+            var set = function (evt) {
+                self.progress = self.tip
+                bar.style.width = tip.style.left
+            }
+
+            el.addEventListener('mousemove', showTip, false)
+            el.addEventListener('click', set, false)
         }
-
-        var start = function (ev) {
-            if (_width === 0)
-                _width = el.offsetWidth
-            if (_left === 0)
-                _left = ev.clientX - ev.offsetX - handle.offsetLeft
-            _start = true
-        }
-
-        var end = function (ev) {
-            _start = false
-        }
-
-        var move = function (ev) {
-            if (!_start) return
-
-            var left = ev.clientX - _left
-            if (left < 0) left = 0
-            if (left > _width) left = _width
-            handle.style.left = left + 'px'
-            _set(left)
-        }
-
-        var _set = function (left) {
-            bar.style.width = getPer(left) + '%'
-        }
-
-        var set = function (ev) {
-            handle.style.left = ev.offsetX + 'px'
-        }
-
-        handle.addEventListener('mousedown', start, false)
-        handle.addEventListener('mousemove', move, false)
-        handle.addEventListener('mouseup', end, false)
-        el.addEventListener('mouseout', end, false)
     }
 }
 
@@ -9838,7 +9866,7 @@ require.register("vui/src/components/pagination.html", function(exports, require
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 });
 require.register("vui/src/components/progress.html", function(exports, require, module){
-module.exports = '<div class="progress-out">\n    <div class="progress"><div class="progress-bar" style="width:{{progress}}%;">{{progress}}%</div></div>\n    <a href="javascript:;" class="progress-handle" style="left:{{progress}}%"></a>\n</div>\n';
+module.exports = '<div v-class="progress-drag:$drag" class="progress-out">\n    <div class="progress"><div class="progress-bar" style="width:{{width}}%;">{{progress}}{{unit}}</div></div>\n    <span v-show="!$drag" class="progress-tip">{{tip}}{{unit}}</span>\n    <a v-show="$drag" href="javascript:;" class="progress-handle" style="left:{{width}}%"></a>\n</div>\n';
 });
 require.register("vui/src/components/select.html", function(exports, require, module){
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
