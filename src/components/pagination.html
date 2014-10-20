@@ -1,8 +1,0 @@
-<div class="pagination-wrapper">
-    <ul class="pagination">
-        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>
-        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>
-        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>
-    </ul>
-    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>
-</div>
