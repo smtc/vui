@@ -12,15 +12,25 @@ module.exports = function (grunt) {
                 src: 'src/**/*.js'
             },
             test: {
-                src: ['test/unit/specs/**/*.js', 'test/e2e/*.js']
             }
         },
 
         duojs: {
             options: {
-                entry: './src/main.js',
+                entry: 'src/main.js',
                 standalone: 'vui',
-                global: 'vui'
+                global: 'vui',
+                dist: 'dist/vui.js'
+            }
+        },
+
+        uglify: {
+            options: {
+                banner: '/* vui.js <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+            },
+            dist: {
+                src: 'dist/vui.js',
+                dest: 'dist/vui.min.js'
             }
         }
     })
@@ -28,9 +38,10 @@ module.exports = function (grunt) {
 
     // load npm tasks
     grunt.loadNpmTasks('grunt-contrib-jshint')
+    grunt.loadNpmTasks('grunt-contrib-uglify')
 
     // load custom tasks
     grunt.loadTasks('tasks')
 
-    grunt.registerTask('build', ['jshint', 'duojs']);
+    grunt.registerTask('build', ['jshint', 'duojs', 'uglify']);
 }

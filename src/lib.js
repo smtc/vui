@@ -1,3 +1,3 @@
 module.exports = {
-    Vue: require('yyx990803/vue@v0.10.6')
+    Vue: require('yyx990803/vue@0.11.1')
 }
