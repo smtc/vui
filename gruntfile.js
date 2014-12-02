@@ -32,6 +32,15 @@ module.exports = function (grunt) {
                 src: 'dist/vui.js',
                 dest: 'dist/vui.min.js'
             }
+        },
+
+        watch: {
+            scripts: {
+                files: ['src/**/*.js'],
+                tasks: ['jshint', 'duojs'],
+                options: {
+                }
+            }
         }
     })
 
@@ -39,6 +48,7 @@ module.exports = function (grunt) {
     // load npm tasks
     grunt.loadNpmTasks('grunt-contrib-jshint')
     grunt.loadNpmTasks('grunt-contrib-uglify')
+    grunt.loadNpmTasks('grunt-contrib-watch')
 
     // load custom tasks
     grunt.loadTasks('tasks')
