@@ -41,6 +41,16 @@ module.exports = function (grunt) {
                 options: {
                 }
             }
+        },
+
+        // Mocha
+        mocha: {
+            all: {
+                src: ['test/index.html'],
+            },
+            options: {
+                run: true
+            }
         }
     })
 
@@ -49,9 +59,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint')
     grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-watch')
+    grunt.loadNpmTasks('grunt-mocha')
 
     // load custom tasks
     grunt.loadTasks('tasks')
 
-    grunt.registerTask('build', ['jshint', 'duojs', 'uglify']);
+    grunt.registerTask('build', ['jshint', 'duojs', 'uglify'])
+    grunt.registerTask('test', ['mocha'])
 }
