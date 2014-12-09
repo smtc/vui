@@ -1,0 +1,94 @@
+@import "date.less";
+@import "tree.less";
+@import "select.less";
+@import "pagination.less";
+@import "openbox.less";
+@import "forms.less";
+@import "progress.less";
+
+.checkbox-inline, .radio-inline {
+    label {
+        font-weight: normal;
+    }
+}
+
+.placeholder {
+    color: #999;
+}
+
+.table>tbody>tr>td, 
+.table>tbody>tr>th, 
+.table>tfoot>tr>td, 
+.table>tfoot>tr>th, 
+.table>thead>tr>td, 
+.table>thead>tr>th {
+    vertical-align: middle;
+}
+
+.table {
+    .check {
+        width: 32px;
+        overflow: hidden;
+    }
+}
+
+.message {
+    width: 600px;
+    position: fixed;
+    z-index: 99999;
+    top: 10px;
+    left: 50%;
+    margin: 0 -300px;
+
+    .alert {
+        transition: all .3s ease;
+        .box-shadow(0 5px 15px rgba(0,0,0,.3));
+
+        &.v-enter, &.v-leave {
+            opacity: 0;
+            height: 0;
+        }
+    }
+}
+
+.loading {
+    transition: all .3s ease;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    label {
+        position: absolute;
+        left: 50%;
+        top: 80px;
+        width: 200px;
+        text-align: center;
+        margin: 0 0 0 -105px;
+        padding: 5px;
+        background-color: #fff;
+        font-size: 12px;
+        font-weight: normal;
+        z-index: 99999;
+
+        img {
+            margin: -2px 12px 0 0;
+        }
+    }
+
+    &.v-enter, &.v-leave {
+        opacity: 0;
+        height: 0;
+    }
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #000;
+    .opacity(0.2);
+}

@@ -111,12 +111,12 @@ module.exports = {
 }, {"./lib":2,"./utils":3}],
 2: [function(require, module, exports) {
 module.exports = {
-    Vue: require('yyx990803/vue@0.11.3'),
+    Vue: require('yyx990803/vue@0.11.4'),
     request: require('smtc/superagent@0.20.1'),
     underscore: require('jashkenas/underscore@1.7.0')
 }
 
-}, {"yyx990803/vue@0.11.3":4,"smtc/superagent@0.20.1":5,"jashkenas/underscore@1.7.0":6}],
+}, {"yyx990803/vue@0.11.4":4,"smtc/superagent@0.20.1":5,"jashkenas/underscore@1.7.0":6}],
 4: [function(require, module, exports) {
 var _ = require('./util')
 var extend = _.extend
@@ -855,8 +855,14 @@ function enableDebug () {
   exports.warn = function (msg) {
     if (hasConsole && !config.silent) {
       console.warn('[Vue warn]: ' + msg)
-      if (config.debug && console.trace) {
-        console.trace()
+      /* istanbul ignore if */
+      if (config.debug) {
+        /* jshint debug: true */
+        debugger
+      } else {
+        console.log(
+          'Set `Vue.config.debug = true` to enable debug mode.'
+        )
       }
     }
   }
@@ -1752,7 +1758,6 @@ function collectDirectives (el, options, asParent) {
       dirName = attrName.slice(config.prefix.length)
       if (asParent &&
           (dirName === 'with' ||
-           dirName === 'ref' ||
            dirName === 'component')) {
         continue
       }
@@ -2347,7 +2352,8 @@ map.rect = [
   '</svg>'
 ]
 
-var TAG_RE = /<([\w:]+)/
+var tagRE = /<([\w:]+)/
+var entityRE = /&\w+;/
 
 /**
  * Convert a string template to a DocumentFragment.
@@ -2366,16 +2372,17 @@ function stringToFragment (templateString) {
   }
 
   var frag = document.createDocumentFragment()
-  var tagMatch = TAG_RE.exec(templateString)
+  var tagMatch = templateString.match(tagRE)
+  var entityMatch = entityRE.test(templateString)
 
-  if (!tagMatch) {
+  if (!tagMatch && !entityMatch) {
     // text only, return a single text node.
     frag.appendChild(
       document.createTextNode(templateString)
     )
   } else {
 
-    var tag    = tagMatch[1]
+    var tag    = tagMatch && tagMatch[1]
     var wrap   = map[tag] || map._default
     var depth  = wrap[0]
     var prefix = wrap[1]
@@ -3238,8 +3245,11 @@ exports.model      = require('./model')
 exports.component  = require('./component')
 exports.repeat     = require('./repeat')
 exports['if']      = require('./if')
+
+// child vm communication directives
 exports['with']    = require('./with')
-}, {"./text":35,"./html":36,"./attr":37,"./show":38,"./class":39,"./el":40,"./ref":41,"./cloak":42,"./style":43,"./partial":44,"./transition":45,"./on":46,"./model":47,"./component":48,"./repeat":49,"./if":50,"./with":51}],
+exports.events     = require('./events')
+}, {"./text":35,"./html":36,"./attr":37,"./show":38,"./class":39,"./el":40,"./ref":41,"./cloak":42,"./style":43,"./partial":44,"./transition":45,"./on":46,"./model":47,"./component":48,"./repeat":49,"./if":50,"./with":51,"./events":52}],
 35: [function(require, module, exports) {
 var _ = require('../util')
 
@@ -3340,8 +3350,8 @@ module.exports = function (value) {
     el.style.display = value ? '' : 'none'
   }, this.vm)
 }
-}, {"../transition":52}],
-52: [function(require, module, exports) {
+}, {"../transition":53}],
+53: [function(require, module, exports) {
 var _ = require('../util')
 var applyCSSTransition = require('./css')
 var applyJSTransition = require('./js')
@@ -3493,8 +3503,8 @@ var apply = exports.apply = function (el, direction, op, vm, cb) {
     if (cb) cb()
   }
 }
-}, {"../util":7,"./css":53,"./js":54}],
-53: [function(require, module, exports) {
+}, {"../util":7,"./css":54,"./js":55}],
+54: [function(require, module, exports) {
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3685,7 +3695,7 @@ module.exports = function (el, direction, op, data, cb) {
   }
 }
 }, {"../util":7}],
-54: [function(require, module, exports) {
+55: [function(require, module, exports) {
 /**
  * Apply JavaScript enter/leave functions.
  *
@@ -3773,19 +3783,20 @@ module.exports = {
   isLiteral: true,
 
   bind: function () {
-    if (this.el !== this.vm.$el) {
+    var child = this.el.__vue__
+    if (!child || this.vm !== child.$parent) {
       _.warn(
-        'v-ref should only be used on instance root nodes.'
+        'v-ref should only be used on a child component ' +
+        'from the parent template.'
       )
       return
     }
-    this.owner = this.vm.$parent
-    this.owner.$[this.expression] = this.vm
+    this.vm.$[this.expression] = child
   },
 
   unbind: function () {
-    if (this.owner.$[this.expression] === this.vm) {
-      delete this.owner.$[this.expression]
+    if (this.vm.$[this.expression] === this.el.__vue__) {
+      delete this.vm.$[this.expression]
     }
   }
   
@@ -3806,26 +3817,33 @@ module.exports = {
 }
 }, {"../config":25}],
 43: [function(require, module, exports) {
+var _ = require('../util')
 var prefixes = ['-webkit-', '-moz-', '-ms-']
+var camelPrefixes = ['Webkit', 'Moz', 'ms']
 var importantRE = /!important;?$/
+var camelRE = /([a-z])([A-Z])/g
+var testEl = null
+var propCache = {}
 
 module.exports = {
 
   deep: true,
 
-  bind: function () {
-    var prop = this.arg
-    if (!prop) return
-    this.prop = prop
-  },
-
   update: function (value) {
-    if (this.prop) {
-      this.setCssProperty(this.prop, value)
+    if (this.arg) {
+      this.setProp(this.arg, value)
     } else {
       if (typeof value === 'object') {
+        // cache object styles so that only changed props
+        // are actually updated.
+        if (!this.cache) this.cache = {}
         for (var prop in value) {
-          this.setCssProperty(prop, value[prop])
+          this.setProp(prop, value[prop])
+          /* jshint eqeqeq: false */
+          if (value[prop] != this.cache[prop]) {
+            this.cache[prop] = value[prop]
+            this.setProp(prop, value[prop])
+          }
         }
       } else {
         this.el.style.cssText = value
@@ -3833,38 +3851,73 @@ module.exports = {
     }
   },
 
-  setCssProperty: function (prop, value) {
-    var prefixed = false
-    if (prop.charAt(0) === '$') {
-      // properties that start with $ will be auto-prefixed
-      prop = prop.slice(1)
-      prefixed = true
-    }
+  setProp: function (prop, value) {
+    prop = normalize(prop)
+    if (!prop) return // unsupported prop
     // cast possible numbers/booleans into strings
-    if (value != null) {
-      value += ''
-    }
-    var isImportant = importantRE.test(value)
-      ? 'important'
-      : ''
-    if (isImportant) {
-      value = value.replace(importantRE, '').trim()
-    }
-    this.el.style.setProperty(prop, value, isImportant)
-    if (prefixed) {
-      var i = prefixes.length
-      while (i--) {
-        this.el.style.setProperty(
-          prefixes[i] + prop,
-          value,
-          isImportant
-        )
+    if (value != null) value += ''
+    if (value) {
+      var isImportant = importantRE.test(value)
+        ? 'important'
+        : ''
+      if (isImportant) {
+        value = value.replace(importantRE, '').trim()
       }
+      this.el.style.setProperty(prop, value, isImportant)
+    } else {
+      this.el.style.removeProperty(prop)
     }
   }
 
 }
-}, {}],
+
+/**
+ * Normalize a CSS property name.
+ * - cache result
+ * - auto prefix
+ * - camelCase -> dash-case
+ *
+ * @param {String} prop
+ * @return {String}
+ */
+
+function normalize (prop) {
+  if (propCache[prop]) {
+    return propCache[prop]
+  }
+  var res = prefix(prop)
+  propCache[prop] = propCache[res] = res
+  return res
+}
+
+/**
+ * Auto detect the appropriate prefix for a CSS property.
+ * https://gist.github.com/paulirish/523692
+ *
+ * @param {String} prop
+ * @return {String}
+ */
+
+function prefix (prop) {
+  prop = prop.replace(camelRE, '$1-$2').toLowerCase()
+  var camel = _.camelize(prop)
+  var upper = camel.charAt(0).toUpperCase() + camel.slice(1)
+  if (!testEl) {
+    testEl = document.createElement('div')
+  }
+  if (camel in testEl.style) {
+    return prop
+  }
+  var i = prefixes.length
+  var prefixed
+  while (i--) {
+    prefixed = camelPrefixes[i] + upper
+    if (prefixed in testEl.style) {
+      return prefixes[i] + prop
+    }
+  }
+}
+}, {"../util":7}],
 44: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
@@ -3999,7 +4052,7 @@ module.exports = {
   }
 
 }
-}, {"../util":7,"../compiler/compile":27,"../parsers/template":31,"../transition":52}],
+}, {"../util":7,"../compiler/compile":27,"../parsers/template":31,"../transition":53}],
 45: [function(require, module, exports) {
 module.exports = {
 
@@ -4132,8 +4185,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":7,"./default":55,"./radio":56,"./select":57,"./checkbox":58}],
-55: [function(require, module, exports) {
+}, {"../../util":7,"./default":56,"./radio":57,"./select":58,"./checkbox":59}],
+56: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4258,7 +4311,7 @@ module.exports = {
 
 }
 }, {"../../util":7}],
-56: [function(require, module, exports) {
+57: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4286,7 +4339,7 @@ module.exports = {
 
 }
 }, {"../../util":7}],
-57: [function(require, module, exports) {
+58: [function(require, module, exports) {
 var _ = require('../../util')
 var Watcher = require('../../watcher')
 
@@ -4358,7 +4411,8 @@ function initOptions (expression) {
   this.optionWatcher = new Watcher(
     this.vm,
     expression,
-    optionUpdateWatcher
+    optionUpdateWatcher,
+    { deep: true }
   )
   // update with initial value
   optionUpdateWatcher(this.optionWatcher.value)
@@ -4453,15 +4507,13 @@ function indexOf (arr, val) {
   }
   return -1
 }
-}, {"../../util":7,"../../watcher":59}],
-59: [function(require, module, exports) {
+}, {"../../util":7,"../../watcher":60}],
+60: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Observer = require('./observer')
 var expParser = require('./parsers/expression')
-var Batcher = require('./batcher')
-
-var batcher = new Batcher()
+var batcher = require('./batcher')
 var uid = 0
 
 /**
@@ -4472,29 +4524,35 @@ var uid = 0
  * @param {Vue} vm
  * @param {String} expression
  * @param {Function} cb
- * @param {Array} [filters]
- * @param {Boolean} [needSet]
- * @param {Boolean} [deep]
+ * @param {Object} options
+ *                 - {Array} filters
+ *                 - {Boolean} twoWay
+ *                 - {Boolean} deep
+ *                 - {Boolean} user
  * @constructor
  */
 
-function Watcher (vm, expression, cb, filters, needSet, deep) {
+function Watcher (vm, expression, cb, options) {
   this.vm = vm
   vm._watcherList.push(this)
   this.expression = expression
   this.cbs = [cb]
   this.id = ++uid // uid for batching
   this.active = true
-  this.deep = deep
+  options = options || {}
+  this.deep = options.deep
+  this.user = options.user
   this.deps = Object.create(null)
   // setup filters if any.
   // We delegate directive filters here to the watcher
   // because they need to be included in the dependency
   // collection process.
-  this.readFilters = filters && filters.read
-  this.writeFilters = filters && filters.write
+  if (options.filters) {
+    this.readFilters = options.filters.read
+    this.writeFilters = options.filters.write
+  }
   // parse expression for getter/setter
-  var res = expParser.parse(expression, needSet)
+  var res = expParser.parse(expression, options.twoWay)
   this.getter = res.get
   this.setter = res.set
   this.value = this.get()
@@ -4530,7 +4588,10 @@ p.get = function () {
   try {
     value = this.getter.call(vm, vm)
   } catch (e) {
-    _.warn(e)
+    _.warn(
+      'Error when evaluating expression "' +
+      this.expression + '":\n   ' + e
+    )
   }
   // "touch" every property so they are all tracked as
   // dependencies for deep watching
@@ -4555,7 +4616,12 @@ p.set = function (value) {
   )
   try {
     this.setter.call(vm, vm, value)
-  } catch (e) {}
+  } catch (e) {
+    _.warn(
+      'Error when evaluating setter "' +
+      this.expression + '":\n   ' + e
+    )
+  }
 }
 
 /**
@@ -4587,10 +4653,10 @@ p.afterGet = function () {
  */
 
 p.update = function () {
-  if (config.async) {
-    batcher.push(this)
-  } else {
+  if (!config.async || config.debug) {
     this.run()
+  } else {
+    batcher.push(this)
   }
 }
 
@@ -4695,8 +4761,8 @@ function traverse (obj) {
 }
 
 module.exports = Watcher
-}, {"./util":7,"./config":25,"./observer":60,"./parsers/expression":33,"./batcher":61}],
-60: [function(require, module, exports) {
+}, {"./util":7,"./config":25,"./observer":61,"./parsers/expression":33,"./batcher":62}],
+61: [function(require, module, exports) {
 var _ = require('../util')
 var config = require('../config')
 var Dep = require('./dep')
@@ -4933,8 +4999,8 @@ p.removeVm = function (vm) {
 
 module.exports = Observer
 
-}, {"../util":7,"../config":25,"./dep":62,"./array":63,"./object":64}],
-62: [function(require, module, exports) {
+}, {"../util":7,"../config":25,"./dep":63,"./array":64,"./object":65}],
+63: [function(require, module, exports) {
 var uid = 0
 
 /**
@@ -4986,7 +5052,7 @@ p.notify = function () {
 
 module.exports = Dep
 }, {}],
-63: [function(require, module, exports) {
+64: [function(require, module, exports) {
 var _ = require('../util')
 var arrayProto = Array.prototype
 var arrayMethods = Object.create(arrayProto)
@@ -5078,7 +5144,7 @@ _.define(
 
 module.exports = arrayMethods
 }, {"../util":7}],
-64: [function(require, module, exports) {
+65: [function(require, module, exports) {
 var _ = require('../util')
 var objProto = Object.prototype
 
@@ -5146,19 +5212,57 @@ _.define(
   }
 )
 }, {"../util":7}],
-61: [function(require, module, exports) {
+62: [function(require, module, exports) {
 var _ = require('./util')
 
+// we have two separate queues: one for directive updates
+// and one for user watcher registered via $watch().
+// we want to guarantee directive updates to be called
+// before user watchers so that when user watchers are
+// triggered, the DOM would have already been in updated
+// state.
+var queue = []
+var userQueue = []
+var has = {}
+var waiting = false
+var flushing = false
+
 /**
- * The Batcher maintains a job queue to be run
- * async on the next event loop.
+ * Reset the batcher's state.
  */
 
-function Batcher () {
-  this.reset()
+function reset () {
+  queue = []
+  userQueue = []
+  has = {}
+  waiting = false
+  flushing = false
 }
 
-var p = Batcher.prototype
+/**
+ * Flush both queues and run the jobs.
+ */
+
+function flush () {
+  flushing = true
+  run(queue)
+  run(userQueue)
+  reset()
+}
+
+/**
+ * Run the jobs in a single queue.
+ *
+ * @param {Array} queue
+ */
+
+function run (queue) {
+  // do not cache length because more jobs might be pushed
+  // as we run existing jobs
+  for (var i = 0; i < queue.length; i++) {
+    queue[i].run()
+  }
+}
 
 /**
  * Push a job into the job queue.
@@ -5171,49 +5275,26 @@ var p = Batcher.prototype
  *   - {Function}      run
  */
 
-p.push = function (job) {
-  if (!job.id || !this.has[job.id] || this.flushing) {
-    this.queue.push(job)
-    this.has[job.id] = job
-    if (!this.waiting) {
-      this.waiting = true
-      _.nextTick(this.flush, this)
-    }
-  }
-}
-
-/**
- * Flush the queue and run the jobs.
- * Will call a preFlush hook if has one.
- */
-
-p.flush = function () {
-  this.flushing = true
-  // do not cache length because more jobs might be pushed
-  // as we run existing jobs
-  for (var i = 0; i < this.queue.length; i++) {
-    var job = this.queue[i]
-    if (!job.cancelled) {
+exports.push = function (job) {
+  if (!job.id || !has[job.id] || flushing) {
+    // A user watcher callback could trigger another
+    // directive update during the flushing; at that time
+    // the directive queue would already have been run, so
+    // we call that update immediately as it is pushed.
+    if (flushing && !job.user) {
       job.run()
+      return
+    }
+    ;(job.user ? userQueue : queue).push(job)
+    has[job.id] = job
+    if (!waiting) {
+      waiting = true
+      _.nextTick(flush)
     }
   }
-  this.reset()
 }
-
-/**
- * Reset the batcher's state.
- */
-
-p.reset = function () {
-  this.has = {}
-  this.queue = []
-  this.waiting = false
-  this.flushing = false
-}
-
-module.exports = Batcher
 }, {"./util":7}],
-58: [function(require, module, exports) {
+59: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -5553,7 +5634,7 @@ module.exports = {
             $parent: this.vm
           })
           this.template = transclude(this.template, merged)
-          this._linkFn = compile(this.template, merged)
+          this._linkFn = compile(this.template, merged, false, true)
         }
       } else {
         // to be resolved later
@@ -5991,7 +6072,36 @@ module.exports = {
   }
 
 }
-}, {"../util":7,"../watcher":59}],
+}, {"../util":7,"../watcher":60}],
+52: [function(require, module, exports) {
+var _ = require('../util')
+
+module.exports = { 
+
+  bind: function () {
+    var child = this.el.__vue__
+    if (!child || this.vm !== child.$parent) {
+      _.warn(
+        '`v-events` should only be used on a child component ' +
+        'from the parent template.'
+      )
+      return
+    }
+    var method = this.vm[this.expression]
+    if (!method) {
+      _.warn(
+        '`v-events` cannot find method "' + this.expression +
+        '" on the parent instance.'
+      )
+    }
+    child.$on(this.arg, method)
+  }
+
+  // when child is destroyed, all events are turned off,
+  // so no need for unbind here.
+
+}
+}, {"../util":7}],
 10: [function(require, module, exports) {
 var _ = require('../util')
 
@@ -6128,8 +6238,8 @@ exports.key.keyCodes = keyCodes
  */
 
 _.extend(exports, require('./array-filters'))
-}, {"../util":7,"./array-filters":65}],
-65: [function(require, module, exports) {
+}, {"../util":7,"./array-filters":66}],
+66: [function(require, module, exports) {
 var _ = require('../util')
 var Path = require('../parsers/path')
 
@@ -6638,7 +6748,7 @@ exports._defineMeta = function (key, value) {
     }
   })
 }
-}, {"../util":7,"../observer":60,"../observer/dep":62}],
+}, {"../util":7,"../observer":61,"../observer/dep":63}],
 14: [function(require, module, exports) {
 var _ = require('../util')
 var Directive = require('../directive')
@@ -6688,13 +6798,14 @@ exports._compile = function (el) {
       }
       // tranclude, this possibly replaces original
       el = transclude(el, options)
+      this._initElement(el)
       // now call the container linker on the resolved el
       this._containerUnlinkFn = containerLinkFn(parent, el)
     } else {
       // simply transclude
       el = transclude(el, options)
+      this._initElement(el)
     }
-    this._initElement(el)
     var linkFn = compile(el, options)
     linkFn(this, el)
     if (options.replace) {
@@ -6826,8 +6937,8 @@ exports._cleanup = function () {
   // turn off all instance listeners.
   this.$off()
 }
-}, {"../util":7,"../directive":66,"../compiler/compile":27,"../compiler/transclude":28}],
-66: [function(require, module, exports) {
+}, {"../util":7,"../directive":67,"../compiler/compile":27,"../compiler/transclude":28}],
+67: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Watcher = require('./watcher')
@@ -6915,9 +7026,11 @@ p._bind = function (def) {
         this.vm,
         this._watcherExp,
         update, // callback
-        this.filters,
-        this.twoWay, // need setter,
-        this.deep
+        {
+          filters: this.filters,
+          twoWay: this.twoWay,
+          deep: this.deep
+        }
       )
     } else {
       watcher.addCb(update)
@@ -7047,7 +7160,7 @@ p.set = function (value, lock) {
 }
 
 module.exports = Directive
-}, {"./util":7,"./config":25,"./watcher":59,"./parsers/text":30,"./parsers/expression":33}],
+}, {"./util":7,"./config":25,"./watcher":60,"./parsers/text":30,"./parsers/expression":33}],
 15: [function(require, module, exports) {
 var _ = require('../util')
 var Watcher = require('../watcher')
@@ -7128,7 +7241,10 @@ exports.$watch = function (exp, cb, deep, immediate) {
   }
   if (!watcher) {
     watcher = vm._userWatchers[key] =
-      new Watcher(vm, exp, wrappedCb, null, false, deep)
+      new Watcher(vm, exp, wrappedCb, {
+        deep: deep,
+        user: true
+      })
   } else {
     watcher.addCb(wrappedCb)
   }
@@ -7210,7 +7326,7 @@ exports.$log = function (path) {
   }
   console.log(data)
 }
-}, {"../util":7,"../watcher":59,"../parsers/path":29,"../parsers/text":30,"../parsers/directive":32,"../parsers/expression":33}],
+}, {"../util":7,"../watcher":60,"../parsers/path":29,"../parsers/text":30,"../parsers/directive":32,"../parsers/expression":33}],
 16: [function(require, module, exports) {
 var _ = require('../util')
 var transition = require('../transition')
@@ -7423,7 +7539,7 @@ function remove (el, vm, cb) {
   _.remove(el)
   if (cb) cb()
 }
-}, {"../util":7,"../transition":52}],
+}, {"../util":7,"../transition":53}],
 17: [function(require, module, exports) {
 var _ = require('../util')
 
@@ -8830,8 +8946,8 @@ request.put = function(url, data, fn){
  */
 module.exports = request;
 
-}, {"emitter":67,"reduce":68}],
-67: [function(require, module, exports) {
+}, {"emitter":68,"reduce":69}],
+68: [function(require, module, exports) {
 
 /**
  * Expose `Emitter`.
@@ -8998,7 +9114,7 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 }, {}],
-68: [function(require, module, exports) {
+69: [function(require, module, exports) {
 
 /**
  * Reduce `arr` with `fn`.
@@ -10453,8 +10569,8 @@ module.exports = _.extend({}, url, dom)
 
 
 
-}, {"../lib":2,"./url":69,"./dom":70}],
-69: [function(require, module, exports) {
+}, {"../lib":2,"./url":70,"./dom":71}],
+70: [function(require, module, exports) {
 var _               = require('../lib').underscore,
     urlParsingNode  = document.createElement("a")
 
@@ -10525,7 +10641,7 @@ module.exports = {
 }
 
 }, {"../lib":2}],
-70: [function(require, module, exports) {
+71: [function(require, module, exports) {
 var hasClassList    = 'classList' in document.documentElement
 
 /**

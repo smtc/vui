@@ -34,11 +34,32 @@ module.exports = function (grunt) {
             }
         },
 
+        less: {
+            development: {
+                options: {
+                    compress: true,
+                    yuicompress: true,
+                    optimization: 2
+                },
+                files: {
+                    "./docs/css/style.css": "./docs/less/style.less"
+                }
+            }
+        },
+
         watch: {
             scripts: {
                 files: ['src/**/*.js'],
                 tasks: ['jshint', 'duojs'],
                 options: {
+                }
+            },
+
+            styles: {
+                files: ['docs/less/**/*.less'],
+                tasks: ['less'],
+                options: {
+                    nospawn: true
                 }
             }
         },
@@ -58,6 +79,7 @@ module.exports = function (grunt) {
     // load npm tasks
     grunt.loadNpmTasks('grunt-contrib-jshint')
     grunt.loadNpmTasks('grunt-contrib-uglify')
+    grunt.loadNpmTasks('grunt-contrib-less')
     grunt.loadNpmTasks('grunt-contrib-watch')
     grunt.loadNpmTasks('grunt-mocha')
 

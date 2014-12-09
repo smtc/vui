@@ -1,0 +1,83 @@
+.openbox {
+    transition: all .3s ease;
+
+    &.v-enter, &.v-leave {
+        height: 0;
+        padding: 0;
+        opacity: 0;
+        margin: 0;
+    }
+}
+
+
+.openbox, .openbox-inner {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    // Prevent Chrome on Windows from adding a focus outline. For details, see
+    // https://github.com/twbs/bootstrap/pull/10951.
+    outline: 0;
+
+    &.open {
+        display: block;
+    }
+}
+
+.openbox-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: @zindex-modal-background;
+    background-color: @modal-backdrop-bg;
+    .opacity(0.3);
+}
+
+.openbox-inner {
+    overflow: auto;
+    overflow-y: scroll;
+    z-index: @zindex-modal;
+    -webkit-overflow-scrolling: touch;
+}
+
+.openbox-content {
+    position: relative;
+    margin: 60px auto;
+    background-color: @modal-content-bg;
+    border: 1px solid @modal-content-fallback-border-color; //old browsers fallback (ie8 etc)
+    border: 1px solid @modal-content-border-color;
+    z-index: @zindex-modal;
+    border-radius: @border-radius-large;
+    float: none;
+
+    .close {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+}
+
+.openbox-header {
+    padding: 0 20px 10px;
+    border-bottom: 1px solid @modal-content-border-color;
+}
+
+.openbox-body {
+    padding: 20px;
+    min-width: 600px;
+    transition: all .3s ease;
+}
+
+.openbox-footer {
+    text-align: right;
+    padding: 15px 20px;
+    border-top: 1px solid @modal-content-border-color;
+
+    button {
+        margin-left: 10px;
+    }
+}

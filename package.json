@@ -26,6 +26,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "mocha": "^2.0.1",
     "chai": "^1.10.0",
-    "grunt-mocha": "^0.4.11"
+    "grunt-mocha": "^0.4.11",
+    "grunt-contrib-less": "^0.12.0"
   }
 }
