@@ -144,6 +144,7 @@ var component = {
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
         this.delay = this.$el.getAttribute('delay') === 'true'
+        this.xform = this.$el.getAttribute('xform') === 'true'
         this.callback = getCallback(this.$el.getAttribute('callback'))
 
         var struct = this.$el.getAttribute("struct")
@@ -177,14 +178,16 @@ var component = {
             hash = node.hash
 
         if (!this.delay)
+            loading.start()
             request.get(this.src + hash).query(search).end(function (res) {
+                loading.end()
                 if (res.status === 200) {
                     if (res.body.status === 1 || res.body.data)
                         this.model = res.body.data || {}
-                    else if (res.body.errors)
-                        message.error(res.body.errors)
+                    else if (res.body.msg)
+                        message.error(res.body.msg)
                 } else {
-                    //message.error('', res.status)
+                    message.error('', res.status)
                 }
             }.bind(this))
 
@@ -203,20 +206,20 @@ var component = {
 
             if (this.valid) {
                 loading.start()
-                request.post(this.src).send(this.model).end(function (res) {
+                var post = request.post(this.src)
+                if (this.xform) post = post.type('form')
+                post.send(this.model).end(function (res) {
                     loading.end()
                     if (res.status === 200) {
                         if (res.body.status === 1) {
                             this.success(res.body)
-                        } else {
-                            message.error(res.body.errors)
                         }
+
+                        if (res.body.msg)
+                            message.info(res.body.msg)
                     } else {
                         message.error('', res.status)
                     }
-
-                    if (res.body.msg)
-                        message.info(res.body.msg)
                 }.bind(this))
             }
         }.bind(this))

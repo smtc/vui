@@ -83,7 +83,8 @@ function init() {
 window.Vue = Vue
 
 //set default language
-lang.set('zh-cn')
+var zhcn = require('./lang/zh-cn')
+lang.set(zhcn)
 
 module.exports = {
     request: request,

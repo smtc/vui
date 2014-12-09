@@ -19,6 +19,7 @@ module.exports = {
     },
 
     set: function (lang) {
-        vs = require('./' + lang)
+        //vs = require('./' + lang)
+        vs = lang
     }
 }

@@ -172,7 +172,7 @@ var component = {
                 if (res.body.status === 1)
                     message.success(res.body.msg || 'success')
                 else
-                    message.error(res.body.errors)
+                    message.error(res.body.errors || res.body.msg)
             })
         },
 
@@ -363,7 +363,7 @@ var component = {
             request.get(struct).end(function (res) {
                 loading.end()
                 if (res.status !== 200 || res.body.status !== 1) {
-                    message.error(res.body.errors, res.status)
+                    message.error(res.body.errors || res.body.msg, res.status)
                     return
                 }
 

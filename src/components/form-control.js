@@ -71,7 +71,7 @@ function _len(val, t) {
         t += '_cb'
    
     if (t.indexOf('len') >= 0)
-        len = this.value.toString().length
+        len = this.value ? this.value.toString().length : 0
     else
         len = parseInt(this.value) || 0
 
