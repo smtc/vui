@@ -3,7 +3,6 @@ lib-cov
 coverage.html
 .DS_Store
 node_modules
-components
-
 *.sock
 *.swp
+/components
