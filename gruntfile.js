@@ -1,3 +1,4 @@
+
 module.exports = function (grunt) {
 
     grunt.initConfig({
@@ -10,8 +11,6 @@ module.exports = function (grunt) {
             },
             src: {
                 src: 'src/**/*.js'
-            },
-            test: {
             }
         },
 
@@ -64,7 +63,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // Mocha
         mocha: {
             all: {
                 src: ['test/index.html'],

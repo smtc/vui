@@ -6,6 +6,10 @@ var lib = require('./lib'),
 module.exports = {
     utils: utils,
 
+    request: lib.request,
+
+    underscore: lib.underscore,
+
     require: function (path) {
         try {
             return require('./' + path)
