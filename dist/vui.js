@@ -95,6 +95,7 @@ var lib = require('./lib'),
     utils = require('./utils'),
     Vue = lib.Vue 
 
+window.Vue = Vue
 
 module.exports = {
     utils: utils,
@@ -10566,14 +10567,15 @@ module.exports = function(arr, fn, initial){
 var lib = require('../lib'),
     _   = lib.underscore,
     url = require('./url'),
-    dom = require('./dom')
+    dom = require('./dom'),
+    string = require('./string')
 
 
-module.exports = _.extend({}, url, dom)
+module.exports = _.extend({}, url, dom, string)
 
 
 
-}, {"../lib":2,"./url":70,"./dom":71}],
+}, {"../lib":2,"./url":70,"./dom":71,"./string":72}],
 70: [function(require, module, exports) {
 var _               = require('../lib').underscore,
     urlParsingNode  = document.createElement("a"),
@@ -10733,15 +10735,6 @@ function urlResolve(url, fixHash) {
     };
 }
 
-function format(str, arr) {
-    return str.replace(/{(\d+)}/g, function(match, number) { 
-        return typeof arr[number] !== 'undefined'
-            ? arr[number] 
-            : match
-    })
-}
-
-
 /**
  * Encode path using encodeUriSegment, ignoring forward slashes
  *
@@ -10849,7 +10842,6 @@ module.exports = {
     urlResolve: urlResolve,
     parseKeyValue: parseKeyValue,
     toKeyValue: toKeyValue,
-    format: format,
     search: search,
     hash: hash,
     url: url,
@@ -10921,6 +10913,28 @@ module.exports = {
     hasClass: hasClass,
     removeClass: removeClass,
     toggleClass: toggleClass
+}
+
+}, {}],
+72: [function(require, module, exports) {
+function substitute(str, obj) {
+    return str.replace((/\\?\{([^{}]+)\}/g), function(match, name){
+        if (match.charAt(0) === '\\') return match.slice(1);
+        return (obj[name] != null) ? obj[name] : '';
+    })
+}
+
+function format(str, arr) {
+    return str.replace(/{(\d+)}/g, function(match, number) { 
+        return typeof arr[number] !== 'undefined'
+            ? arr[number] 
+            : match
+    })
+}
+
+module.exports = {
+    substitute: substitute,
+    format: format
 }
 
 }, {}]}, {}, {"1":"vui"})

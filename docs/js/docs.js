@@ -1,5 +1,5 @@
 (function () {
-    vui.Vue.component('openbox-example', {
+    Vue.component('openbox-example', {
         methods: {
             open: function (url) {
                 vui.openbox({
@@ -17,9 +17,11 @@
                 })
             }
         },
-        data: {
-            model: {
-                name: 'openbox callback test'
+        data: function () {
+            return {
+                model: {
+                    name: 'openbox callback test'
+                }
             }
         }
     })

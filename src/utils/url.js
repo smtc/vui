@@ -156,15 +156,6 @@ function urlResolve(url, fixHash) {
     };
 }
 
-function format(str, arr) {
-    return str.replace(/{(\d+)}/g, function(match, number) { 
-        return typeof arr[number] !== 'undefined'
-            ? arr[number] 
-            : match
-    })
-}
-
-
 /**
  * Encode path using encodeUriSegment, ignoring forward slashes
  *
@@ -272,7 +263,6 @@ module.exports = {
     urlResolve: urlResolve,
     parseKeyValue: parseKeyValue,
     toKeyValue: toKeyValue,
-    format: format,
     search: search,
     hash: hash,
     url: url,

@@ -129,4 +129,19 @@ describe('vui.utils', function(){
         sj.should.eql(s)
     })
 
+    it('string substitute', function () {
+        var obj = { a:1, b:2 },
+            str = '{a}!={b}'
+
+        var c = utils.substitute(str, obj)
+        c.should.eql('1!=2')
+    })
+
+    it('string format', function () {
+        var obj = ['3', '4', 2],
+            str = '{0}-{1}!={2}'
+
+        var c = utils.format(str, obj)
+        c.should.eql('3-4!=2')
+    })
 })

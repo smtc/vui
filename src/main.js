@@ -2,6 +2,7 @@ var lib = require('./lib'),
     utils = require('./utils'),
     Vue = lib.Vue 
 
+window.Vue = Vue
 
 module.exports = {
     utils: utils,
