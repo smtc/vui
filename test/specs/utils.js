@@ -144,4 +144,15 @@ describe('vui.utils', function(){
         var c = utils.format(str, obj)
         c.should.eql('3-4!=2')
     })
+
+    it('hashCode', function () {
+        var hash = utils.hashCode(alert)
+        hash.should.equal(utils.hashCode(alert))
+
+        hash = utils.hashCode('alert')
+        hash.should.equal(92899676)
+
+        hash = utils.hashCode(123456)
+        hash.should.equal(1450575459)
+    })
 })
