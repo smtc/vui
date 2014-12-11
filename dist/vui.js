@@ -8345,7 +8345,13 @@ var component = {
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
         search: function (fs) {
-            if (fs === null) this.filters = {}
+            if (fs === null) {
+                utils.forEach(this.filters, function (f, v) {
+                    //this.filters[v] = null
+                }.bind(this))
+
+                this.filters = {}
+            }
             this.pager.page = 1
             this.update()
         },
@@ -8900,6 +8906,8 @@ module.exports = {
         this.$watch('date', function (value) {
             if (value)
                 this.text = this.unixtime ? (new Date(value * 1000)).format("yyyy-MM-dd") : value
+            else
+                this.text = ""
         }.bind(this))
     }
 
@@ -9431,7 +9439,7 @@ module.exports = {
     replace: true,
     methods: {
         compose: function () {
-            var page = this.page,
+            var page = this.page || 1,
                 size = this.size,
                 max  = this.max = Math.ceil(this.total / size)
 
@@ -9459,6 +9467,7 @@ module.exports = {
     },
     created: function () {
         this.compose()
+        this.showPageinfo = this.$el.getAttribute('pageinfo') === 'true'
     },
     ready: function () {
         var self = this
@@ -9470,7 +9479,7 @@ module.exports = {
 
 }, {"./pagination.html":63}],
 63: [function(require, module, exports) {
-module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
+module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div v-if="showPageinfo" class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 }, {}],
 21: [function(require, module, exports) {
 module.exports = {

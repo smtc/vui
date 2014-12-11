@@ -3,7 +3,7 @@ module.exports = {
     replace: true,
     methods: {
         compose: function () {
-            var page = this.page,
+            var page = this.page || 1,
                 size = this.size,
                 max  = this.max = Math.ceil(this.total / size)
 
@@ -31,6 +31,7 @@ module.exports = {
     },
     created: function () {
         this.compose()
+        this.showPageinfo = this.$el.getAttribute('pageinfo') === 'true'
     },
     ready: function () {
         var self = this

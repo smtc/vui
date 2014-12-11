@@ -184,6 +184,8 @@ module.exports = {
         this.$watch('date', function (value) {
             if (value)
                 this.text = this.unixtime ? (new Date(value * 1000)).format("yyyy-MM-dd") : value
+            else
+                this.text = ""
         }.bind(this))
     }
 

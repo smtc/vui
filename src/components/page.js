@@ -104,7 +104,13 @@ var component = {
     paramAttributes: ['src', 'delay', 'routeChange'],
     methods: {
         search: function (fs) {
-            if (fs === null) this.filters = {}
+            if (fs === null) {
+                utils.forEach(this.filters, function (f, v) {
+                    //this.filters[v] = null
+                }.bind(this))
+
+                this.filters = {}
+            }
             this.pager.page = 1
             this.update()
         },
