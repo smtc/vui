@@ -1,6 +1,6 @@
 var lib         = require('./lib'),
     Vue         = lib.Vue,
-    request     = lib.request,
+    request     = require('./request'),
     utils       = require('./utils'),
     lastPath    = utils.urlResolve(utils.url()).pathname,
     fns         = {},
