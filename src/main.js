@@ -42,6 +42,7 @@ var filters = {
     date: string.date,
     datetime: string.datetime,
     format: string.format,
+    substr: string.substr,
     icon: require('./filters/icon')
 }
 

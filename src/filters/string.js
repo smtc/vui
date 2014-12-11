@@ -24,5 +24,11 @@ module.exports = {
     datetime: function (timestamp, ft) {
         ft = ft || 'yyyy-MM-dd hh:mm:ss'
         return formatTime(timestamp, ft)
+    },
+
+    substr: function (value, len) {
+        if (!value) return ""
+        if (value.length <= len) return value
+        return value.substr(0, len) + '...'
     }
 }
