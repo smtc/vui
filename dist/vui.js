@@ -8181,7 +8181,7 @@ var component = {
             search = node.search,
             hash = node.hash
 
-        if (!this.delay)
+        if (!this.delay) {
             loading.start()
             request.get(this.src + hash).query(search).end(function (res) {
                 loading.end()
@@ -8194,6 +8194,7 @@ var component = {
                     message.error('', res.status)
                 }
             }.bind(this))
+        }
 
         var form = this.$el;
         if (form.tagName != "FORM")
