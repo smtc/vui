@@ -170,6 +170,14 @@ var component = {
         if (this.src) {
             this.src = utils.format(this.src, this.colon)
         }
+
+        var init = this.$el.getAttribute('init')
+        if (init) {
+            if (init.indexOf('(function') !== 0) {
+                init = "(function () {" + init + "})";
+            }
+            eval(init).call(this)
+        }
     },
 
     ready: function () {
