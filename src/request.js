@@ -1,4 +1,4 @@
-var request       = require('lib').request,
+var request       = require('./lib').request,
     templateCache = {}
 
 // 从缓存中读取

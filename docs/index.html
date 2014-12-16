@@ -35,21 +35,26 @@
 	</div>
 </div>
 
-<div class="content" v-view="view"></div>
+<div class="content" v-component="{{view}}"></div>
 
-<div v-component="message" class="message"></div>
-<div v-component="loading" img="css/images/loading.gif" text="处理中，请稍候"></div>
+<div component="message" class="message"></div>
+<div component="loading" img="css/images/loading.gif" text="处理中，请稍候"></div>
 
 <script type="text/javascript" src="../dist/vui.js"></script>
 <script type="text/javascript" src="js/docs.js"></script>
 <script type="text/javascript" src="js/prettify.js"></script>
 <script type="text/javascript">
 ;(function () {
-    vui.init()
+    var main = new Vue({
+        el: 'body',
+        data: {
+            view: ''
+        }
+    })
 
     vui.route(function (path) {
         if (path.charAt(path.length-1) !== '/')
-            vui.$data.view = path
+            main.view = path
 
         // 延时等component 执行完
         setTimeout(function () {
@@ -57,9 +62,8 @@
         }, 500)
     }, true)
 
-    var h = vui.utils.urlResolve(vui.location.url()).hash
-    if (!h)
-        vui.location.url('main.html')
+    if (!vui.utils.urlResolve().hash) 
+        vui.utils.url('main.html')
 })()
 </script>
 

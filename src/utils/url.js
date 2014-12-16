@@ -108,9 +108,14 @@ if (_.isNaN(msie)) {
     msie = parseInt((/trident\/.*; rv:(\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1]);
 }
 
-function urlResolve(url, fixHash) {
-    var href = url,
-        pathname,
+function urlResolve(href, fixHash) {
+    if (arguments.length === 0) {
+        href = url()
+    } else if (arguments.length === 1 && 'boolean' === typeof href) {
+        fixHash = href
+        href = url()
+    }
+    var pathname,
         pathindex,
         colon = []
 

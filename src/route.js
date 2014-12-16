@@ -2,13 +2,13 @@ var lib         = require('./lib'),
     Vue         = lib.Vue,
     request     = require('./request'),
     utils       = require('./utils'),
-    lastPath    = utils.urlResolve(utils.url()).pathname,
+    lastPath    = utils.urlResolve().pathname,
     fns         = {},
     components  = {}
 
 function route(fn, init) {
     function getComponent(fn) {
-        var path = utils.urlResolve(utils.url(), true).pathname
+        var path = utils.urlResolve(true).pathname
         route.getComponent(path, fn)
     }
 
@@ -30,7 +30,7 @@ route.bind = function (fn, basepath) {
     
     var f = function () {
         if (basepath) {
-            var url = utils.urlResolve(utils.url(), true)
+            var url = utils.urlResolve(true)
             if (url.pathname === lastPath) return this
             lastPath = url.pathname
         }
@@ -54,20 +54,20 @@ route.unbind = function (fn) {
     })
 }
 
-
 route.getComponent = function (path, fn) {
-    if (!components[path]) {
-        components[path] = true
+    var hash = 'template' + utils.hashCode(path)
+    if (!components[hash]) {
+        components[hash] = true
 
         request.getTemplate(path)
             .end(function (template) {
-                Vue.component(path, {
+                Vue.component(hash, {
                     template: template
                 })
-                fn(path)
+                fn(hash)
             })
     } else {
-        fn(path)
+        fn(hash)
     }
 }
 
