@@ -1,0 +1,82 @@
+<div>
+    <h1 class="page-header">Route</h1>
+
+    <p>用来处理url route。<span class="label label-danger">目前在监听 hashchange 这个事件，html5Mode 下不会触发这个事件，后面再修改。</span></p>
+
+    <h3>route</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>route(fn, init)</h4>
+        <p>根据当前url处理component</p>
+        <h4>参数</h4>
+        <p>
+            fn - 回调函数。<br />
+            init - 初始化时是否执行此方法，默认为<code>false</code><br />
+        </p>
+    </div>
+    <pre class="prettyprint">
+vui.route(function (path) {
+    if (path.charAt(path.length-1) !== '/')
+        main.view = path
+
+    // 延时等component 执行完
+    setTimeout(function () {
+        prettyPrint()
+    }, 500)
+}, true)</pre>
+
+    <br />
+
+    <h3>route.bind</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>route.bind(fn, basepath)</h4>
+        <p>绑定一个route（hashchange）事件，使用了一个hashCode的方法来做handle</p>
+        <h4>参数</h4>
+        <p>
+            fn - 回调函数，如果事件已存在，忽略。<br />
+            basepath - 值为true时，只匹配path部分，默认为<code>false</code>。<br />
+        </p>
+    </div>
+    <pre class="prettyprint">
+var fn = function () { 
+    // 做点什么
+}
+vui.route.bind(fn, true)
+</pre>
+
+    <br />
+
+    <h3>route.unbind</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>route.unbind(fn)</h4>
+        <p>移除一个route（hashchange）事件</p>
+        <h4>参数</h4>
+        <p>
+            fn - 函数，如果为空，删除所有绑定事件。<br />
+        </p>
+    </div>
+    <pre class="prettyprint">
+var fn = function () { 
+    // 做点什么
+}
+vui.route.unbind(fn)
+</pre>
+
+    <br />
+
+    <h3>route.getComponent</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>route.getComponent(path, fn)</h4>
+        <p>获取指定地址模板，转为component，如果已存在，从缓存中获取。</p>
+        <h4>参数</h4>
+        <p>
+            path - 模板页面地址，component name。<br />
+            fn - 加载成功后回调方法。<br />
+        </p>
+    </div>
+    <pre class="prettyprint">
+var fn = function () { 
+    // 做点什么
+}
+vui.route.getComponent(fn)
+</pre>
+</div>
