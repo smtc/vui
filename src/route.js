@@ -62,7 +62,11 @@ route.getComponent = function (path, fn) {
         request.getTemplate(path)
             .end(function (template) {
                 Vue.component(hash, {
-                    template: template
+                    template: template,
+                    inherit: true,
+                    data: function () {
+                        return { scope: {} }
+                    }
                 })
                 fn(hash)
             })

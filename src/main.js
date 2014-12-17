@@ -4,8 +4,18 @@ var lib = require('./lib'),
     _ = lib.underscore,
     Vue = lib.Vue 
 
-window.Vue = Vue
+// components ======================================================
+var components = {
+    date: require('./components/date')
+}
 
+_.each(components, function (v, k) {
+    Vue.component(k, v)
+})
+
+// filters =========================================================
+
+// directives ======================================================
 var directives = {
     href: require('./directives/href')
 }
@@ -13,6 +23,10 @@ var directives = {
 _.each(directives, function (v, k) {
     Vue.directive(k, v)
 })
+
+// exports =========================================================
+
+window.Vue = Vue
 
 module.exports = {
     utils: utils,

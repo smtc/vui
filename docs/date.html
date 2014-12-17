@@ -1,0 +1,29 @@
+<div>
+    <h1 class="page-header">日期选择</h1>
+
+    <p>日期选择控件</p>
+
+    <div class="bs-callout bs-callout-info">
+        <h4>v-component="date"</h4>
+        <pre class="prettyprint">&lt;div class="form-control date" placeholder="日期选择" v-component="date" v-with="date:date"&gt;&lt;/div&gt;</pre>
+        <p><span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span></p>
+    </div>
+
+    <br />
+
+    <h3>Example</h3>
+
+    <div class="bs-example bs-example-type">
+        <div class="form-control date" placeholder="yyyy-MM-dd" v-component="date" v-with="date:scope.date1"></div>
+        <div class="form-control date" placeholder="unixtime" unixtime="true" up="true" v-component="date" v-with="date:scope.date2"></div>
+        <br /><br />
+        <p>当前选择日期：{{scope.date1}} - {{scope.date2}}</p>
+    </div>
+    <pre v-pre class="prettyprint">
+&lt;div class="form-control date" v-component="date" v-with="date:scope.date1"&gt;&lt;/div&gt;
+&lt;div class="form-control date" unixtime="true" up="true" v-component="date" v-with="date:scope.date2"&gt;&lt;/div&gt;
+&lt;br /&gt;
+&lt;p&gt;当前选择日期：{{scope.date1}} - {{scope.date2}}&lt;/p&gt;
+</pre>
+        
+</div>

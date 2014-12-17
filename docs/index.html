@@ -45,23 +45,6 @@
 <script type="text/javascript" src="js/prettify.js"></script>
 <script type="text/javascript">
 ;(function () {
-    var main = new Vue({
-        el: 'body',
-        data: {
-            view: ''
-        }
-    })
-
-    vui.route(function (path) {
-        if (path.charAt(path.length-1) !== '/')
-            main.view = path
-
-        // 延时等component 执行完
-        setTimeout(function () {
-            prettyPrint()
-        }, 500)
-    }, true)
-
     if (!vui.utils.urlResolve().hash) 
         vui.utils.url('main.html')
 })()
