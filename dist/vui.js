@@ -8143,7 +8143,6 @@ var component = {
     created: function () {
         this.valid = true
         this.controls = {}
-        this.model = {}
         this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
@@ -8189,6 +8188,7 @@ var component = {
             search = node.search,
             hash = node.hash
 
+        this.model = {}
         if (!this.delay) {
             loading.start()
             request.get(this.src + hash).query(search).end(function (res) {
@@ -9407,7 +9407,7 @@ module.exports = {
                     this.options = formatOption(res.body.data)
                 }
                 judge.call(this)
-            }.bind(this))
+            }.bind(this), true)
         }
 
         // clear
@@ -9425,7 +9425,7 @@ module.exports = {
                 this.value = this.value.split(',')
         }
 
-        this.$watch('value', function (value, mut) {
+        function change(value) {
             if (this.type === 'radio') {
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
             } else {
@@ -9441,6 +9441,13 @@ module.exports = {
                     el.checked = value.toString() === el.value.toString() || contains(value, el.value)
                 }.bind(this))
             }
+        }
+
+        change.call(this, this.value)
+
+        this.$watch('value', function (value) {
+            if (value === undefined) return
+            change.call(this, value)
         }.bind(this))
     }
 }

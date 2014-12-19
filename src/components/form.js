@@ -139,7 +139,6 @@ var component = {
     created: function () {
         this.valid = true
         this.controls = {}
-        this.model = {}
         this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
@@ -185,6 +184,7 @@ var component = {
             search = node.search,
             hash = node.hash
 
+        this.model = {}
         if (!this.delay) {
             loading.start()
             request.get(this.src + hash).query(search).end(function (res) {
