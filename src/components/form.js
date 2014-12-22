@@ -139,6 +139,7 @@ var component = {
     created: function () {
         this.valid = true
         this.controls = {}
+        this.model = {}
         this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
