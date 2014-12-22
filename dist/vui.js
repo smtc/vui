@@ -8189,9 +8189,9 @@ var component = {
             search = node.search,
             hash = node.hash
 
-        this.model = {}
         if (!this.delay) {
             loading.start()
+            this.model = {}
             request.get(this.src + hash).query(search).end(function (res) {
                 loading.end()
                 if (res.status === 200) {
