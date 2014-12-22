@@ -1,0 +1,97 @@
+var request = require('../request'),
+    utils   = require('../utils'),
+    lang    = require('../lang'),
+    _       = require('../lib').underscore,
+    CACHES  = {}
+
+module.exports = {
+    template: require('./select.html'),
+
+    replace: true,
+
+    paramAttributes: ['src', 'cache', 'placeholder'],
+
+    methods: {
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
+        },
+
+        select: function (item) {
+            this.text = item.text
+            if (item.value !== this.value)
+                this.value = item.value
+        },
+
+        setValue: function (value) {
+            _.each(this.options, function (item) {
+                if (value === item.value)
+                    this.select(item)
+            }.bind(this))
+        }
+    },
+
+    data: function () {
+        return {
+            options: [],
+            value: undefined,
+            text: ''
+        }
+    },
+
+    ready: function () {
+        var self = this
+        utils.addClass(this.$el, 'select')
+        
+        this.$closeHandle = function () {
+            self.close()
+        }
+
+        this.$watch('value', function () {
+            self.setValue(self.value)
+        })
+
+        if (!this.src) return
+
+        if (this.src === 'bool') {
+            this.options = lang.get('boolSelect')
+            return
+        } 
+        
+        var cache = this.cache !== 'false'
+        if (cache && CACHES[this.src]) {
+            this.options = CACHES[this.src]
+            this.setValue(this.value)
+            return
+        } 
+
+        request.get(this.src).end(function (res) {
+            if (res.status === 200) {
+                if (res.body instanceof Array) {
+                    this.options = res.body
+                } else if (res.body.status === 1) {
+                    this.options = res.body.data
+                }
+                this.setValue(this.value)
+
+                if (cache)
+                    CACHES[this.src] = this.options
+            } else {
+
+            }
+        }.bind(this))
+
+    }
+}

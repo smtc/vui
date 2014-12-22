@@ -5,14 +5,14 @@
 
     <div class="bs-callout bs-callout-info">
         <h4>v-component="date"</h4>
-        <pre class="prettyprint">&lt;div class="form-control date" placeholder="日期选择" unixtime="true" v-component="date" v-with="date:date"&gt;&lt;/div&gt;</pre>
-        <p><span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span></p>
+        <pre class="prettyprint">&lt;div class="form-control date" placeholder="日期选择" unixtime="true" v-component="date" v-with="value:date"&gt;&lt;/div&gt;</pre>
 
         <br />
         <h4>参数</h4>
         <p>
             placeholder(string): 相当于<code>input</code>的<code>placeholder</code>属性。<br />
             unixtime(bool): 默认值<code>false</code>，当为<code>true</code>时，date的值为unixtime形式。<br />
+            value - 选中值。<span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span>
         </p>
     </div>
 
@@ -21,8 +21,8 @@
     <h3>Example</h3>
 
     <div class="bs-example bs-example-type">
-        <div class="form-control date" placeholder="yyyy-MM-dd" v-component="date" v-with="date:scope.date1"></div>
-        <div class="form-control date date-picker-up" placeholder="unixtime" unixtime="true" v-component="date" v-with="date:scope.date2"></div>
+        <div class="form-control date" placeholder="yyyy-MM-dd" v-component="date" v-with="value:scope.date1"></div>
+        <div class="form-control date date-picker-up" placeholder="unixtime" unixtime="true" v-component="date" v-with="value:scope.date2"></div>
         <br /><br />
         <p>当前选择日期：{{scope.date1}} - {{scope.date2}}</p>
     </div>

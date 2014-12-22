@@ -10,7 +10,8 @@ lang.set(require('./lang/zh-cn'))
 
 // components ======================================================
 var components = {
-    date: require('./components/date')
+    date: require('./components/date'),
+    select: require('./components/select')
 }
 
 _.each(components, function (v, k) {

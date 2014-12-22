@@ -48,8 +48,8 @@ module.exports = {
         }
     },
     page: {
-        del_confirm: '是否确定要删除这 <%= count %> 条数据？',
-        must_select: '至少选择一条数据'
+        delConfirm: '是否确定要删除这 <%= count %> 条数据？',
+        mustSelect: '至少选择一条数据'
     },
     date: {
         month: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],

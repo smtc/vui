@@ -52,7 +52,7 @@ module.exports = {
         },
 
         set: function (d) {
-            this.date = this.unixtime ? d.timestamp : d.str
+            this.value = this.unixtime ? d.timestamp : d.str
             this.currentDate = {
                 year: d.year,
                 month: d.month,
@@ -141,7 +141,7 @@ module.exports = {
     
     data: function () {
         return {
-            date: null,
+            value: null,
             years: [],
             days: [],
             currentDate: {},
@@ -154,15 +154,23 @@ module.exports = {
 
     computed: {
         text: function () {
-            if (this.date)
-                return this.unixtime ? utils.formatTime(new Date(this.date * 1000), this.options.format) : this.date
+            if (this.value)
+                return this.unixtime ? utils.formatTime(new Date(this.value * 1000), this.options.format) : this.value
         },
         header: function () {
             var sd = { year: this.showDate.year, month: '' }
             if (this.stage === STAGE.DAY) sd.month = this.options.month[this.showDate.month]
             var temp = _.template(OPTIONS.header)
-                console.log(temp(sd), sd)
             return temp(sd)
+        },
+        // 兼容 v0.10.0
+        date: {
+            get: function () {
+                return this.value
+            },
+            set: function (d) {
+                this.value = d
+            }
         }
     },
 
@@ -170,14 +178,14 @@ module.exports = {
         var self = this,
             d = new Date()
 
-        if (this.unixtime && this.date) {
-            if (typeof this.date === 'string')
-                this.date = parseInt(this.date)
-            this.date = this.date * 1000
+        if (this.unixtime && this.value) {
+            if (typeof this.value === 'string')
+                this.value = parseInt(this.value)
+            this.value = this.value * 1000
         }
 
-        if (this.date)
-            d = new Date(this.date)
+        if (this.value)
+            d = new Date(this.value)
 
         this.currentDate = {
             year: d.getFullYear(),
