@@ -91,11 +91,15 @@
    return require;
 })({
 1: [function(require, module, exports) {
-var lib = require('./lib'), 
-    utils = require('./utils'),
-    route = require('./route'),
-    _ = lib.underscore,
-    Vue = lib.Vue 
+var lib     = require('./lib'), 
+    utils   = require('./utils'),
+    route   = require('./route'),
+    _       = lib.underscore,
+    lang    = require('./lang'),
+    Vue     = lib.Vue 
+
+// set language
+lang.set(require('./lang/zh-cn'))
 
 // components ======================================================
 var components = {
@@ -139,7 +143,7 @@ module.exports = {
     }
 }
 
-}, {"./lib":2,"./utils":3,"./route":4,"./components/date":5,"./directives/href":6}],
+}, {"./lib":2,"./utils":3,"./route":4,"./lang":5,"./lang/zh-cn":6,"./components/date":7,"./directives/href":8}],
 2: [function(require, module, exports) {
 module.exports = {
     //Vue: require('yyx990803/vue@0.11.4'),
@@ -148,8 +152,8 @@ module.exports = {
     underscore: require('jashkenas/underscore@1.7.0')
 }
 
-}, {"yyx990803/vue@dev":7,"smtc/superagent@0.20.1":8,"jashkenas/underscore@1.7.0":9}],
-7: [function(require, module, exports) {
+}, {"yyx990803/vue@dev":9,"smtc/superagent@0.20.1":10,"jashkenas/underscore@1.7.0":11}],
+9: [function(require, module, exports) {
 var _ = require('./util')
 var extend = _.extend
 
@@ -234,8 +238,8 @@ extend(p, require('./api/child'))
 extend(p, require('./api/lifecycle'))
 
 module.exports = _.Vue = Vue
-}, {"./util":10,"./api/global":11,"./directives":12,"./filters":13,"./instance/init":14,"./instance/events":15,"./instance/scope":16,"./instance/compile":17,"./api/data":18,"./api/dom":19,"./api/events":20,"./api/child":21,"./api/lifecycle":22}],
-10: [function(require, module, exports) {
+}, {"./util":12,"./api/global":13,"./directives":14,"./filters":15,"./instance/init":16,"./instance/events":17,"./instance/scope":18,"./instance/compile":19,"./api/data":20,"./api/dom":21,"./api/events":22,"./api/child":23,"./api/lifecycle":24}],
+12: [function(require, module, exports) {
 var lang   = require('./lang')
 var extend = lang.extend
 
@@ -244,8 +248,8 @@ extend(exports, require('./env'))
 extend(exports, require('./dom'))
 extend(exports, require('./filter'))
 extend(exports, require('./debug'))
-}, {"./lang":23,"./env":24,"./dom":25,"./filter":26,"./debug":27}],
-23: [function(require, module, exports) {
+}, {"./lang":25,"./env":26,"./dom":27,"./filter":28,"./debug":29}],
+25: [function(require, module, exports) {
 /**
  * Check is a string starts with $ or _
  *
@@ -422,7 +426,7 @@ exports.define = function (obj, key, val, enumerable) {
   })
 }
 }, {}],
-24: [function(require, module, exports) {
+26: [function(require, module, exports) {
 /**
  * Can we use __proto__?
  *
@@ -534,7 +538,7 @@ if (inBrowser && !exports.isIE9) {
     : 'animationend'
 }
 }, {}],
-25: [function(require, module, exports) {
+27: [function(require, module, exports) {
 var config = require('../config')
 
 /**
@@ -732,8 +736,8 @@ exports.extractContent = function (el) {
   }
   return rawContent
 }
-}, {"../config":28}],
-28: [function(require, module, exports) {
+}, {"../config":30}],
+30: [function(require, module, exports) {
 module.exports = {
 
   /**
@@ -821,7 +825,7 @@ Object.defineProperty(module.exports, 'delimiters', {
   }
 })
 }, {}],
-26: [function(require, module, exports) {
+28: [function(require, module, exports) {
 var _ = require('./debug')
 
 /**
@@ -894,8 +898,8 @@ exports.applyFilters = function (value, filters, vm, oldVal) {
   }
   return value
 }
-}, {"./debug":27}],
-27: [function(require, module, exports) {
+}, {"./debug":29}],
+29: [function(require, module, exports) {
 var config = require('../config')
 
 /**
@@ -956,8 +960,8 @@ function enableDebug () {
     }
   }
 }
-}, {"../config":28}],
-11: [function(require, module, exports) {
+}, {"../config":30}],
+13: [function(require, module, exports) {
 var _ = require('../util')
 var mergeOptions = require('../util/merge-option')
 
@@ -1104,8 +1108,8 @@ function createAssetRegisters (Constructor) {
 }
 
 createAssetRegisters(exports)
-}, {"../util":10,"../util/merge-option":29,"../config":28,"../compiler/compile":30,"../compiler/transclude":31,"../parsers/path":32,"../parsers/text":33,"../parsers/template":34,"../parsers/directive":35,"../parsers/expression":36}],
-29: [function(require, module, exports) {
+}, {"../util":12,"../util/merge-option":31,"../config":30,"../compiler/compile":32,"../compiler/transclude":33,"../parsers/path":34,"../parsers/text":35,"../parsers/template":36,"../parsers/directive":37,"../parsers/expression":38}],
+31: [function(require, module, exports) {
 var _ = require('./index')
 var extend = _.extend
 
@@ -1361,8 +1365,8 @@ module.exports = function mergeOptions (parent, child, vm) {
   }
   return options
 }
-}, {"./index":10}],
-30: [function(require, module, exports) {
+}, {"./index":12}],
+32: [function(require, module, exports) {
 var _ = require('../util')
 var config = require('../config')
 var textParser = require('../parsers/text')
@@ -1925,8 +1929,8 @@ function directiveComparator (a, b) {
   b = b.def.priority || 0
   return a > b ? 1 : -1
 }
-}, {"../util":10,"../config":28,"../parsers/text":33,"../parsers/directive":35,"../parsers/template":34}],
-33: [function(require, module, exports) {
+}, {"../util":12,"../config":30,"../parsers/text":35,"../parsers/directive":37,"../parsers/template":36}],
+35: [function(require, module, exports) {
 var Cache = require('../cache')
 var config = require('../config')
 var dirParser = require('./directive')
@@ -2105,8 +2109,8 @@ function inlineFilters (exp) {
     }
   }
 }
-}, {"../cache":37,"../config":28,"./directive":35}],
-37: [function(require, module, exports) {
+}, {"../cache":39,"../config":30,"./directive":37}],
+39: [function(require, module, exports) {
 /**
  * A doubly linked list-based Least Recently Used (LRU)
  * cache. Will keep most recently used items while
@@ -2220,7 +2224,7 @@ p.get = function (key, returnEntry) {
 
 module.exports = Cache
 }, {}],
-35: [function(require, module, exports) {
+37: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var cache = new Cache(1000)
@@ -2380,8 +2384,8 @@ exports.parse = function (s) {
   cache.put(s, dirs)
   return dirs
 }
-}, {"../util":10,"../cache":37}],
-34: [function(require, module, exports) {
+}, {"../util":12,"../cache":39}],
+36: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var templateCache = new Cache(1000)
@@ -2632,8 +2636,8 @@ exports.parse = function (template, clone, noSelector) {
     ? exports.clone(frag)
     : frag
 }
-}, {"../util":10,"../cache":37}],
-31: [function(require, module, exports) {
+}, {"../util":12,"../cache":39}],
+33: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -2780,8 +2784,8 @@ function insertContentAt (outlet, contents) {
   }
   parent.removeChild(outlet)
 }
-}, {"../util":10,"../parsers/template":34}],
-32: [function(require, module, exports) {
+}, {"../util":12,"../parsers/template":36}],
+34: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var pathCache = new Cache(1000)
@@ -3079,8 +3083,8 @@ exports.set = function (obj, path, val) {
   }
   return true
 }
-}, {"../util":10,"../cache":37}],
-36: [function(require, module, exports) {
+}, {"../util":12,"../cache":39}],
+38: [function(require, module, exports) {
 var _ = require('../util')
 var Path = require('./path')
 var Cache = require('../cache')
@@ -3308,8 +3312,8 @@ exports.parse = function (exp, needSet) {
 
 // Export the pathRegex for external use
 exports.pathTestRE = pathTestRE
-}, {"../util":10,"./path":32,"../cache":37}],
-12: [function(require, module, exports) {
+}, {"../util":12,"./path":34,"../cache":39}],
+14: [function(require, module, exports) {
 // manipulation directives
 exports.text       = require('./text')
 exports.html       = require('./html')
@@ -3335,8 +3339,8 @@ exports['if']      = require('./if')
 // child vm communication directives
 exports['with']    = require('./with')
 exports.events     = require('./events')
-}, {"./text":38,"./html":39,"./attr":40,"./show":41,"./class":42,"./el":43,"./ref":44,"./cloak":45,"./style":46,"./partial":47,"./transition":48,"./on":49,"./model":50,"./component":51,"./repeat":52,"./if":53,"./with":54,"./events":55}],
-38: [function(require, module, exports) {
+}, {"./text":40,"./html":41,"./attr":42,"./show":43,"./class":44,"./el":45,"./ref":46,"./cloak":47,"./style":48,"./partial":49,"./transition":50,"./on":51,"./model":52,"./component":53,"./repeat":54,"./if":55,"./with":56,"./events":57}],
+40: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -3352,8 +3356,8 @@ module.exports = {
   }
   
 }
-}, {"../util":10}],
-39: [function(require, module, exports) {
+}, {"../util":12}],
+41: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -3392,8 +3396,8 @@ module.exports = {
   }
 
 }
-}, {"../util":10,"../parsers/template":34}],
-40: [function(require, module, exports) {
+}, {"../util":12,"../parsers/template":36}],
+42: [function(require, module, exports) {
 // xlink
 var xlinkNS = 'http://www.w3.org/1999/xlink'
 var xlinkRE = /^xlink:/
@@ -3427,7 +3431,7 @@ function xlinkHandler (value) {
   }
 }
 }, {}],
-41: [function(require, module, exports) {
+43: [function(require, module, exports) {
 var transition = require('../transition')
 
 module.exports = function (value) {
@@ -3436,8 +3440,8 @@ module.exports = function (value) {
     el.style.display = value ? '' : 'none'
   }, this.vm)
 }
-}, {"../transition":56}],
-56: [function(require, module, exports) {
+}, {"../transition":58}],
+58: [function(require, module, exports) {
 var _ = require('../util')
 var applyCSSTransition = require('./css')
 var applyJSTransition = require('./js')
@@ -3589,8 +3593,8 @@ var apply = exports.apply = function (el, direction, op, vm, cb) {
     if (cb) cb()
   }
 }
-}, {"../util":10,"./css":57,"./js":58}],
-57: [function(require, module, exports) {
+}, {"../util":12,"./css":59,"./js":60}],
+59: [function(require, module, exports) {
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3780,8 +3784,8 @@ module.exports = function (el, direction, op, data, cb) {
     push(el, direction, op, leaveClass, cb)
   }
 }
-}, {"../util":10}],
-58: [function(require, module, exports) {
+}, {"../util":12}],
+60: [function(require, module, exports) {
 /**
  * Apply JavaScript enter/leave functions.
  *
@@ -3826,7 +3830,7 @@ module.exports = function (el, direction, op, data, def, vm, cb) {
   }
 }
 }, {}],
-42: [function(require, module, exports) {
+44: [function(require, module, exports) {
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3845,8 +3849,8 @@ module.exports = function (value) {
     }
   }
 }
-}, {"../util":10}],
-43: [function(require, module, exports) {
+}, {"../util":12}],
+45: [function(require, module, exports) {
 module.exports = {
 
   isLiteral: true,
@@ -3861,7 +3865,7 @@ module.exports = {
   
 }
 }, {}],
-44: [function(require, module, exports) {
+46: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -3885,8 +3889,8 @@ module.exports = {
   }
   
 }
-}, {"../util":10}],
-45: [function(require, module, exports) {
+}, {"../util":12}],
+47: [function(require, module, exports) {
 var config = require('../config')
 
 module.exports = {
@@ -3899,8 +3903,8 @@ module.exports = {
   }
 
 }
-}, {"../config":28}],
-46: [function(require, module, exports) {
+}, {"../config":30}],
+48: [function(require, module, exports) {
 var _ = require('../util')
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 var camelPrefixes = ['Webkit', 'Moz', 'ms']
@@ -4001,8 +4005,8 @@ function prefix (prop) {
     }
   }
 }
-}, {"../util":10}],
-47: [function(require, module, exports) {
+}, {"../util":12}],
+49: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 var vIf = require('./if')
@@ -4047,8 +4051,8 @@ module.exports = {
   }
 
 }
-}, {"../util":10,"../parsers/template":34,"./if":53}],
-53: [function(require, module, exports) {
+}, {"../util":12,"../parsers/template":36,"./if":55}],
+55: [function(require, module, exports) {
 var _ = require('../util')
 var compile = require('../compiler/compile')
 var templateParser = require('../parsers/template')
@@ -4136,8 +4140,8 @@ module.exports = {
   }
 
 }
-}, {"../util":10,"../compiler/compile":30,"../parsers/template":34,"../transition":56}],
-48: [function(require, module, exports) {
+}, {"../util":12,"../compiler/compile":32,"../parsers/template":36,"../transition":58}],
+50: [function(require, module, exports) {
 module.exports = {
 
   priority: 1000,
@@ -4153,7 +4157,7 @@ module.exports = {
 
 }
 }, {}],
-49: [function(require, module, exports) {
+51: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -4213,8 +4217,8 @@ module.exports = {
     _.off(this.el, 'load', this.iframeBind)
   }
 }
-}, {"../util":10}],
-50: [function(require, module, exports) {
+}, {"../util":12}],
+52: [function(require, module, exports) {
 var _ = require('../../util')
 
 var handlers = {
@@ -4271,8 +4275,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":10,"./default":59,"./radio":60,"./select":61,"./checkbox":62}],
-59: [function(require, module, exports) {
+}, {"../../util":12,"./default":61,"./radio":62,"./select":63,"./checkbox":64}],
+61: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4396,8 +4400,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":10}],
-60: [function(require, module, exports) {
+}, {"../../util":12}],
+62: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4424,8 +4428,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":10}],
-61: [function(require, module, exports) {
+}, {"../../util":12}],
+63: [function(require, module, exports) {
 var _ = require('../../util')
 var Watcher = require('../../watcher')
 
@@ -4593,8 +4597,8 @@ function indexOf (arr, val) {
   }
   return -1
 }
-}, {"../../util":10,"../../watcher":63}],
-63: [function(require, module, exports) {
+}, {"../../util":12,"../../watcher":65}],
+65: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Observer = require('./observer')
@@ -4852,8 +4856,8 @@ function traverse (obj) {
 }
 
 module.exports = Watcher
-}, {"./util":10,"./config":28,"./observer":64,"./parsers/expression":36,"./batcher":65}],
-64: [function(require, module, exports) {
+}, {"./util":12,"./config":30,"./observer":66,"./parsers/expression":38,"./batcher":67}],
+66: [function(require, module, exports) {
 var _ = require('../util')
 var config = require('../config')
 var Dep = require('./dep')
@@ -5090,8 +5094,8 @@ p.removeVm = function (vm) {
 
 module.exports = Observer
 
-}, {"../util":10,"../config":28,"./dep":66,"./array":67,"./object":68}],
-66: [function(require, module, exports) {
+}, {"../util":12,"../config":30,"./dep":68,"./array":69,"./object":70}],
+68: [function(require, module, exports) {
 var uid = 0
 
 /**
@@ -5143,7 +5147,7 @@ p.notify = function () {
 
 module.exports = Dep
 }, {}],
-67: [function(require, module, exports) {
+69: [function(require, module, exports) {
 var _ = require('../util')
 var arrayProto = Array.prototype
 var arrayMethods = Object.create(arrayProto)
@@ -5234,8 +5238,8 @@ _.define(
 )
 
 module.exports = arrayMethods
-}, {"../util":10}],
-68: [function(require, module, exports) {
+}, {"../util":12}],
+70: [function(require, module, exports) {
 var _ = require('../util')
 var objProto = Object.prototype
 
@@ -5302,8 +5306,8 @@ _.define(
     }
   }
 )
-}, {"../util":10}],
-65: [function(require, module, exports) {
+}, {"../util":12}],
+67: [function(require, module, exports) {
 var _ = require('./util')
 var MAX_UPDATE_COUNT = 10
 
@@ -5398,8 +5402,8 @@ exports.push = function (job) {
     }
   }
 }
-}, {"./util":10}],
-62: [function(require, module, exports) {
+}, {"./util":12}],
+64: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -5425,8 +5429,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":10}],
-51: [function(require, module, exports) {
+}, {"../../util":12}],
+53: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -5633,8 +5637,8 @@ module.exports = {
   }
 
 }
-}, {"../util":10,"../parsers/template":34}],
-52: [function(require, module, exports) {
+}, {"../util":12,"../parsers/template":36}],
+54: [function(require, module, exports) {
 var _ = require('../util')
 var isObject = _.isObject
 var isPlainObject = _.isPlainObject
@@ -6139,8 +6143,8 @@ function range (n) {
   }
   return ret
 }
-}, {"../util":10,"../parsers/text":33,"../parsers/expression":36,"../parsers/template":34,"../compiler/compile":30,"../compiler/transclude":31,"../util/merge-option":29}],
-54: [function(require, module, exports) {
+}, {"../util":12,"../parsers/text":35,"../parsers/expression":38,"../parsers/template":36,"../compiler/compile":32,"../compiler/transclude":33,"../util/merge-option":31}],
+56: [function(require, module, exports) {
 var _ = require('../util')
 var Watcher = require('../watcher')
 
@@ -6214,8 +6218,8 @@ module.exports = {
   }
 
 }
-}, {"../util":10,"../watcher":63}],
-55: [function(require, module, exports) {
+}, {"../util":12,"../watcher":65}],
+57: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = { 
@@ -6243,8 +6247,8 @@ module.exports = {
   // so no need for unbind here.
 
 }
-}, {"../util":10}],
-13: [function(require, module, exports) {
+}, {"../util":12}],
+15: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -6380,8 +6384,8 @@ exports.key.keyCodes = keyCodes
  */
 
 _.extend(exports, require('./array-filters'))
-}, {"../util":10,"./array-filters":69}],
-69: [function(require, module, exports) {
+}, {"../util":12,"./array-filters":71}],
+71: [function(require, module, exports) {
 var _ = require('../util')
 var Path = require('../parsers/path')
 
@@ -6469,8 +6473,8 @@ function contains (val, search) {
     return val.toString().toLowerCase().indexOf(search) > -1
   }
 }
-}, {"../util":10,"../parsers/path":32}],
-14: [function(require, module, exports) {
+}, {"../util":12,"../parsers/path":34}],
+16: [function(require, module, exports) {
 var mergeOptions = require('../util/merge-option')
 
 /**
@@ -6547,8 +6551,8 @@ exports._init = function (options) {
     this.$mount(options.el)
   }
 }
-}, {"../util/merge-option":29}],
-15: [function(require, module, exports) {
+}, {"../util/merge-option":31}],
+17: [function(require, module, exports) {
 var _ = require('../util')
 var inDoc = _.inDoc
 
@@ -6671,8 +6675,8 @@ exports._callHook = function (hook) {
   }
   this.$emit('hook:' + hook)
 }
-}, {"../util":10}],
-16: [function(require, module, exports) {
+}, {"../util":12}],
+18: [function(require, module, exports) {
 var _ = require('../util')
 var Observer = require('../observer')
 var Dep = require('../observer/dep')
@@ -6890,8 +6894,8 @@ exports._defineMeta = function (key, value) {
     }
   })
 }
-}, {"../util":10,"../observer":64,"../observer/dep":66}],
-17: [function(require, module, exports) {
+}, {"../util":12,"../observer":66,"../observer/dep":68}],
+19: [function(require, module, exports) {
 var _ = require('../util')
 var Directive = require('../directive')
 var compile = require('../compiler/compile')
@@ -7079,8 +7083,8 @@ exports._cleanup = function () {
   // turn off all instance listeners.
   this.$off()
 }
-}, {"../util":10,"../directive":70,"../compiler/compile":30,"../compiler/transclude":31}],
-70: [function(require, module, exports) {
+}, {"../util":12,"../directive":72,"../compiler/compile":32,"../compiler/transclude":33}],
+72: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Watcher = require('./watcher')
@@ -7303,8 +7307,8 @@ p.set = function (value, lock) {
 }
 
 module.exports = Directive
-}, {"./util":10,"./config":28,"./watcher":63,"./parsers/text":33,"./parsers/expression":36}],
-18: [function(require, module, exports) {
+}, {"./util":12,"./config":30,"./watcher":65,"./parsers/text":35,"./parsers/expression":38}],
+20: [function(require, module, exports) {
 var _ = require('../util')
 var Watcher = require('../watcher')
 var Path = require('../parsers/path')
@@ -7469,8 +7473,8 @@ exports.$log = function (path) {
   }
   console.log(data)
 }
-}, {"../util":10,"../watcher":63,"../parsers/path":32,"../parsers/text":33,"../parsers/directive":35,"../parsers/expression":36}],
-19: [function(require, module, exports) {
+}, {"../util":12,"../watcher":65,"../parsers/path":34,"../parsers/text":35,"../parsers/directive":37,"../parsers/expression":38}],
+21: [function(require, module, exports) {
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -7682,8 +7686,8 @@ function remove (el, vm, cb) {
   _.remove(el)
   if (cb) cb()
 }
-}, {"../util":10,"../transition":56}],
-20: [function(require, module, exports) {
+}, {"../util":12,"../transition":58}],
+22: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -7860,8 +7864,8 @@ function modifyListenerCount (vm, event, count) {
     parent = parent.$parent
   }
 }
-}, {"../util":10}],
-21: [function(require, module, exports) {
+}, {"../util":12}],
+23: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -7915,8 +7919,8 @@ exports.$addChild = function (opts, BaseCtor) {
   this._children.push(child)
   return child
 }
-}, {"../util":10}],
-22: [function(require, module, exports) {
+}, {"../util":12}],
+24: [function(require, module, exports) {
 var _ = require('../util')
 var compile = require('../compiler/compile')
 
@@ -7989,8 +7993,8 @@ exports.$destroy = function (remove, deferCleanup) {
 exports.$compile = function (el) {
   return compile(el, this.$options, true)(this, el)
 }
-}, {"../util":10,"../compiler/compile":30}],
-8: [function(require, module, exports) {
+}, {"../util":12,"../compiler/compile":32}],
+10: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -9089,8 +9093,8 @@ request.put = function(url, data, fn){
  */
 module.exports = request;
 
-}, {"emitter":71,"reduce":72}],
-71: [function(require, module, exports) {
+}, {"emitter":73,"reduce":74}],
+73: [function(require, module, exports) {
 
 /**
  * Expose `Emitter`.
@@ -9257,7 +9261,7 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 }, {}],
-72: [function(require, module, exports) {
+74: [function(require, module, exports) {
 
 /**
  * Reduce `arr` with `fn`.
@@ -9283,7 +9287,7 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 }, {}],
-9: [function(require, module, exports) {
+11: [function(require, module, exports) {
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -10714,8 +10718,8 @@ module.exports = _.extend({}, url, dom, string, datetime)
 
 
 
-}, {"../lib":2,"./url":73,"./dom":74,"./datetime":75,"./string":76}],
-73: [function(require, module, exports) {
+}, {"../lib":2,"./url":75,"./dom":76,"./datetime":77,"./string":78}],
+75: [function(require, module, exports) {
 var _               = require('../lib').underscore,
     urlParsingNode  = document.createElement("a"),
     html5Mode       = false
@@ -10994,7 +10998,7 @@ module.exports = {
 }
 
 }, {"../lib":2}],
-74: [function(require, module, exports) {
+76: [function(require, module, exports) {
 var hasClassList    = 'classList' in document.documentElement
 
 /**
@@ -11060,7 +11064,7 @@ module.exports = {
 }
 
 }, {}],
-75: [function(require, module, exports) {
+77: [function(require, module, exports) {
 module.exports = {
     formatTime: function (date, fmt) {
         var o = {
@@ -11080,7 +11084,7 @@ module.exports = {
 }
 
 }, {}],
-76: [function(require, module, exports) {
+78: [function(require, module, exports) {
 function substitute(str, obj) {
     return str.replace((/\\?\{([^{}]+)\}/g), function(match, name){
         if (match.charAt(0) === '\\') return match.slice(1);
@@ -11198,8 +11202,8 @@ route.getComponent = function (path, fn) {
 module.exports = route
 
 
-}, {"./lib":2,"./request":77,"./utils":3}],
-77: [function(require, module, exports) {
+}, {"./lib":2,"./request":79,"./utils":3}],
+79: [function(require, module, exports) {
 var request       = require('./lib').request,
     templateCache = {}
 
@@ -11238,26 +11242,119 @@ module.exports = request
 
 }, {"./lib":2}],
 5: [function(require, module, exports) {
+var _   = require('../lib').underscore,
+    vs  = {}
+
+module.exports = {
+    get: function (key, obj) {
+        var ks  = key.split('.'),
+            val = vs
+        ks.forEach(function (k) {
+            if (!val) {
+                val = undefined
+                return
+            }
+            val = val[k]
+        })
+        if (typeof obj === 'object') {
+            var temp = _.tempate(val)
+            val = temp(obj)
+        }
+        return val
+    },
+
+    set: function (lang) {
+        vs = lang
+    }
+}
+
+}, {"../lib":2}],
+6: [function(require, module, exports) {
+module.exports = {
+    httpStatus: {
+        401: '没有访问权限',
+        404: '请求的地址不存在',
+        500: '内部服务器错误'
+    },
+    button: {
+        filter: '筛选',
+        reset: '重置',
+        submit: '提交',
+        ok: '确定',
+        close: '关闭',
+        cancel: '取消',
+        back: '返回',
+        add: '增加',
+        new: '新建',
+        refresh: '刷新',
+        edit: '编辑',
+        del: '删除'
+    },
+    boolSelect: [
+        { text: '　', value: '' },
+        { text: '是', value: 1 },
+        { text: '否', value: 0 }
+    ],
+    validation: {
+        msgs: {
+            'require': '不能为空',
+            'maxlen': '长度不能大于<%= _maxlen %>',
+            'minlen': '长度不能小于<%= _minlen %>',
+            'maxlen_cb': '最多选<%= _maxlen}个选项',
+            'minlen_cb': '最少选<%= _minlen}个选项',
+            'max': '不能大于<%= _max %>',
+            'min': '不能小于<%= _min %>',
+            'regex': '格式不正确',
+            'alpha': '只能包含英文字符，"-"，"_"',
+            'alphanum': '只能包含数字、英文字符和"_"',
+            'tip': '<%= _tip %>'
+        },
+        tips: {
+            'require': '必填',
+            'max': '最大值<%= max %>',
+            'min': '最小值<%= min %>',
+            'maxlen': '最大长度<%= maxlen %>',
+            'minlen': '最小长度<%= minlen %>',
+            'maxlen_cb': '最多选<%= maxlen %>项',
+            'minlen_cb': '最少选<%= minlen %>项'
+        }
+    },
+    page: {
+        del_confirm: '是否确定要删除这 <%= count %> 条数据？',
+        must_select: '至少选择一条数据'
+    },
+    date: {
+        month: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
+        weekday: ['日','一','二','三','四','五','六'],
+        header: '<%= year %>年 <%= month %>',
+        format: 'yyyy-MM-dd'
+    }
+}
+
+}, {}],
+7: [function(require, module, exports) {
 var utils = require('../utils'),
+    lang  = require('../lang'),
     _     = require('../lib').underscore
 
-function pad(v) {
-    v = v.toString()
-    if (v.length === 1)
-        v = '0' + v
-    return v
-}
+
+var STAGE = { DAY:1, MONTH:2, YEAR:3 },
+    OPTIONS = {
+        header: lang.get('date.header'),
+        weekday: lang.get('date.weekday'),
+        month: lang.get('date.month'),
+        format: lang.get('date.format')
+    }
 
 function Day(d) {
     this.year = d.getFullYear()
     this.month = d.getMonth()
     this.date = d.getDate()
     this.weekday = d.getDay()
-    this.str = this.year + '-' + pad(this.month + 1) + '-' + pad(this.date)
     this.timestamp = Math.ceil(d.getTime() / 1000)
+    this.raw = d
+    this.str = utils.formatTime(d, OPTIONS.format)
 }
-
-var STATUS = { DAY:1, MONTH:2, YEAR:3 }
 
 module.exports = {
     template: require('./date.html'),
@@ -11269,7 +11366,7 @@ module.exports = {
             if (this.$open) return
             this.$open = true
 
-            this.status = STATUS.DAY
+            this.stage = STAGE.DAY
             this.showDate = _.clone(this.currentDate)
 
             // 需要设置延时，否则会点击open时会触发关闭事件
@@ -11289,13 +11386,12 @@ module.exports = {
             document.body.removeEventListener('click', this.$closeHandle)
         },
 
-        set: function (day) {
-            this.date = this.unixtime ? day.timestamp : day.str
-            this.text = day.str
+        set: function (d) {
+            this.date = this.unixtime ? d.timestamp : d.str
             this.currentDate = {
-                year: day.year,
-                month: day.month,
-                day: day.date
+                year: d.year,
+                month: d.month,
+                date: d.date
             }
 
             setTimeout(function () {
@@ -11305,24 +11401,24 @@ module.exports = {
 
         setYear: function (y) {
             this.showDate.year = y
-            this.status = STATUS.MONTH
+            this.stage = STAGE.MONTH
         },
 
         setMonth: function (m) {
             this.showDate.month = m
-            this.status = STATUS.DAY
+            this.stage = STAGE.DAY
             this.draw()
         },
 
         change: function (m) {
-            switch (this.status) {
-                case STATUS.YEAR:
+            switch (this.stage) {
+                case STAGE.YEAR:
                     this.changeYear(m)
                     break
-                case STATUS.MONTH:
+                case STAGE.MONTH:
                     this.showDate.year += m
                     break
-                case STATUS.DAY:
+                case STAGE.DAY:
                     this.changeMonth(m)
                     break
             }
@@ -11344,19 +11440,19 @@ module.exports = {
         },
 
         changeYear: function (m) {
-            var year = this.showDate.year += 12 * m
-
-            this.years = []
+            var year = this.showDate.year += 12 * m,
+                years = []
 
             for (var i=year-12, j=year+12; i <= j; i++) {
-                this.years.push(i)
+                years.push(i)
             }
+            this.years = years
         },
 
-        statusToggle: function () {
-            this.status++
-            if (this.status > 3)
-                this.status = 1
+        stageToggle: function () {
+            this.stage++
+            if (this.stage > 3)
+                this.stage = 1
         },
 
         draw: function () {
@@ -11366,38 +11462,48 @@ module.exports = {
                 first = new Date(cd.year, cd.month, 1),
                 end = new Date(cd.year, cd.month + 1, 0),
                 min = 1 - first.getDay(),
-                max = (Math.ceil((end.getDate() - min + 1) / 7) * 7)
+                max = (Math.ceil((end.getDate() - min + 1) / 7) * 7),
+                days = []
 
-            this.days = []
-
-            for (var date, i = 0; i < max; i++) {
-                date = new Date(year, month, i+min)
-                this.days.push(new Day(date))
+            for (var day, i = 0; i < max; i++) {
+                day = new Date(year, month, i+min)
+                days.push(new Day(day))
             }
 
+            this.days = days
         }
     },
     
     data: function () {
         return {
             date: null,
+            years: [],
             days: [],
-            placeholder: "",
-            text: "",
-            pickerUp: false,
             currentDate: {},
             showDate: {},
-            status: STATUS.DAY,
-            today: new Date()
+            stage: STAGE.DAY,
+            today: new Date(),
+            options: OPTIONS
+        }
+    },
+
+    computed: {
+        text: function () {
+            if (this.date)
+                return this.unixtime ? utils.formatTime(new Date(this.date * 1000), this.options.format) : this.date
+        },
+        header: function () {
+            var sd = { year: this.showDate.year, month: '' }
+            if (this.stage === STAGE.DAY) sd.month = this.options.month[this.showDate.month]
+            var temp = _.template(OPTIONS.header)
+                console.log(temp(sd), sd)
+            return temp(sd)
         }
     },
 
     ready: function () {
         var self = this,
             d = new Date()
-
-        if (this.$el.getAttribute('up') === 'true')
-            this.pickerUp = true
 
         if (this.unixtime && this.date) {
             if (typeof this.date === 'string')
@@ -11411,7 +11517,7 @@ module.exports = {
         this.currentDate = {
             year: d.getFullYear(),
             month: d.getMonth(),
-            day: d.getDate()
+            date: d.getDate()
         }
 
         this.showDate = _.clone(this.currentDate)
@@ -11426,22 +11532,15 @@ module.exports = {
 
             self.close()
         }
-
-        this.$watch('date', function (value) {
-            if (value)
-                this.text = this.unixtime ? utils.formatTime(new Date(value * 1000), "yyyy-MM-dd") : value
-            else
-                this.text = ""
-        }.bind(this))
     }
 
 }
 
-}, {"../utils":3,"../lib":2,"./date.html":78}],
-78: [function(require, module, exports) {
-module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="date-picker-handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
+}, {"../utils":3,"../lang":5,"../lib":2,"./date.html":80}],
+80: [function(require, module, exports) {
+module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:stageToggle()" class="date-picker-handle year"><span>{{header}}</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="stage == 1">\n            <div class="week" v-repeat="w:options.weekday">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.date && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="stage == 2">\n            <button type="button" v-on="click:setMonth($index)" class="month" v-repeat="options.month">{{$value}}</button>\n        </div>\n        <div class="inner" v-show="stage == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 }, {}],
-6: [function(require, module, exports) {
+8: [function(require, module, exports) {
 var utils = require('../utils')
 
 module.exports = {

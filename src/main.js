@@ -1,8 +1,12 @@
-var lib = require('./lib'), 
-    utils = require('./utils'),
-    route = require('./route'),
-    _ = lib.underscore,
-    Vue = lib.Vue 
+var lib     = require('./lib'), 
+    utils   = require('./utils'),
+    route   = require('./route'),
+    _       = lib.underscore,
+    lang    = require('./lang'),
+    Vue     = lib.Vue 
+
+// set language
+lang.set(require('./lang/zh-cn'))
 
 // components ======================================================
 var components = {

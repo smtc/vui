@@ -26,29 +26,35 @@ module.exports = {
     validation: {
         msgs: {
             'require': '不能为空',
-            'maxlen': '长度不能大于{_maxlen}',
-            'minlen': '长度不能小于{_minlen}',
-            'maxlen_cb': '最多选{_maxlen}个选项',
-            'minlen_cb': '最少选{_minlen}个选项',
-            'max': '不能大于{_max}',
-            'min': '不能小于{_min}',
+            'maxlen': '长度不能大于<%= _maxlen %>',
+            'minlen': '长度不能小于<%= _minlen %>',
+            'maxlen_cb': '最多选<%= _maxlen}个选项',
+            'minlen_cb': '最少选<%= _minlen}个选项',
+            'max': '不能大于<%= _max %>',
+            'min': '不能小于<%= _min %>',
             'regex': '格式不正确',
             'alpha': '只能包含英文字符，"-"，"_"',
             'alphanum': '只能包含数字、英文字符和"_"',
-            'tip': '{_tip}'
+            'tip': '<%= _tip %>'
         },
         tips: {
             'require': '必填',
-            'max': '最大值{_max}',
-            'min': '最小值{_min}',
-            'maxlen': '最大长度{_maxlen}',
-            'minlen': '最小长度{_minlen}',
-            'maxlen_cb': '最多选{_maxlen}项',
-            'minlen_cb': '最少选{_minlen}项'
+            'max': '最大值<%= max %>',
+            'min': '最小值<%= min %>',
+            'maxlen': '最大长度<%= maxlen %>',
+            'minlen': '最小长度<%= minlen %>',
+            'maxlen_cb': '最多选<%= maxlen %>项',
+            'minlen_cb': '最少选<%= minlen %>项'
         }
     },
     page: {
-        del_confirm: '是否确定要删除这 {count} 条数据？',
+        del_confirm: '是否确定要删除这 <%= count %> 条数据？',
         must_select: '至少选择一条数据'
+    },
+    date: {
+        month: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
+        weekday: ['日','一','二','三','四','五','六'],
+        header: '<%= year %>年 <%= month %>',
+        format: 'yyyy-MM-dd'
     }
 }

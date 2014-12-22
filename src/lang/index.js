@@ -1,6 +1,5 @@
-var utils = require('../utils')
-
-var vs  = {}
+var _   = require('../lib').underscore,
+    vs  = {}
 
 module.exports = {
     get: function (key, obj) {
@@ -13,13 +12,14 @@ module.exports = {
             }
             val = val[k]
         })
-        if (typeof obj === 'object')
-            val = utils.substitute(val, obj)
+        if (typeof obj === 'object') {
+            var temp = _.tempate(val)
+            val = temp(obj)
+        }
         return val
     },
 
     set: function (lang) {
-        //vs = require('./' + lang)
         vs = lang
     }
 }

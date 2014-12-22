@@ -2,20 +2,20 @@
     <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>
     <span class="date-text" v-text="text"></span>
     <i class="icon icon-calendar"></i>
-    <div class="date-picker" v-class="date-picker-up: pickerUp">
+    <div class="date-picker">
         <div class="date-picker-header">
             <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>
-            <a href="javascript:;" v-on="click:statusToggle()" class="date-picker-handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>
+            <a href="javascript:;" v-on="click:stageToggle()" class="date-picker-handle year"><span>{{header}}</span></a>
             <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>
         </div>
-        <div class="inner" v-show="status == 1">
-            <div class="week" v-repeat="w:['日', '一', '二', '三', '四', '五', '六']">{{w}}</div>
-            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>
+        <div class="inner" v-show="stage == 1">
+            <div class="week" v-repeat="w:options.weekday">{{w}}</div>
+            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.date && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>
         </div>
-        <div class="inner" v-show="status == 2">
-            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>
+        <div class="inner" v-show="stage == 2">
+            <button type="button" v-on="click:setMonth($index)" class="month" v-repeat="options.month">{{$value}}</button>
         </div>
-        <div class="inner" v-show="status == 3">
+        <div class="inner" v-show="stage == 3">
             <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>
         </div>
     </div>
