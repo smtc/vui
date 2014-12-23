@@ -108,7 +108,8 @@ var components = {
     date: require('./components/date'),
     loading: loading.component,
     message: message.component,
-    select: require('./components/select')
+    select: require('./components/select'),
+    'mult-select': require('./components/mult-select')
 }
 
 _.each(components, function (v, k) {
@@ -147,7 +148,7 @@ module.exports = {
     }
 }
 
-}, {"./lib":2,"./utils":3,"./route":4,"./lang":5,"./service/loading":6,"./service/message":7,"./lang/zh-cn":8,"./components/date":9,"./components/select":10,"./directives/href":11}],
+}, {"./lib":2,"./utils":3,"./route":4,"./lang":5,"./service/loading":6,"./service/message":7,"./lang/zh-cn":8,"./components/date":9,"./components/select":10,"./components/mult-select":11,"./directives/href":12}],
 2: [function(require, module, exports) {
 module.exports = {
     //Vue: require('yyx990803/vue@0.11.4'),
@@ -156,8 +157,8 @@ module.exports = {
     underscore: require('jashkenas/underscore@1.7.0')
 }
 
-}, {"yyx990803/vue@dev":12,"smtc/superagent@0.20.1":13,"jashkenas/underscore@1.7.0":14}],
-12: [function(require, module, exports) {
+}, {"yyx990803/vue@dev":13,"smtc/superagent@0.20.1":14,"jashkenas/underscore@1.7.0":15}],
+13: [function(require, module, exports) {
 var _ = require('./util')
 var extend = _.extend
 
@@ -242,8 +243,8 @@ extend(p, require('./api/child'))
 extend(p, require('./api/lifecycle'))
 
 module.exports = _.Vue = Vue
-}, {"./util":15,"./api/global":16,"./directives":17,"./filters":18,"./instance/init":19,"./instance/events":20,"./instance/scope":21,"./instance/compile":22,"./api/data":23,"./api/dom":24,"./api/events":25,"./api/child":26,"./api/lifecycle":27}],
-15: [function(require, module, exports) {
+}, {"./util":16,"./api/global":17,"./directives":18,"./filters":19,"./instance/init":20,"./instance/events":21,"./instance/scope":22,"./instance/compile":23,"./api/data":24,"./api/dom":25,"./api/events":26,"./api/child":27,"./api/lifecycle":28}],
+16: [function(require, module, exports) {
 var lang   = require('./lang')
 var extend = lang.extend
 
@@ -252,8 +253,8 @@ extend(exports, require('./env'))
 extend(exports, require('./dom'))
 extend(exports, require('./filter'))
 extend(exports, require('./debug'))
-}, {"./lang":28,"./env":29,"./dom":30,"./filter":31,"./debug":32}],
-28: [function(require, module, exports) {
+}, {"./lang":29,"./env":30,"./dom":31,"./filter":32,"./debug":33}],
+29: [function(require, module, exports) {
 /**
  * Check is a string starts with $ or _
  *
@@ -430,7 +431,7 @@ exports.define = function (obj, key, val, enumerable) {
   })
 }
 }, {}],
-29: [function(require, module, exports) {
+30: [function(require, module, exports) {
 /**
  * Can we use __proto__?
  *
@@ -542,7 +543,7 @@ if (inBrowser && !exports.isIE9) {
     : 'animationend'
 }
 }, {}],
-30: [function(require, module, exports) {
+31: [function(require, module, exports) {
 var config = require('../config')
 
 /**
@@ -740,8 +741,8 @@ exports.extractContent = function (el) {
   }
   return rawContent
 }
-}, {"../config":33}],
-33: [function(require, module, exports) {
+}, {"../config":34}],
+34: [function(require, module, exports) {
 module.exports = {
 
   /**
@@ -829,7 +830,7 @@ Object.defineProperty(module.exports, 'delimiters', {
   }
 })
 }, {}],
-31: [function(require, module, exports) {
+32: [function(require, module, exports) {
 var _ = require('./debug')
 
 /**
@@ -902,8 +903,8 @@ exports.applyFilters = function (value, filters, vm, oldVal) {
   }
   return value
 }
-}, {"./debug":32}],
-32: [function(require, module, exports) {
+}, {"./debug":33}],
+33: [function(require, module, exports) {
 var config = require('../config')
 
 /**
@@ -964,8 +965,8 @@ function enableDebug () {
     }
   }
 }
-}, {"../config":33}],
-16: [function(require, module, exports) {
+}, {"../config":34}],
+17: [function(require, module, exports) {
 var _ = require('../util')
 var mergeOptions = require('../util/merge-option')
 
@@ -1112,8 +1113,8 @@ function createAssetRegisters (Constructor) {
 }
 
 createAssetRegisters(exports)
-}, {"../util":15,"../util/merge-option":34,"../config":33,"../compiler/compile":35,"../compiler/transclude":36,"../parsers/path":37,"../parsers/text":38,"../parsers/template":39,"../parsers/directive":40,"../parsers/expression":41}],
-34: [function(require, module, exports) {
+}, {"../util":16,"../util/merge-option":35,"../config":34,"../compiler/compile":36,"../compiler/transclude":37,"../parsers/path":38,"../parsers/text":39,"../parsers/template":40,"../parsers/directive":41,"../parsers/expression":42}],
+35: [function(require, module, exports) {
 var _ = require('./index')
 var extend = _.extend
 
@@ -1369,8 +1370,8 @@ module.exports = function mergeOptions (parent, child, vm) {
   }
   return options
 }
-}, {"./index":15}],
-35: [function(require, module, exports) {
+}, {"./index":16}],
+36: [function(require, module, exports) {
 var _ = require('../util')
 var config = require('../config')
 var textParser = require('../parsers/text')
@@ -1933,8 +1934,8 @@ function directiveComparator (a, b) {
   b = b.def.priority || 0
   return a > b ? 1 : -1
 }
-}, {"../util":15,"../config":33,"../parsers/text":38,"../parsers/directive":40,"../parsers/template":39}],
-38: [function(require, module, exports) {
+}, {"../util":16,"../config":34,"../parsers/text":39,"../parsers/directive":41,"../parsers/template":40}],
+39: [function(require, module, exports) {
 var Cache = require('../cache')
 var config = require('../config')
 var dirParser = require('./directive')
@@ -2113,8 +2114,8 @@ function inlineFilters (exp) {
     }
   }
 }
-}, {"../cache":42,"../config":33,"./directive":40}],
-42: [function(require, module, exports) {
+}, {"../cache":43,"../config":34,"./directive":41}],
+43: [function(require, module, exports) {
 /**
  * A doubly linked list-based Least Recently Used (LRU)
  * cache. Will keep most recently used items while
@@ -2228,7 +2229,7 @@ p.get = function (key, returnEntry) {
 
 module.exports = Cache
 }, {}],
-40: [function(require, module, exports) {
+41: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var cache = new Cache(1000)
@@ -2388,8 +2389,8 @@ exports.parse = function (s) {
   cache.put(s, dirs)
   return dirs
 }
-}, {"../util":15,"../cache":42}],
-39: [function(require, module, exports) {
+}, {"../util":16,"../cache":43}],
+40: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var templateCache = new Cache(1000)
@@ -2640,8 +2641,8 @@ exports.parse = function (template, clone, noSelector) {
     ? exports.clone(frag)
     : frag
 }
-}, {"../util":15,"../cache":42}],
-36: [function(require, module, exports) {
+}, {"../util":16,"../cache":43}],
+37: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -2788,8 +2789,8 @@ function insertContentAt (outlet, contents) {
   }
   parent.removeChild(outlet)
 }
-}, {"../util":15,"../parsers/template":39}],
-37: [function(require, module, exports) {
+}, {"../util":16,"../parsers/template":40}],
+38: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var pathCache = new Cache(1000)
@@ -3087,8 +3088,8 @@ exports.set = function (obj, path, val) {
   }
   return true
 }
-}, {"../util":15,"../cache":42}],
-41: [function(require, module, exports) {
+}, {"../util":16,"../cache":43}],
+42: [function(require, module, exports) {
 var _ = require('../util')
 var Path = require('./path')
 var Cache = require('../cache')
@@ -3316,8 +3317,8 @@ exports.parse = function (exp, needSet) {
 
 // Export the pathRegex for external use
 exports.pathTestRE = pathTestRE
-}, {"../util":15,"./path":37,"../cache":42}],
-17: [function(require, module, exports) {
+}, {"../util":16,"./path":38,"../cache":43}],
+18: [function(require, module, exports) {
 // manipulation directives
 exports.text       = require('./text')
 exports.html       = require('./html')
@@ -3343,8 +3344,8 @@ exports['if']      = require('./if')
 // child vm communication directives
 exports['with']    = require('./with')
 exports.events     = require('./events')
-}, {"./text":43,"./html":44,"./attr":45,"./show":46,"./class":47,"./el":48,"./ref":49,"./cloak":50,"./style":51,"./partial":52,"./transition":53,"./on":54,"./model":55,"./component":56,"./repeat":57,"./if":58,"./with":59,"./events":60}],
-43: [function(require, module, exports) {
+}, {"./text":44,"./html":45,"./attr":46,"./show":47,"./class":48,"./el":49,"./ref":50,"./cloak":51,"./style":52,"./partial":53,"./transition":54,"./on":55,"./model":56,"./component":57,"./repeat":58,"./if":59,"./with":60,"./events":61}],
+44: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -3360,8 +3361,8 @@ module.exports = {
   }
   
 }
-}, {"../util":15}],
-44: [function(require, module, exports) {
+}, {"../util":16}],
+45: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -3400,8 +3401,8 @@ module.exports = {
   }
 
 }
-}, {"../util":15,"../parsers/template":39}],
-45: [function(require, module, exports) {
+}, {"../util":16,"../parsers/template":40}],
+46: [function(require, module, exports) {
 // xlink
 var xlinkNS = 'http://www.w3.org/1999/xlink'
 var xlinkRE = /^xlink:/
@@ -3435,7 +3436,7 @@ function xlinkHandler (value) {
   }
 }
 }, {}],
-46: [function(require, module, exports) {
+47: [function(require, module, exports) {
 var transition = require('../transition')
 
 module.exports = function (value) {
@@ -3444,8 +3445,8 @@ module.exports = function (value) {
     el.style.display = value ? '' : 'none'
   }, this.vm)
 }
-}, {"../transition":61}],
-61: [function(require, module, exports) {
+}, {"../transition":62}],
+62: [function(require, module, exports) {
 var _ = require('../util')
 var applyCSSTransition = require('./css')
 var applyJSTransition = require('./js')
@@ -3597,8 +3598,8 @@ var apply = exports.apply = function (el, direction, op, vm, cb) {
     if (cb) cb()
   }
 }
-}, {"../util":15,"./css":62,"./js":63}],
-62: [function(require, module, exports) {
+}, {"../util":16,"./css":63,"./js":64}],
+63: [function(require, module, exports) {
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3788,8 +3789,8 @@ module.exports = function (el, direction, op, data, cb) {
     push(el, direction, op, leaveClass, cb)
   }
 }
-}, {"../util":15}],
-63: [function(require, module, exports) {
+}, {"../util":16}],
+64: [function(require, module, exports) {
 /**
  * Apply JavaScript enter/leave functions.
  *
@@ -3834,7 +3835,7 @@ module.exports = function (el, direction, op, data, def, vm, cb) {
   }
 }
 }, {}],
-47: [function(require, module, exports) {
+48: [function(require, module, exports) {
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3853,8 +3854,8 @@ module.exports = function (value) {
     }
   }
 }
-}, {"../util":15}],
-48: [function(require, module, exports) {
+}, {"../util":16}],
+49: [function(require, module, exports) {
 module.exports = {
 
   isLiteral: true,
@@ -3869,7 +3870,7 @@ module.exports = {
   
 }
 }, {}],
-49: [function(require, module, exports) {
+50: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -3893,8 +3894,8 @@ module.exports = {
   }
   
 }
-}, {"../util":15}],
-50: [function(require, module, exports) {
+}, {"../util":16}],
+51: [function(require, module, exports) {
 var config = require('../config')
 
 module.exports = {
@@ -3907,8 +3908,8 @@ module.exports = {
   }
 
 }
-}, {"../config":33}],
-51: [function(require, module, exports) {
+}, {"../config":34}],
+52: [function(require, module, exports) {
 var _ = require('../util')
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 var camelPrefixes = ['Webkit', 'Moz', 'ms']
@@ -4009,8 +4010,8 @@ function prefix (prop) {
     }
   }
 }
-}, {"../util":15}],
-52: [function(require, module, exports) {
+}, {"../util":16}],
+53: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 var vIf = require('./if')
@@ -4055,8 +4056,8 @@ module.exports = {
   }
 
 }
-}, {"../util":15,"../parsers/template":39,"./if":58}],
-58: [function(require, module, exports) {
+}, {"../util":16,"../parsers/template":40,"./if":59}],
+59: [function(require, module, exports) {
 var _ = require('../util')
 var compile = require('../compiler/compile')
 var templateParser = require('../parsers/template')
@@ -4144,8 +4145,8 @@ module.exports = {
   }
 
 }
-}, {"../util":15,"../compiler/compile":35,"../parsers/template":39,"../transition":61}],
-53: [function(require, module, exports) {
+}, {"../util":16,"../compiler/compile":36,"../parsers/template":40,"../transition":62}],
+54: [function(require, module, exports) {
 module.exports = {
 
   priority: 1000,
@@ -4161,7 +4162,7 @@ module.exports = {
 
 }
 }, {}],
-54: [function(require, module, exports) {
+55: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -4221,8 +4222,8 @@ module.exports = {
     _.off(this.el, 'load', this.iframeBind)
   }
 }
-}, {"../util":15}],
-55: [function(require, module, exports) {
+}, {"../util":16}],
+56: [function(require, module, exports) {
 var _ = require('../../util')
 
 var handlers = {
@@ -4279,8 +4280,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":15,"./default":64,"./radio":65,"./select":66,"./checkbox":67}],
-64: [function(require, module, exports) {
+}, {"../../util":16,"./default":65,"./radio":66,"./select":67,"./checkbox":68}],
+65: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4404,8 +4405,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":15}],
-65: [function(require, module, exports) {
+}, {"../../util":16}],
+66: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4432,8 +4433,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":15}],
-66: [function(require, module, exports) {
+}, {"../../util":16}],
+67: [function(require, module, exports) {
 var _ = require('../../util')
 var Watcher = require('../../watcher')
 
@@ -4601,8 +4602,8 @@ function indexOf (arr, val) {
   }
   return -1
 }
-}, {"../../util":15,"../../watcher":68}],
-68: [function(require, module, exports) {
+}, {"../../util":16,"../../watcher":69}],
+69: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Observer = require('./observer')
@@ -4860,8 +4861,8 @@ function traverse (obj) {
 }
 
 module.exports = Watcher
-}, {"./util":15,"./config":33,"./observer":69,"./parsers/expression":41,"./batcher":70}],
-69: [function(require, module, exports) {
+}, {"./util":16,"./config":34,"./observer":70,"./parsers/expression":42,"./batcher":71}],
+70: [function(require, module, exports) {
 var _ = require('../util')
 var config = require('../config')
 var Dep = require('./dep')
@@ -5098,8 +5099,8 @@ p.removeVm = function (vm) {
 
 module.exports = Observer
 
-}, {"../util":15,"../config":33,"./dep":71,"./array":72,"./object":73}],
-71: [function(require, module, exports) {
+}, {"../util":16,"../config":34,"./dep":72,"./array":73,"./object":74}],
+72: [function(require, module, exports) {
 var uid = 0
 
 /**
@@ -5151,7 +5152,7 @@ p.notify = function () {
 
 module.exports = Dep
 }, {}],
-72: [function(require, module, exports) {
+73: [function(require, module, exports) {
 var _ = require('../util')
 var arrayProto = Array.prototype
 var arrayMethods = Object.create(arrayProto)
@@ -5242,8 +5243,8 @@ _.define(
 )
 
 module.exports = arrayMethods
-}, {"../util":15}],
-73: [function(require, module, exports) {
+}, {"../util":16}],
+74: [function(require, module, exports) {
 var _ = require('../util')
 var objProto = Object.prototype
 
@@ -5310,8 +5311,8 @@ _.define(
     }
   }
 )
-}, {"../util":15}],
-70: [function(require, module, exports) {
+}, {"../util":16}],
+71: [function(require, module, exports) {
 var _ = require('./util')
 var MAX_UPDATE_COUNT = 10
 
@@ -5406,8 +5407,8 @@ exports.push = function (job) {
     }
   }
 }
-}, {"./util":15}],
-67: [function(require, module, exports) {
+}, {"./util":16}],
+68: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -5433,8 +5434,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":15}],
-56: [function(require, module, exports) {
+}, {"../../util":16}],
+57: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -5641,8 +5642,8 @@ module.exports = {
   }
 
 }
-}, {"../util":15,"../parsers/template":39}],
-57: [function(require, module, exports) {
+}, {"../util":16,"../parsers/template":40}],
+58: [function(require, module, exports) {
 var _ = require('../util')
 var isObject = _.isObject
 var isPlainObject = _.isPlainObject
@@ -6147,8 +6148,8 @@ function range (n) {
   }
   return ret
 }
-}, {"../util":15,"../parsers/text":38,"../parsers/expression":41,"../parsers/template":39,"../compiler/compile":35,"../compiler/transclude":36,"../util/merge-option":34}],
-59: [function(require, module, exports) {
+}, {"../util":16,"../parsers/text":39,"../parsers/expression":42,"../parsers/template":40,"../compiler/compile":36,"../compiler/transclude":37,"../util/merge-option":35}],
+60: [function(require, module, exports) {
 var _ = require('../util')
 var Watcher = require('../watcher')
 
@@ -6222,8 +6223,8 @@ module.exports = {
   }
 
 }
-}, {"../util":15,"../watcher":68}],
-60: [function(require, module, exports) {
+}, {"../util":16,"../watcher":69}],
+61: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = { 
@@ -6251,8 +6252,8 @@ module.exports = {
   // so no need for unbind here.
 
 }
-}, {"../util":15}],
-18: [function(require, module, exports) {
+}, {"../util":16}],
+19: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -6388,8 +6389,8 @@ exports.key.keyCodes = keyCodes
  */
 
 _.extend(exports, require('./array-filters'))
-}, {"../util":15,"./array-filters":74}],
-74: [function(require, module, exports) {
+}, {"../util":16,"./array-filters":75}],
+75: [function(require, module, exports) {
 var _ = require('../util')
 var Path = require('../parsers/path')
 
@@ -6477,8 +6478,8 @@ function contains (val, search) {
     return val.toString().toLowerCase().indexOf(search) > -1
   }
 }
-}, {"../util":15,"../parsers/path":37}],
-19: [function(require, module, exports) {
+}, {"../util":16,"../parsers/path":38}],
+20: [function(require, module, exports) {
 var mergeOptions = require('../util/merge-option')
 
 /**
@@ -6555,8 +6556,8 @@ exports._init = function (options) {
     this.$mount(options.el)
   }
 }
-}, {"../util/merge-option":34}],
-20: [function(require, module, exports) {
+}, {"../util/merge-option":35}],
+21: [function(require, module, exports) {
 var _ = require('../util')
 var inDoc = _.inDoc
 
@@ -6679,8 +6680,8 @@ exports._callHook = function (hook) {
   }
   this.$emit('hook:' + hook)
 }
-}, {"../util":15}],
-21: [function(require, module, exports) {
+}, {"../util":16}],
+22: [function(require, module, exports) {
 var _ = require('../util')
 var Observer = require('../observer')
 var Dep = require('../observer/dep')
@@ -6898,8 +6899,8 @@ exports._defineMeta = function (key, value) {
     }
   })
 }
-}, {"../util":15,"../observer":69,"../observer/dep":71}],
-22: [function(require, module, exports) {
+}, {"../util":16,"../observer":70,"../observer/dep":72}],
+23: [function(require, module, exports) {
 var _ = require('../util')
 var Directive = require('../directive')
 var compile = require('../compiler/compile')
@@ -7087,8 +7088,8 @@ exports._cleanup = function () {
   // turn off all instance listeners.
   this.$off()
 }
-}, {"../util":15,"../directive":75,"../compiler/compile":35,"../compiler/transclude":36}],
-75: [function(require, module, exports) {
+}, {"../util":16,"../directive":76,"../compiler/compile":36,"../compiler/transclude":37}],
+76: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Watcher = require('./watcher')
@@ -7311,8 +7312,8 @@ p.set = function (value, lock) {
 }
 
 module.exports = Directive
-}, {"./util":15,"./config":33,"./watcher":68,"./parsers/text":38,"./parsers/expression":41}],
-23: [function(require, module, exports) {
+}, {"./util":16,"./config":34,"./watcher":69,"./parsers/text":39,"./parsers/expression":42}],
+24: [function(require, module, exports) {
 var _ = require('../util')
 var Watcher = require('../watcher')
 var Path = require('../parsers/path')
@@ -7477,8 +7478,8 @@ exports.$log = function (path) {
   }
   console.log(data)
 }
-}, {"../util":15,"../watcher":68,"../parsers/path":37,"../parsers/text":38,"../parsers/directive":40,"../parsers/expression":41}],
-24: [function(require, module, exports) {
+}, {"../util":16,"../watcher":69,"../parsers/path":38,"../parsers/text":39,"../parsers/directive":41,"../parsers/expression":42}],
+25: [function(require, module, exports) {
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -7690,8 +7691,8 @@ function remove (el, vm, cb) {
   _.remove(el)
   if (cb) cb()
 }
-}, {"../util":15,"../transition":61}],
-25: [function(require, module, exports) {
+}, {"../util":16,"../transition":62}],
+26: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -7868,8 +7869,8 @@ function modifyListenerCount (vm, event, count) {
     parent = parent.$parent
   }
 }
-}, {"../util":15}],
-26: [function(require, module, exports) {
+}, {"../util":16}],
+27: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -7923,8 +7924,8 @@ exports.$addChild = function (opts, BaseCtor) {
   this._children.push(child)
   return child
 }
-}, {"../util":15}],
-27: [function(require, module, exports) {
+}, {"../util":16}],
+28: [function(require, module, exports) {
 var _ = require('../util')
 var compile = require('../compiler/compile')
 
@@ -7997,8 +7998,8 @@ exports.$destroy = function (remove, deferCleanup) {
 exports.$compile = function (el) {
   return compile(el, this.$options, true)(this, el)
 }
-}, {"../util":15,"../compiler/compile":35}],
-13: [function(require, module, exports) {
+}, {"../util":16,"../compiler/compile":36}],
+14: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -9097,8 +9098,8 @@ request.put = function(url, data, fn){
  */
 module.exports = request;
 
-}, {"emitter":76,"reduce":77}],
-76: [function(require, module, exports) {
+}, {"emitter":77,"reduce":78}],
+77: [function(require, module, exports) {
 
 /**
  * Expose `Emitter`.
@@ -9265,7 +9266,7 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 }, {}],
-77: [function(require, module, exports) {
+78: [function(require, module, exports) {
 
 /**
  * Reduce `arr` with `fn`.
@@ -9291,7 +9292,7 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 }, {}],
-14: [function(require, module, exports) {
+15: [function(require, module, exports) {
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -10722,8 +10723,8 @@ module.exports = _.extend({}, url, dom, string, datetime)
 
 
 
-}, {"../lib":2,"./url":78,"./dom":79,"./datetime":80,"./string":81}],
-78: [function(require, module, exports) {
+}, {"../lib":2,"./url":79,"./dom":80,"./datetime":81,"./string":82}],
+79: [function(require, module, exports) {
 var _               = require('../lib').underscore,
     urlParsingNode  = document.createElement("a"),
     html5Mode       = false
@@ -11002,7 +11003,7 @@ module.exports = {
 }
 
 }, {"../lib":2}],
-79: [function(require, module, exports) {
+80: [function(require, module, exports) {
 var hasClassList    = 'classList' in document.documentElement
 
 /**
@@ -11068,7 +11069,7 @@ module.exports = {
 }
 
 }, {}],
-80: [function(require, module, exports) {
+81: [function(require, module, exports) {
 module.exports = {
     formatTime: function (date, fmt) {
         var o = {
@@ -11088,7 +11089,7 @@ module.exports = {
 }
 
 }, {}],
-81: [function(require, module, exports) {
+82: [function(require, module, exports) {
 function substitute(str, obj) {
     return str.replace((/\\?\{([^{}]+)\}/g), function(match, name){
         if (match.charAt(0) === '\\') return match.slice(1);
@@ -11206,8 +11207,8 @@ route.getComponent = function (path, fn) {
 module.exports = route
 
 
-}, {"./lib":2,"./request":82,"./utils":3}],
-82: [function(require, module, exports) {
+}, {"./lib":2,"./request":83,"./utils":3}],
+83: [function(require, module, exports) {
 var request       = require('./lib').request,
     templateCache = {}
 
@@ -11661,8 +11662,8 @@ module.exports = {
 
 }
 
-}, {"../utils":3,"../lang":5,"../lib":2,"./date.html":83}],
-83: [function(require, module, exports) {
+}, {"../utils":3,"../lang":5,"../lib":2,"./date.html":84}],
+84: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!value" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:stageToggle()" class="date-picker-handle year"><span>{{header}}</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="stage == 1">\n            <div class="week" v-repeat="w:options.weekday">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.date && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="stage == 2">\n            <button type="button" v-on="click:setMonth($index)" class="month" v-repeat="options.month">{{$value}}</button>\n        </div>\n        <div class="inner" v-show="stage == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 }, {}],
 10: [function(require, module, exports) {
@@ -11768,11 +11769,143 @@ module.exports = {
     }
 }
 
-}, {"../request":82,"../utils":3,"../lang":5,"../service/message":7,"../lib":2,"./select.html":84}],
-84: [function(require, module, exports) {
+}, {"../request":83,"../utils":3,"../lang":5,"../service/message":7,"../lib":2,"./select.html":85}],
+85: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
 }, {}],
 11: [function(require, module, exports) {
+var request = require('../request'),
+    utils   = require('../utils'),
+    message = require('../service/message'),
+    //_       = require('../lib').underscore,
+    CACHES  = {}
+
+module.exports = {
+    template: require('./mult-select.html'),
+
+    replace: true,
+
+    paramAttributes: ['src', 'placeholder', 'single'],
+
+    methods: {
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
+        },
+        select: function (item, setOnly) {
+            if (this.single) {
+                this.values = [item]
+                if (item.value !== this.value)
+                    this.value = item.value
+            } else {
+                var index = this.values.indexOf(item)
+                if (index === -1) {
+                    this.values.push(item)
+                } else if (!setOnly) {
+                    this.values.splice(index, 1)
+                }
+                var v = []
+                this.values.forEach(function (i) {
+                    v.push(i.value)
+                })
+
+                var vs = v.join(',')
+                if (vs !== this.value) {
+                    this.value = vs
+                }
+            }
+        },
+        setValue: function (value) {
+            if (undefined === value) {
+                return
+            }
+
+            var values = value
+            if ('string' === typeof value)
+                values = this.single ? [value.toString()] : value.split(',')
+
+            this.options.forEach(function (item) {
+                if (values.indexOf(item.value.toString()) >= 0)
+                    this.select(item, true)
+            }.bind(this))
+        }
+    },
+
+    computed: {
+        text: function () {
+            var t = []
+            this.values.forEach(function (v) {
+                t.push(v.text)
+            })
+            return t.join(',')
+        }
+    },
+
+    data: function () {
+        return {
+            options: [],
+            values: [],
+            value: []
+        }
+    },
+
+    ready: function () {
+        var self = this
+        utils.addClass(this.$el, 'select')
+
+        this.$closeHandle = function (evt) {
+            if (utils.isDescendant(self.$el, evt.target)) return
+            self.close()
+        }
+
+        this.$watch('value', function (value) {
+            this.setValue(value)
+        }.bind(this))
+
+        var cache = this.cache !== 'false'
+        if (cache && CACHES[this.src]) {
+            this.options = CACHES[this.src]
+            this.setValue(this.value)
+            return
+        } 
+
+        request.get(this.src).end(function (res) {
+            if (res.status === 200) {
+                if (res.body instanceof Array) {
+                    this.options = res.body
+                } else if (res.body.status === 1) {
+                    this.options = res.body.data
+                } else {
+                    message.error(res.body.msg || res.body.error)
+                    return
+                }
+                this.setValue(this.value)
+
+                if (cache)
+                    CACHES[this.src] = this.options
+            } else {
+                message.error(null, res.status)
+            }
+        }.bind(this))
+    }
+}
+
+}, {"../request":83,"../utils":3,"../service/message":7,"./mult-select.html":86}],
+86: [function(require, module, exports) {
+module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="mult-select-items"><li v-repeat="d:options"><a v-on="click:select(d)" v-class="active: value==d.value || values.indexOf(d) >= 0" href="javascript:;">{{d.text}}</a></li></ul>\n</div>\n';
+}, {}],
+12: [function(require, module, exports) {
 var utils = require('../utils')
 
 module.exports = {

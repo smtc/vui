@@ -1,0 +1,48 @@
+<div>
+    <h1 class="page-header">多选下拉选择</h1>
+    
+    <p>模拟select元素的组件</p>
+
+    <br />
+
+    <h3>单选框</h3>
+    <div class="bs-callout bs-callout-info">
+        <h4>v-component="select"</h4>
+        <pre class="prettyprint">&lt;div src="json/mult-select.json" placeholder="多选" v-component="mult-select" v-with="value:price"&gt;&lt;/div&gt;</pre>
+        <h4>参数</h4>
+        <p>
+            src(string) - 获取数据的地址。<br />
+            placeholder(string) - 提示信息。<br />
+            single(bool) - 是否单选。默认值为<code>false</code><br />
+            value - 选中值。<br />
+        </p>
+        <p><span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span></p>
+    </div>
+
+    <br />
+
+    <h3>Example</h3>
+<div class="bs-example bs-example-type">
+    <form>
+        <div class="form-group">
+            <div src="json/mult-select.json" class="form-control" style="width:260px; display:inline-block;" placeholder="mult select" v-component="mult-select" v-with="value:scope.mult"></div>
+            当前选中：{{scope.mult}}
+        </div>
+        <div class="form-group">
+            <div src="json/mult-select.json" class="form-control" style="width:160px; display:inline-block;" single="true" placeholder="single select" v-component="mult-select" v-with="value:scope.single"></div>
+            当前选中：{{scope.single}}
+        </div>
+    </form>
+</div>
+<pre class="prettyprint" v-pre>
+&lt;form&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div src="json/mult-select.json" class="form-control" style="width:260px; display:inline-block;" placeholder="mult select" v-component="mult-select" v-with="value:scope.mult"&gt;&lt;/div&gt;
+        当前选中：{{scope.mult}}
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div src="json/mult-select.json" class="form-control" style="width:160px; display:inline-block;" single="true" placeholder="single select" v-component="mult-select" v-with="value:scope.single"&gt;&lt;/div&gt;
+        当前选中：{{scope.single}}
+    &lt;/div&gt;
+&lt;/form&gt;</pre>
+</div>

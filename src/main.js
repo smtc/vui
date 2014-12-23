@@ -15,7 +15,8 @@ var components = {
     date: require('./components/date'),
     loading: loading.component,
     message: message.component,
-    select: require('./components/select')
+    select: require('./components/select'),
+    'mult-select': require('./components/mult-select')
 }
 
 _.each(components, function (v, k) {
