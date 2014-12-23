@@ -1,6 +1,7 @@
 var request = require('../request'),
     utils   = require('../utils'),
     lang    = require('../lang'),
+    message = require('../service/message'),
     _       = require('../lib').underscore,
     CACHES  = {}
 
@@ -83,13 +84,16 @@ module.exports = {
                     this.options = res.body
                 } else if (res.body.status === 1) {
                     this.options = res.body.data
+                } else {
+                    message.error(res.body.msg || res.body.error)
+                    return
                 }
                 this.setValue(this.value)
 
                 if (cache)
                     CACHES[this.src] = this.options
             } else {
-
+                message.error(null, res.status)
             }
         }.bind(this))
 

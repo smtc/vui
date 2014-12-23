@@ -1,7 +1,9 @@
 module.exports = {
     httpStatus: {
         401: '没有访问权限',
+        403: '请求被拒绝',
         404: '请求的地址不存在',
+        405: '没有访问权限',
         500: '内部服务器错误'
     },
     button: {
@@ -56,5 +58,8 @@ module.exports = {
         weekday: ['日','一','二','三','四','五','六'],
         header: '<%= year %>年 <%= month %>',
         format: 'yyyy-MM-dd'
+    },
+    datetime: {
+        format: 'yyyy-MM-dd hh:mm:ss'
     }
 }

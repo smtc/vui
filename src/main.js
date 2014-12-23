@@ -3,6 +3,8 @@ var lib     = require('./lib'),
     route   = require('./route'),
     _       = lib.underscore,
     lang    = require('./lang'),
+    loading = require('./service/loading'),
+    message = require('./service/message'),
     Vue     = lib.Vue 
 
 // set language
@@ -11,6 +13,8 @@ lang.set(require('./lang/zh-cn'))
 // components ======================================================
 var components = {
     date: require('./components/date'),
+    loading: loading.component,
+    message: message.component,
     select: require('./components/select')
 }
 
@@ -35,12 +39,11 @@ window.Vue = Vue
 
 module.exports = {
     utils: utils,
-
     route: route,
-
     request: lib.request,
-
     underscore: lib.underscore,
+    message: message,
+    loading: loading,
 
     require: function (path) {
         try {
