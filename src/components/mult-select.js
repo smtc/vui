@@ -55,7 +55,9 @@ module.exports = {
                 return
             }
 
-            var values = this.single ? [value.toString()] : value.split(',')
+            var values = value
+            if ('string' === typeof value)
+                values = this.single ? [value.toString()] : value.split(',')
 
             forEach(this.options, function (item) {
                 if (values.indexOf(item.value.toString()) >= 0)
