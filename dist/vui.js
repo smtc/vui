@@ -9311,7 +9311,14 @@ var request = require('../request'),
 
 function formatOption(opts) {
     if (!opts) return []
-    if (utils.isArray(opts)) return opts
+    if (utils.isArray(opts)) {
+        var newOpts = []
+        utils.forEach(opts, function (o) {
+            o.value = o.value.toString()
+            newOpts.push(o)
+        })
+        return newOpts
+    }
 
     if ('string' === typeof opts) {
         opts = opts.trim()
@@ -9323,7 +9330,7 @@ function formatOption(opts) {
 
         var arr = []
         utils.forEach(eval('(' + opts + ')'), function (v, k) {
-            arr.push({ text:k, value:v })
+            arr.push({ text:k, value:v.toString() })
         })
         opts = arr
     }
@@ -9360,9 +9367,14 @@ module.exports = {
                     this.value = null
             } else {
                 if (el.checked)
-                    this.value.push(value)
+                    this.values.push(value)
                 else
-                    utils.arrayRemove(this.value, value)
+                    utils.arrayRemove(this.values, value)
+
+                if (this.flatValue)
+                    this.value = this.values.join(',')
+                else
+                    this.value = this.values
             }
         },
 
@@ -9382,7 +9394,8 @@ module.exports = {
     },
 
     data: {
-        options: null
+        options: null,
+        flatValue: false
     },
 
     created: function () {
@@ -9423,9 +9436,9 @@ module.exports = {
     ready: function () {
         if (this.type === 'checkbox') {
             if (null === this.value || undefined === this.value)
-                this.value = []
+                this.values = []
             else if ('string' === typeof this.value)
-                this.value = this.value.split(',')
+                this.values = this.value.split(',')
         }
 
         function change(value) {
@@ -9433,15 +9446,16 @@ module.exports = {
                 this.$el.querySelector('input[value="' + this.value + '"]').checked = true
             } else {
                 if (typeof value === 'string') {
-                    if (value === '') this.value = []
-                    else this.value = this.value.split(',')
+                    if (value === '') this.values = []
+                    else this.values = value.split(',')
+                    this.flatValue = true
                 }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
                     if (value === null) {
                         el.checked = false
                         return
                     }
-                    el.checked = value.toString() === el.value.toString() || contains(value, el.value)
+                    el.checked = contains(this.values, el.value)
                 }.bind(this))
             }
         }
