@@ -2,15 +2,14 @@ var request = require('../request'),
     utils   = require('../utils'),
     lang    = require('../lang'),
     message = require('../service/message'),
-    _       = require('../lib').underscore,
-    CACHES  = {}
+    _       = require('../lib').underscore
 
 module.exports = {
     template: require('./select.html'),
 
     replace: true,
 
-    paramAttributes: ['src', 'cache', 'placeholder'],
+    paramAttributes: ['src', 'placeholder'],
 
     methods: {
         open: function () {
@@ -70,15 +69,8 @@ module.exports = {
             this.options = lang.get('boolSelect')
             return
         } 
-        
-        var cache = this.cache !== 'false'
-        if (cache && CACHES[this.src]) {
-            this.options = CACHES[this.src]
-            this.setValue(this.value)
-            return
-        } 
-
-        request.get(this.src).end(function (res) {
+       
+        request.getData(this.src, function (res) {
             if (res.status === 200) {
                 if (res.body instanceof Array) {
                     this.options = res.body
@@ -89,9 +81,6 @@ module.exports = {
                     return
                 }
                 this.setValue(this.value)
-
-                if (cache)
-                    CACHES[this.src] = this.options
             } else {
                 message.error(null, res.status)
             }

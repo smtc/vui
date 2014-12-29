@@ -108,8 +108,10 @@ var components = {
     date: require('./components/date'),
     loading: loading.component,
     message: message.component,
-    select: require('./components/select'),
-    'mult-select': require('./components/mult-select')
+    'mult-select': require('./components/mult-select'),
+    radio: require('./components/option').radio,
+    checkbox: require('./components/option').checkbox,
+    select: require('./components/select')
 }
 
 _.each(components, function (v, k) {
@@ -148,7 +150,7 @@ module.exports = {
     }
 }
 
-}, {"./lib":2,"./utils":3,"./route":4,"./lang":5,"./service/loading":6,"./service/message":7,"./lang/zh-cn":8,"./components/date":9,"./components/select":10,"./components/mult-select":11,"./directives/href":12}],
+}, {"./lib":2,"./utils":3,"./route":4,"./lang":5,"./service/loading":6,"./service/message":7,"./lang/zh-cn":8,"./components/date":9,"./components/mult-select":10,"./components/option":11,"./components/select":12,"./directives/href":13}],
 2: [function(require, module, exports) {
 module.exports = {
     //Vue: require('yyx990803/vue@0.11.4'),
@@ -157,8 +159,8 @@ module.exports = {
     underscore: require('jashkenas/underscore@1.7.0')
 }
 
-}, {"yyx990803/vue@dev":13,"smtc/superagent@0.20.1":14,"jashkenas/underscore@1.7.0":15}],
-13: [function(require, module, exports) {
+}, {"yyx990803/vue@dev":14,"smtc/superagent@0.20.1":15,"jashkenas/underscore@1.7.0":16}],
+14: [function(require, module, exports) {
 var _ = require('./util')
 var extend = _.extend
 
@@ -243,8 +245,8 @@ extend(p, require('./api/child'))
 extend(p, require('./api/lifecycle'))
 
 module.exports = _.Vue = Vue
-}, {"./util":16,"./api/global":17,"./directives":18,"./filters":19,"./instance/init":20,"./instance/events":21,"./instance/scope":22,"./instance/compile":23,"./api/data":24,"./api/dom":25,"./api/events":26,"./api/child":27,"./api/lifecycle":28}],
-16: [function(require, module, exports) {
+}, {"./util":17,"./api/global":18,"./directives":19,"./filters":20,"./instance/init":21,"./instance/events":22,"./instance/scope":23,"./instance/compile":24,"./api/data":25,"./api/dom":26,"./api/events":27,"./api/child":28,"./api/lifecycle":29}],
+17: [function(require, module, exports) {
 var lang   = require('./lang')
 var extend = lang.extend
 
@@ -253,8 +255,8 @@ extend(exports, require('./env'))
 extend(exports, require('./dom'))
 extend(exports, require('./filter'))
 extend(exports, require('./debug'))
-}, {"./lang":29,"./env":30,"./dom":31,"./filter":32,"./debug":33}],
-29: [function(require, module, exports) {
+}, {"./lang":30,"./env":31,"./dom":32,"./filter":33,"./debug":34}],
+30: [function(require, module, exports) {
 /**
  * Check is a string starts with $ or _
  *
@@ -431,7 +433,7 @@ exports.define = function (obj, key, val, enumerable) {
   })
 }
 }, {}],
-30: [function(require, module, exports) {
+31: [function(require, module, exports) {
 /**
  * Can we use __proto__?
  *
@@ -543,7 +545,7 @@ if (inBrowser && !exports.isIE9) {
     : 'animationend'
 }
 }, {}],
-31: [function(require, module, exports) {
+32: [function(require, module, exports) {
 var config = require('../config')
 
 /**
@@ -741,8 +743,8 @@ exports.extractContent = function (el) {
   }
   return rawContent
 }
-}, {"../config":34}],
-34: [function(require, module, exports) {
+}, {"../config":35}],
+35: [function(require, module, exports) {
 module.exports = {
 
   /**
@@ -830,7 +832,7 @@ Object.defineProperty(module.exports, 'delimiters', {
   }
 })
 }, {}],
-32: [function(require, module, exports) {
+33: [function(require, module, exports) {
 var _ = require('./debug')
 
 /**
@@ -903,8 +905,8 @@ exports.applyFilters = function (value, filters, vm, oldVal) {
   }
   return value
 }
-}, {"./debug":33}],
-33: [function(require, module, exports) {
+}, {"./debug":34}],
+34: [function(require, module, exports) {
 var config = require('../config')
 
 /**
@@ -965,8 +967,8 @@ function enableDebug () {
     }
   }
 }
-}, {"../config":34}],
-17: [function(require, module, exports) {
+}, {"../config":35}],
+18: [function(require, module, exports) {
 var _ = require('../util')
 var mergeOptions = require('../util/merge-option')
 
@@ -1113,8 +1115,8 @@ function createAssetRegisters (Constructor) {
 }
 
 createAssetRegisters(exports)
-}, {"../util":16,"../util/merge-option":35,"../config":34,"../compiler/compile":36,"../compiler/transclude":37,"../parsers/path":38,"../parsers/text":39,"../parsers/template":40,"../parsers/directive":41,"../parsers/expression":42}],
-35: [function(require, module, exports) {
+}, {"../util":17,"../util/merge-option":36,"../config":35,"../compiler/compile":37,"../compiler/transclude":38,"../parsers/path":39,"../parsers/text":40,"../parsers/template":41,"../parsers/directive":42,"../parsers/expression":43}],
+36: [function(require, module, exports) {
 var _ = require('./index')
 var extend = _.extend
 
@@ -1287,6 +1289,9 @@ strats.events = function (parentVal, childVal) {
   for (var key in childVal) {
     var parent = ret[key]
     var child = childVal[key]
+    if (parent && !_.isArray(parent)) {
+      parent = [parent]
+    }
     ret[key] = parent
       ? parent.concat(child)
       : [child]
@@ -1370,8 +1375,8 @@ module.exports = function mergeOptions (parent, child, vm) {
   }
   return options
 }
-}, {"./index":16}],
-36: [function(require, module, exports) {
+}, {"./index":17}],
+37: [function(require, module, exports) {
 var _ = require('../util')
 var config = require('../config')
 var textParser = require('../parsers/text')
@@ -1934,8 +1939,8 @@ function directiveComparator (a, b) {
   b = b.def.priority || 0
   return a > b ? 1 : -1
 }
-}, {"../util":16,"../config":34,"../parsers/text":39,"../parsers/directive":41,"../parsers/template":40}],
-39: [function(require, module, exports) {
+}, {"../util":17,"../config":35,"../parsers/text":40,"../parsers/directive":42,"../parsers/template":41}],
+40: [function(require, module, exports) {
 var Cache = require('../cache')
 var config = require('../config')
 var dirParser = require('./directive')
@@ -2114,8 +2119,8 @@ function inlineFilters (exp) {
     }
   }
 }
-}, {"../cache":43,"../config":34,"./directive":41}],
-43: [function(require, module, exports) {
+}, {"../cache":44,"../config":35,"./directive":42}],
+44: [function(require, module, exports) {
 /**
  * A doubly linked list-based Least Recently Used (LRU)
  * cache. Will keep most recently used items while
@@ -2229,7 +2234,7 @@ p.get = function (key, returnEntry) {
 
 module.exports = Cache
 }, {}],
-41: [function(require, module, exports) {
+42: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var cache = new Cache(1000)
@@ -2389,8 +2394,8 @@ exports.parse = function (s) {
   cache.put(s, dirs)
   return dirs
 }
-}, {"../util":16,"../cache":43}],
-40: [function(require, module, exports) {
+}, {"../util":17,"../cache":44}],
+41: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var templateCache = new Cache(1000)
@@ -2641,8 +2646,8 @@ exports.parse = function (template, clone, noSelector) {
     ? exports.clone(frag)
     : frag
 }
-}, {"../util":16,"../cache":43}],
-37: [function(require, module, exports) {
+}, {"../util":17,"../cache":44}],
+38: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -2789,8 +2794,8 @@ function insertContentAt (outlet, contents) {
   }
   parent.removeChild(outlet)
 }
-}, {"../util":16,"../parsers/template":40}],
-38: [function(require, module, exports) {
+}, {"../util":17,"../parsers/template":41}],
+39: [function(require, module, exports) {
 var _ = require('../util')
 var Cache = require('../cache')
 var pathCache = new Cache(1000)
@@ -3088,8 +3093,8 @@ exports.set = function (obj, path, val) {
   }
   return true
 }
-}, {"../util":16,"../cache":43}],
-42: [function(require, module, exports) {
+}, {"../util":17,"../cache":44}],
+43: [function(require, module, exports) {
 var _ = require('../util')
 var Path = require('./path')
 var Cache = require('../cache')
@@ -3317,8 +3322,8 @@ exports.parse = function (exp, needSet) {
 
 // Export the pathRegex for external use
 exports.pathTestRE = pathTestRE
-}, {"../util":16,"./path":38,"../cache":43}],
-18: [function(require, module, exports) {
+}, {"../util":17,"./path":39,"../cache":44}],
+19: [function(require, module, exports) {
 // manipulation directives
 exports.text       = require('./text')
 exports.html       = require('./html')
@@ -3344,8 +3349,8 @@ exports['if']      = require('./if')
 // child vm communication directives
 exports['with']    = require('./with')
 exports.events     = require('./events')
-}, {"./text":44,"./html":45,"./attr":46,"./show":47,"./class":48,"./el":49,"./ref":50,"./cloak":51,"./style":52,"./partial":53,"./transition":54,"./on":55,"./model":56,"./component":57,"./repeat":58,"./if":59,"./with":60,"./events":61}],
-44: [function(require, module, exports) {
+}, {"./text":45,"./html":46,"./attr":47,"./show":48,"./class":49,"./el":50,"./ref":51,"./cloak":52,"./style":53,"./partial":54,"./transition":55,"./on":56,"./model":57,"./component":58,"./repeat":59,"./if":60,"./with":61,"./events":62}],
+45: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -3361,8 +3366,8 @@ module.exports = {
   }
   
 }
-}, {"../util":16}],
-45: [function(require, module, exports) {
+}, {"../util":17}],
+46: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -3401,8 +3406,8 @@ module.exports = {
   }
 
 }
-}, {"../util":16,"../parsers/template":40}],
-46: [function(require, module, exports) {
+}, {"../util":17,"../parsers/template":41}],
+47: [function(require, module, exports) {
 // xlink
 var xlinkNS = 'http://www.w3.org/1999/xlink'
 var xlinkRE = /^xlink:/
@@ -3436,7 +3441,7 @@ function xlinkHandler (value) {
   }
 }
 }, {}],
-47: [function(require, module, exports) {
+48: [function(require, module, exports) {
 var transition = require('../transition')
 
 module.exports = function (value) {
@@ -3445,8 +3450,8 @@ module.exports = function (value) {
     el.style.display = value ? '' : 'none'
   }, this.vm)
 }
-}, {"../transition":62}],
-62: [function(require, module, exports) {
+}, {"../transition":63}],
+63: [function(require, module, exports) {
 var _ = require('../util')
 var applyCSSTransition = require('./css')
 var applyJSTransition = require('./js')
@@ -3598,8 +3603,8 @@ var apply = exports.apply = function (el, direction, op, vm, cb) {
     if (cb) cb()
   }
 }
-}, {"../util":16,"./css":63,"./js":64}],
-63: [function(require, module, exports) {
+}, {"../util":17,"./css":64,"./js":65}],
+64: [function(require, module, exports) {
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3789,8 +3794,8 @@ module.exports = function (el, direction, op, data, cb) {
     push(el, direction, op, leaveClass, cb)
   }
 }
-}, {"../util":16}],
-64: [function(require, module, exports) {
+}, {"../util":17}],
+65: [function(require, module, exports) {
 /**
  * Apply JavaScript enter/leave functions.
  *
@@ -3835,7 +3840,7 @@ module.exports = function (el, direction, op, data, def, vm, cb) {
   }
 }
 }, {}],
-48: [function(require, module, exports) {
+49: [function(require, module, exports) {
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3854,8 +3859,8 @@ module.exports = function (value) {
     }
   }
 }
-}, {"../util":16}],
-49: [function(require, module, exports) {
+}, {"../util":17}],
+50: [function(require, module, exports) {
 module.exports = {
 
   isLiteral: true,
@@ -3870,7 +3875,7 @@ module.exports = {
   
 }
 }, {}],
-50: [function(require, module, exports) {
+51: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -3894,8 +3899,8 @@ module.exports = {
   }
   
 }
-}, {"../util":16}],
-51: [function(require, module, exports) {
+}, {"../util":17}],
+52: [function(require, module, exports) {
 var config = require('../config')
 
 module.exports = {
@@ -3908,8 +3913,8 @@ module.exports = {
   }
 
 }
-}, {"../config":34}],
-52: [function(require, module, exports) {
+}, {"../config":35}],
+53: [function(require, module, exports) {
 var _ = require('../util')
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 var camelPrefixes = ['Webkit', 'Moz', 'ms']
@@ -4010,8 +4015,8 @@ function prefix (prop) {
     }
   }
 }
-}, {"../util":16}],
-53: [function(require, module, exports) {
+}, {"../util":17}],
+54: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 var vIf = require('./if')
@@ -4056,8 +4061,8 @@ module.exports = {
   }
 
 }
-}, {"../util":16,"../parsers/template":40,"./if":59}],
-59: [function(require, module, exports) {
+}, {"../util":17,"../parsers/template":41,"./if":60}],
+60: [function(require, module, exports) {
 var _ = require('../util')
 var compile = require('../compiler/compile')
 var templateParser = require('../parsers/template')
@@ -4145,8 +4150,8 @@ module.exports = {
   }
 
 }
-}, {"../util":16,"../compiler/compile":36,"../parsers/template":40,"../transition":62}],
-54: [function(require, module, exports) {
+}, {"../util":17,"../compiler/compile":37,"../parsers/template":41,"../transition":63}],
+55: [function(require, module, exports) {
 module.exports = {
 
   priority: 1000,
@@ -4162,7 +4167,7 @@ module.exports = {
 
 }
 }, {}],
-55: [function(require, module, exports) {
+56: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = {
@@ -4222,8 +4227,8 @@ module.exports = {
     _.off(this.el, 'load', this.iframeBind)
   }
 }
-}, {"../util":16}],
-56: [function(require, module, exports) {
+}, {"../util":17}],
+57: [function(require, module, exports) {
 var _ = require('../../util')
 
 var handlers = {
@@ -4280,8 +4285,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":16,"./default":65,"./radio":66,"./select":67,"./checkbox":68}],
-65: [function(require, module, exports) {
+}, {"../../util":17,"./default":66,"./radio":67,"./select":68,"./checkbox":69}],
+66: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4405,8 +4410,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":16}],
-66: [function(require, module, exports) {
+}, {"../../util":17}],
+67: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -4433,8 +4438,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":16}],
-67: [function(require, module, exports) {
+}, {"../../util":17}],
+68: [function(require, module, exports) {
 var _ = require('../../util')
 var Watcher = require('../../watcher')
 
@@ -4448,11 +4453,15 @@ module.exports = {
     if (optionsParam) {
       initOptions.call(this, optionsParam)
     }
+    this.number = this._checkParam('number') != null
     this.multiple = el.hasAttribute('multiple')
     this.listener = function () {
       var value = self.multiple
         ? getMultiValue(el)
         : el.value
+      value = self.number
+        ? _.toNumber(value)
+        : value
       self.set(value, true)
     }
     _.on(el, 'change', this.listener)
@@ -4561,7 +4570,9 @@ function checkInitialValue () {
     }
   }
   if (initValue) {
-    this._initValue = initValue
+    this._initValue = this.number
+      ? _.toNumber(initValue)
+      : initValue
   }
 }
 
@@ -4602,8 +4613,8 @@ function indexOf (arr, val) {
   }
   return -1
 }
-}, {"../../util":16,"../../watcher":69}],
-69: [function(require, module, exports) {
+}, {"../../util":17,"../../watcher":70}],
+70: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Observer = require('./observer')
@@ -4861,8 +4872,8 @@ function traverse (obj) {
 }
 
 module.exports = Watcher
-}, {"./util":16,"./config":34,"./observer":70,"./parsers/expression":42,"./batcher":71}],
-70: [function(require, module, exports) {
+}, {"./util":17,"./config":35,"./observer":71,"./parsers/expression":43,"./batcher":72}],
+71: [function(require, module, exports) {
 var _ = require('../util')
 var config = require('../config')
 var Dep = require('./dep')
@@ -5099,8 +5110,8 @@ p.removeVm = function (vm) {
 
 module.exports = Observer
 
-}, {"../util":16,"../config":34,"./dep":72,"./array":73,"./object":74}],
-72: [function(require, module, exports) {
+}, {"../util":17,"../config":35,"./dep":73,"./array":74,"./object":75}],
+73: [function(require, module, exports) {
 var uid = 0
 
 /**
@@ -5152,7 +5163,7 @@ p.notify = function () {
 
 module.exports = Dep
 }, {}],
-73: [function(require, module, exports) {
+74: [function(require, module, exports) {
 var _ = require('../util')
 var arrayProto = Array.prototype
 var arrayMethods = Object.create(arrayProto)
@@ -5243,8 +5254,8 @@ _.define(
 )
 
 module.exports = arrayMethods
-}, {"../util":16}],
-74: [function(require, module, exports) {
+}, {"../util":17}],
+75: [function(require, module, exports) {
 var _ = require('../util')
 var objProto = Object.prototype
 
@@ -5311,8 +5322,8 @@ _.define(
     }
   }
 )
-}, {"../util":16}],
-71: [function(require, module, exports) {
+}, {"../util":17}],
+72: [function(require, module, exports) {
 var _ = require('./util')
 var MAX_UPDATE_COUNT = 10
 
@@ -5407,8 +5418,8 @@ exports.push = function (job) {
     }
   }
 }
-}, {"./util":16}],
-68: [function(require, module, exports) {
+}, {"./util":17}],
+69: [function(require, module, exports) {
 var _ = require('../../util')
 
 module.exports = {
@@ -5434,8 +5445,8 @@ module.exports = {
   }
 
 }
-}, {"../../util":16}],
-57: [function(require, module, exports) {
+}, {"../../util":17}],
+58: [function(require, module, exports) {
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -5472,8 +5483,9 @@ module.exports = {
       // if static, build right now.
       if (!this._isDynamicLiteral) {
         this.resolveCtor(this.expression)
-        this.childVM = this.build()
-        this.childVM.$before(this.ref)
+        var child = this.build()
+        child.$before(this.ref)
+        this.setCurrent(child)
       } else {
         // check dynamic component params
         this.readyEvent = this._checkParam('wait-for')
@@ -5523,10 +5535,6 @@ module.exports = {
       if (this.keepAlive) {
         this.cache[this.ctorId] = child
       }
-      var refID = child._refID || this.refID
-      if (refID) {
-        vm.$[refID] = child
-      }
       return child
     }
   },
@@ -5538,10 +5546,6 @@ module.exports = {
 
   unbuild: function () {
     var child = this.childVM
-    var refID = (child && child._refID) || this.refID
-    if (refID) {
-      this.vm.$[refID] = null
-    }
     if (!child || this.keepAlive) {
       return
     }
@@ -5558,8 +5562,7 @@ module.exports = {
    * @param {Function} cb
    */
 
-  removeCurrent: function (cb) {
-    var child = this.childVM
+  remove: function (child, cb) {
     var keepAlive = this.keepAlive
     if (child) {
       child.$remove(function () {
@@ -5580,8 +5583,8 @@ module.exports = {
     if (!value) {
       // just destroy and remove current
       this.unbuild()
-      this.removeCurrent()
-      this.childVM = null
+      this.remove(this.childVM)
+      this.unsetCurrent()
     } else {
       this.resolveCtor(value)
       this.unbuild()
@@ -5606,23 +5609,48 @@ module.exports = {
 
   swapTo: function (target) {
     var self = this
+    var current = this.childVM
+    this.unsetCurrent()
+    this.setCurrent(target)
     switch (self.transMode) {
       case 'in-out':
         target.$before(self.ref, function () {
-          self.removeCurrent()
-          self.childVM = target
+          self.remove(current)
         })
         break
       case 'out-in':
-        self.removeCurrent(function () {
+        self.remove(current, function () {
           target.$before(self.ref)
-          self.childVM = target
         })
         break
       default:
-        self.removeCurrent()
+        self.remove(current)
         target.$before(self.ref)
-        self.childVM = target
+    }
+  },
+
+  /**
+   * Set childVM and parent ref
+   */
+  
+  setCurrent: function (child) {
+    this.childVM = child
+    var refID = child._refID || this.refID
+    if (refID) {
+      this.vm.$[refID] = child
+    }
+  },
+
+  /**
+   * Unset childVM and parent ref
+   */
+
+  unsetCurrent: function () {
+    var child = this.childVM
+    this.childVM = null
+    var refID = (child && child._refID) || this.refID
+    if (refID) {
+      this.vm.$[refID] = null
     }
   },
 
@@ -5642,8 +5670,8 @@ module.exports = {
   }
 
 }
-}, {"../util":16,"../parsers/template":40}],
-58: [function(require, module, exports) {
+}, {"../util":17,"../parsers/template":41}],
+59: [function(require, module, exports) {
 var _ = require('../util')
 var isObject = _.isObject
 var isPlainObject = _.isPlainObject
@@ -6148,8 +6176,8 @@ function range (n) {
   }
   return ret
 }
-}, {"../util":16,"../parsers/text":39,"../parsers/expression":42,"../parsers/template":40,"../compiler/compile":36,"../compiler/transclude":37,"../util/merge-option":35}],
-60: [function(require, module, exports) {
+}, {"../util":17,"../parsers/text":40,"../parsers/expression":43,"../parsers/template":41,"../compiler/compile":37,"../compiler/transclude":38,"../util/merge-option":36}],
+61: [function(require, module, exports) {
 var _ = require('../util')
 var Watcher = require('../watcher')
 
@@ -6223,8 +6251,8 @@ module.exports = {
   }
 
 }
-}, {"../util":16,"../watcher":69}],
-61: [function(require, module, exports) {
+}, {"../util":17,"../watcher":70}],
+62: [function(require, module, exports) {
 var _ = require('../util')
 
 module.exports = { 
@@ -6252,8 +6280,8 @@ module.exports = {
   // so no need for unbind here.
 
 }
-}, {"../util":16}],
-19: [function(require, module, exports) {
+}, {"../util":17}],
+20: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -6389,8 +6417,8 @@ exports.key.keyCodes = keyCodes
  */
 
 _.extend(exports, require('./array-filters'))
-}, {"../util":16,"./array-filters":75}],
-75: [function(require, module, exports) {
+}, {"../util":17,"./array-filters":76}],
+76: [function(require, module, exports) {
 var _ = require('../util')
 var Path = require('../parsers/path')
 
@@ -6478,8 +6506,8 @@ function contains (val, search) {
     return val.toString().toLowerCase().indexOf(search) > -1
   }
 }
-}, {"../util":16,"../parsers/path":38}],
-20: [function(require, module, exports) {
+}, {"../util":17,"../parsers/path":39}],
+21: [function(require, module, exports) {
 var mergeOptions = require('../util/merge-option')
 
 /**
@@ -6556,8 +6584,8 @@ exports._init = function (options) {
     this.$mount(options.el)
   }
 }
-}, {"../util/merge-option":35}],
-21: [function(require, module, exports) {
+}, {"../util/merge-option":36}],
+22: [function(require, module, exports) {
 var _ = require('../util')
 var inDoc = _.inDoc
 
@@ -6680,8 +6708,8 @@ exports._callHook = function (hook) {
   }
   this.$emit('hook:' + hook)
 }
-}, {"../util":16}],
-22: [function(require, module, exports) {
+}, {"../util":17}],
+23: [function(require, module, exports) {
 var _ = require('../util')
 var Observer = require('../observer')
 var Dep = require('../observer/dep')
@@ -6899,8 +6927,8 @@ exports._defineMeta = function (key, value) {
     }
   })
 }
-}, {"../util":16,"../observer":70,"../observer/dep":72}],
-23: [function(require, module, exports) {
+}, {"../util":17,"../observer":71,"../observer/dep":73}],
+24: [function(require, module, exports) {
 var _ = require('../util')
 var Directive = require('../directive')
 var compile = require('../compiler/compile')
@@ -7088,8 +7116,8 @@ exports._cleanup = function () {
   // turn off all instance listeners.
   this.$off()
 }
-}, {"../util":16,"../directive":76,"../compiler/compile":36,"../compiler/transclude":37}],
-76: [function(require, module, exports) {
+}, {"../util":17,"../directive":77,"../compiler/compile":37,"../compiler/transclude":38}],
+77: [function(require, module, exports) {
 var _ = require('./util')
 var config = require('./config')
 var Watcher = require('./watcher')
@@ -7312,8 +7340,8 @@ p.set = function (value, lock) {
 }
 
 module.exports = Directive
-}, {"./util":16,"./config":34,"./watcher":69,"./parsers/text":39,"./parsers/expression":42}],
-24: [function(require, module, exports) {
+}, {"./util":17,"./config":35,"./watcher":70,"./parsers/text":40,"./parsers/expression":43}],
+25: [function(require, module, exports) {
 var _ = require('../util')
 var Watcher = require('../watcher')
 var Path = require('../parsers/path')
@@ -7478,8 +7506,8 @@ exports.$log = function (path) {
   }
   console.log(data)
 }
-}, {"../util":16,"../watcher":69,"../parsers/path":38,"../parsers/text":39,"../parsers/directive":41,"../parsers/expression":42}],
-25: [function(require, module, exports) {
+}, {"../util":17,"../watcher":70,"../parsers/path":39,"../parsers/text":40,"../parsers/directive":42,"../parsers/expression":43}],
+26: [function(require, module, exports) {
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -7691,8 +7719,8 @@ function remove (el, vm, cb) {
   _.remove(el)
   if (cb) cb()
 }
-}, {"../util":16,"../transition":62}],
-26: [function(require, module, exports) {
+}, {"../util":17,"../transition":63}],
+27: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -7869,8 +7897,8 @@ function modifyListenerCount (vm, event, count) {
     parent = parent.$parent
   }
 }
-}, {"../util":16}],
-27: [function(require, module, exports) {
+}, {"../util":17}],
+28: [function(require, module, exports) {
 var _ = require('../util')
 
 /**
@@ -7924,8 +7952,8 @@ exports.$addChild = function (opts, BaseCtor) {
   this._children.push(child)
   return child
 }
-}, {"../util":16}],
-28: [function(require, module, exports) {
+}, {"../util":17}],
+29: [function(require, module, exports) {
 var _ = require('../util')
 var compile = require('../compiler/compile')
 
@@ -7998,8 +8026,8 @@ exports.$destroy = function (remove, deferCleanup) {
 exports.$compile = function (el) {
   return compile(el, this.$options, true)(this, el)
 }
-}, {"../util":16,"../compiler/compile":36}],
-14: [function(require, module, exports) {
+}, {"../util":17,"../compiler/compile":37}],
+15: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -9098,8 +9126,8 @@ request.put = function(url, data, fn){
  */
 module.exports = request;
 
-}, {"emitter":77,"reduce":78}],
-77: [function(require, module, exports) {
+}, {"emitter":78,"reduce":79}],
+78: [function(require, module, exports) {
 
 /**
  * Expose `Emitter`.
@@ -9266,7 +9294,7 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 }, {}],
-78: [function(require, module, exports) {
+79: [function(require, module, exports) {
 
 /**
  * Reduce `arr` with `fn`.
@@ -9292,7 +9320,7 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 }, {}],
-15: [function(require, module, exports) {
+16: [function(require, module, exports) {
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -10723,8 +10751,8 @@ module.exports = _.extend({}, url, dom, string, datetime)
 
 
 
-}, {"../lib":2,"./url":79,"./dom":80,"./datetime":81,"./string":82}],
-79: [function(require, module, exports) {
+}, {"../lib":2,"./url":80,"./dom":81,"./datetime":82,"./string":83}],
+80: [function(require, module, exports) {
 var _               = require('../lib').underscore,
     urlParsingNode  = document.createElement("a"),
     html5Mode       = false
@@ -11003,7 +11031,7 @@ module.exports = {
 }
 
 }, {"../lib":2}],
-80: [function(require, module, exports) {
+81: [function(require, module, exports) {
 var hasClassList    = 'classList' in document.documentElement
 
 /**
@@ -11069,7 +11097,7 @@ module.exports = {
 }
 
 }, {}],
-81: [function(require, module, exports) {
+82: [function(require, module, exports) {
 module.exports = {
     formatTime: function (date, fmt) {
         var o = {
@@ -11089,7 +11117,7 @@ module.exports = {
 }
 
 }, {}],
-82: [function(require, module, exports) {
+83: [function(require, module, exports) {
 function substitute(str, obj) {
     return str.replace((/\\?\{([^{}]+)\}/g), function(match, name){
         if (match.charAt(0) === '\\') return match.slice(1);
@@ -11207,10 +11235,11 @@ route.getComponent = function (path, fn) {
 module.exports = route
 
 
-}, {"./lib":2,"./request":83,"./utils":3}],
-83: [function(require, module, exports) {
+}, {"./lib":2,"./request":84,"./utils":3}],
+84: [function(require, module, exports) {
 var request       = require('./lib').request,
-    templateCache = {}
+    templateCache = {},
+    dataCache     = {}
 
 // 从缓存中读取
 function Template(src) {
@@ -11241,6 +11270,18 @@ request.getTemplate = function (src) {
         return new Template(src)
     else
         return new TemplateRequest(src)
+}
+
+/// get cached data, default type is sync
+request.getData = function (src, end, async) {
+    if (dataCache[src]) {
+        end(dataCache[src])
+    } else {
+        request.get(src).end(function (res) {
+            dataCache[src] = res
+            end(res)
+        }, !async)
+    }
 }
 
 module.exports = request
@@ -11662,123 +11703,14 @@ module.exports = {
 
 }
 
-}, {"../utils":3,"../lang":5,"../lib":2,"./date.html":84}],
-84: [function(require, module, exports) {
+}, {"../utils":3,"../lang":5,"../lib":2,"./date.html":85}],
+85: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!value" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:stageToggle()" class="date-picker-handle year"><span>{{header}}</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="stage == 1">\n            <div class="week" v-repeat="w:options.weekday">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.date && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="stage == 2">\n            <button type="button" v-on="click:setMonth($index)" class="month" v-repeat="options.month">{{$value}}</button>\n        </div>\n        <div class="inner" v-show="stage == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 }, {}],
 10: [function(require, module, exports) {
 var request = require('../request'),
     utils   = require('../utils'),
-    lang    = require('../lang'),
-    message = require('../service/message'),
-    _       = require('../lib').underscore,
-    CACHES  = {}
-
-module.exports = {
-    template: require('./select.html'),
-
-    replace: true,
-
-    paramAttributes: ['src', 'cache', 'placeholder'],
-
-    methods: {
-        open: function () {
-            if (this.$open) return
-            this.$open = true
-            setTimeout(function () {
-                utils.addClass(this.$el, 'active')
-                document.body.addEventListener('click', this.$closeHandle)
-            }.bind(this), 50)
-        },
-
-        close: function () {
-            if (!this.$open) return
-            this.$open = false
-
-            utils.removeClass(this.$el, 'active')
-            document.body.removeEventListener('click', this.$closeHandle)
-        },
-
-        select: function (item) {
-            this.text = item.text
-            if (item.value !== this.value)
-                this.value = item.value
-        },
-
-        setValue: function (value) {
-            _.each(this.options, function (item) {
-                if (value === item.value)
-                    this.select(item)
-            }.bind(this))
-        }
-    },
-
-    data: function () {
-        return {
-            options: [],
-            value: undefined,
-            text: ''
-        }
-    },
-
-    ready: function () {
-        var self = this
-        utils.addClass(this.$el, 'select')
-        
-        this.$closeHandle = function () {
-            self.close()
-        }
-
-        this.$watch('value', function () {
-            self.setValue(self.value)
-        })
-
-        if (!this.src) return
-
-        if (this.src === 'bool') {
-            this.options = lang.get('boolSelect')
-            return
-        } 
-        
-        var cache = this.cache !== 'false'
-        if (cache && CACHES[this.src]) {
-            this.options = CACHES[this.src]
-            this.setValue(this.value)
-            return
-        } 
-
-        request.get(this.src).end(function (res) {
-            if (res.status === 200) {
-                if (res.body instanceof Array) {
-                    this.options = res.body
-                } else if (res.body.status === 1) {
-                    this.options = res.body.data
-                } else {
-                    message.error(res.body.msg || res.body.error)
-                    return
-                }
-                this.setValue(this.value)
-
-                if (cache)
-                    CACHES[this.src] = this.options
-            } else {
-                message.error(null, res.status)
-            }
-        }.bind(this))
-
-    }
-}
-
-}, {"../request":83,"../utils":3,"../lang":5,"../service/message":7,"../lib":2,"./select.html":85}],
-85: [function(require, module, exports) {
-module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
-}, {}],
-11: [function(require, module, exports) {
-var request = require('../request'),
-    utils   = require('../utils'),
-    message = require('../service/message'),
-    //_       = require('../lib').underscore,
-    CACHES  = {}
+    message = require('../service/message')
 
 module.exports = {
     template: require('./mult-select.html'),
@@ -11873,14 +11805,7 @@ module.exports = {
             this.setValue(value)
         }.bind(this))
 
-        var cache = this.cache !== 'false'
-        if (cache && CACHES[this.src]) {
-            this.options = CACHES[this.src]
-            this.setValue(this.value)
-            return
-        } 
-
-        request.get(this.src).end(function (res) {
+        request.getData(this.src, function (res) {
             if (res.status === 200) {
                 if (res.body instanceof Array) {
                     this.options = res.body
@@ -11891,9 +11816,6 @@ module.exports = {
                     return
                 }
                 this.setValue(this.value)
-
-                if (cache)
-                    CACHES[this.src] = this.options
             } else {
                 message.error(null, res.status)
             }
@@ -11901,11 +11823,281 @@ module.exports = {
     }
 }
 
-}, {"../request":83,"../utils":3,"../service/message":7,"./mult-select.html":86}],
+}, {"../request":84,"../utils":3,"../service/message":7,"./mult-select.html":86}],
 86: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="mult-select-items"><li v-repeat="d:options"><a v-on="click:select(d)" v-class="active: value==d.value || values.indexOf(d) >= 0" href="javascript:;">{{d.text}}</a></li></ul>\n</div>\n';
 }, {}],
+11: [function(require, module, exports) {
+var request = require('../request'),
+    _       = require('../lib').underscore
+
+function formatOption(opts) {
+    if (!opts) return []
+    if (_.isArray(opts)) {
+        return _.map(opts, function (o) { return o })
+    }
+
+    if ('string' === typeof opts) {
+        opts = opts.trim()
+        if (opts.charAt(0) === '[')
+            return eval('(' + opts + ')')
+
+        if (opts.charAt(0) !== '{')
+             opts = '{' + opts + '}'
+
+        var arr = []
+        _.forEach(eval('(' + opts + ')'), function (v, k) {
+            arr.push({ text:k, value:v })
+        })
+        opts = arr
+    }
+
+    return opts
+}
+
+function contains(arr, val) {
+    var suc = false
+    if (undefined === val) return false
+
+    _.forEach(arr, function (s) {
+        if (undefined === s) return
+
+        if (s.toString() === val.toString())
+            suc = true
+    })
+    return suc
+}
+
+var common = {
+    template: require('./option.html'),
+
+    paramAttributes: ['src', 'options', 'inline', 'name'],
+
+    data: function () {
+        return {
+            options: null,
+            className: '',
+            value: ''
+        }
+    },
+
+    ready: function () {
+        var src = this.src
+
+        this.className = this.type
+        this.name = this.name || _.uniqueId('opt_')
+
+        if (this.inline)
+            this.className = this.type + '-inline'
+
+        if (this.options) {
+            this.options = formatOption(this.options)
+        } else if (!this.options && src) {
+            this.options = []
+            request.getData(src, function (res) {
+                if (res.body instanceof Array) {
+                    this.options = formatOption(res.body)
+                } else if (res.body.status === 1) {
+                    this.options = formatOption(res.body.data)
+                }
+            }.bind(this))
+        }
+
+        // clear
+        _.forEach(['src', 'name', 'options'], function (attr) {
+            this.$el.removeAttribute(attr)
+        }.bind(this))
+
+        if (this.type === 'checkbox') {
+            if (null === this.value || undefined === this.value)
+                this.value = []
+            else if ('string' === typeof this.value)
+                this.value = this.value.split(',')
+        }
+
+        this.change(this.value)
+
+        this.$watch('value', function (value) {
+            if (value === undefined) return
+            this.change(value)
+        }.bind(this))
+    }
+
+}
+
+var radio = {
+    methods: {
+        setValue: function (value) {
+            this.value = value
+        },
+
+        /*
+        check: function (value) {
+            var vals = this.value
+            if (!vals)
+                vals = []
+            else if ('string' === typeof vals)
+                vals = [vals]
+
+            return vals.indexOf(value) >= 0
+        },
+        */
+
+        change: function (value) {
+            if (value)
+                this.$el.querySelector('input[value="' + value + '"]').checked = true
+        }
+    },
+
+    created: function () {
+        this.type = 'radio'
+    }
+}
+
+var checkbox = {
+    methods: {
+        setValue: function (value, e) {
+            var checked = e.target.checked
+            if (_.size(this.options) === 1) {
+                if (checked)
+                    this.value = value
+                else
+                    this.value = null
+            } else {
+                if (checked)
+                    this.value.push(value)
+                else
+                    this.value = _.without(this.value, value)
+            }
+        },
+
+        change: function (value) {
+            if (typeof value === 'string') {
+                if (value === '') this.value = []
+                else this.value = this.value.split(',')
+            }
+            _.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
+                if (value === null) {
+                    el.checked = false
+                    return
+                }
+                el.checked = _.isEqual(value, el.value) || contains(value, el.value)
+            }.bind(this))
+        }
+    },
+
+    created: function () {
+        this.type = 'checkbox'
+    }
+}
+
+module.exports = {
+    radio: _.extend(radio, common),
+
+    checkbox: _.extend(checkbox, common)
+}
+
+}, {"../request":84,"../lib":2,"./option.html":87}],
+87: [function(require, module, exports) {
+module.exports = '<div v-repeat="o:options" class="{{className}}">\n    <label><input type="{{type}}" v-attr="checked:o.checked || o.value == value" v-on="change:setValue(o.value, $event)" name="{{name}}" value="{{o.value}}" /> {{o.text}}</label>\n</div>\n';
+}, {}],
 12: [function(require, module, exports) {
+var request = require('../request'),
+    utils   = require('../utils'),
+    lang    = require('../lang'),
+    message = require('../service/message'),
+    _       = require('../lib').underscore
+
+module.exports = {
+    template: require('./select.html'),
+
+    replace: true,
+
+    paramAttributes: ['src', 'placeholder'],
+
+    methods: {
+        open: function () {
+            if (this.$open) return
+            this.$open = true
+            setTimeout(function () {
+                utils.addClass(this.$el, 'active')
+                document.body.addEventListener('click', this.$closeHandle)
+            }.bind(this), 50)
+        },
+
+        close: function () {
+            if (!this.$open) return
+            this.$open = false
+
+            utils.removeClass(this.$el, 'active')
+            document.body.removeEventListener('click', this.$closeHandle)
+        },
+
+        select: function (item) {
+            this.text = item.text
+            if (item.value !== this.value)
+                this.value = item.value
+        },
+
+        setValue: function (value) {
+            _.each(this.options, function (item) {
+                if (value === item.value)
+                    this.select(item)
+            }.bind(this))
+        }
+    },
+
+    data: function () {
+        return {
+            options: [],
+            value: undefined,
+            text: ''
+        }
+    },
+
+    ready: function () {
+        var self = this
+        utils.addClass(this.$el, 'select')
+        
+        this.$closeHandle = function () {
+            self.close()
+        }
+
+        this.$watch('value', function () {
+            self.setValue(self.value)
+        })
+
+        if (!this.src) return
+
+        if (this.src === 'bool') {
+            this.options = lang.get('boolSelect')
+            return
+        } 
+       
+        request.getData(this.src, function (res) {
+            if (res.status === 200) {
+                if (res.body instanceof Array) {
+                    this.options = res.body
+                } else if (res.body.status === 1) {
+                    this.options = res.body.data
+                } else {
+                    message.error(res.body.msg || res.body.error)
+                    return
+                }
+                this.setValue(this.value)
+            } else {
+                message.error(null, res.status)
+            }
+        }.bind(this))
+
+    }
+}
+
+}, {"../request":84,"../utils":3,"../lang":5,"../service/message":7,"../lib":2,"./select.html":88}],
+88: [function(require, module, exports) {
+module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
+}, {}],
+13: [function(require, module, exports) {
 var utils = require('../utils')
 
 module.exports = {

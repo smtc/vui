@@ -15,8 +15,10 @@ var components = {
     date: require('./components/date'),
     loading: loading.component,
     message: message.component,
-    select: require('./components/select'),
-    'mult-select': require('./components/mult-select')
+    'mult-select': require('./components/mult-select'),
+    radio: require('./components/option').radio,
+    checkbox: require('./components/option').checkbox,
+    select: require('./components/select')
 }
 
 _.each(components, function (v, k) {

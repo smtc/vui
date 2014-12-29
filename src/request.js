@@ -1,5 +1,6 @@
 var request       = require('./lib').request,
-    templateCache = {}
+    templateCache = {},
+    dataCache     = {}
 
 // 从缓存中读取
 function Template(src) {
@@ -30,6 +31,18 @@ request.getTemplate = function (src) {
         return new Template(src)
     else
         return new TemplateRequest(src)
+}
+
+/// get cached data, default type is sync
+request.getData = function (src, end, async) {
+    if (dataCache[src]) {
+        end(dataCache[src])
+    } else {
+        request.get(src).end(function (res) {
+            dataCache[src] = res
+            end(res)
+        }, !async)
+    }
 }
 
 module.exports = request
