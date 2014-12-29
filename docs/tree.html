@@ -1,3 +1,33 @@
+<div>
+    <h1 class="page-header">Tree View</h1>
+
+    <p>tree</p>
+
+    <div class="bs-callout bs-callout-info">
+        <h4>v-component="tree"</h4>
+        <pre class="prettyprint">&lt;ul src="json/tree.json" selectable="true" key="id" v-component="tree"&gt;&lt;/ul&gt;</pre>
+        <h4>参数</h4>
+        <p>
+            src(string) - 可选。数据源地址。<br />
+            selectable(bool) - 默认值为false，为true时可以选择。<br />
+            key(string) - 获取当前选中元素的值，默认key为'id'。<br />
+        </p>
+    </div>
+
+    <br />
+
+    <h3>Example</h3>
+
+    <div class="bs-example bs-example-type">
+        <ul src="json/tree.json" selectable="true" v-with="value:scope.value" key="id" v-component="tree"></ul>
+        selected id: {{scope.value}}
+    </div>
+    <pre v-pre class="prettyprint">
+&lt;ul src="json/tree.json" selectable="true" key="id" v-component="tree"&gt;&lt;/ul&gt;
+selected id: {{scope.value}}
+</pre>
+    <pre v-pre class="prettyprint">
+// data
 { 
     "status": 1,
     "data" : [
@@ -51,3 +81,5 @@
         ]
     }
 ]}
+</pre>
+</div>

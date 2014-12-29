@@ -5,6 +5,7 @@ var lib     = require('./lib'),
     lang    = require('./lang'),
     loading = require('./service/loading'),
     message = require('./service/message'),
+    tree    = require('./components/tree'),
     Vue     = lib.Vue 
 
 // set language
@@ -18,7 +19,10 @@ var components = {
     'mult-select': require('./components/mult-select'),
     radio: require('./components/option').radio,
     checkbox: require('./components/option').checkbox,
-    select: require('./components/select')
+    select: require('./components/select'),
+    'tree-file': tree.file,
+    'tree-folder': tree.folder,
+    tree: tree.tree
 }
 
 _.each(components, function (v, k) {
