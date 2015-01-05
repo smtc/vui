@@ -9380,16 +9380,6 @@ module.exports = {
 
         setRadioValue: function (el, value) {
             this.value = value
-        },
-
-        check: function (value) {
-            var vals = this.value
-            if (!vals)
-                vals = []
-            else if ('string' === typeof vals)
-                vals = [vals]
-
-            return utils.contains(value)
         }
     },
 
@@ -9449,8 +9439,14 @@ module.exports = {
                     if (value === '') this.values = []
                     else this.values = value.split(',')
                     this.flatValue = true
+                } else {
+                    this.values = value
                 }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
+                    if (this.$single) {
+                        el.checked = value == this.value
+                        return
+                    }
                     if (value === null) {
                         el.checked = false
                         return
