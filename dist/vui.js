@@ -9385,7 +9385,7 @@ module.exports = {
 
     data: {
         options: null,
-        flatValue: false
+        flatValue: true
     },
 
     created: function () {
@@ -9440,11 +9440,15 @@ module.exports = {
                     else this.values = value.split(',')
                     this.flatValue = true
                 } else {
-                    this.values = value
+                    var vals = []
+                    utils.forEach(value, function (v) {
+                        vals.push(v.toString())
+                    })
+                    this.values = vals
                 }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
                     if (this.$single) {
-                        el.checked = value == this.value
+                        el.checked = value && value == this.value 
                         return
                     }
                     if (value === null) {
