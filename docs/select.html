@@ -25,16 +25,16 @@
 <div class="bs-example bs-example-type">
     <form class="form-inline" role="form">
         <div class="form-group">
-            <div src="json/select.json" class="form-control" style="width:160px" placeholder="select price" v-component="select" v-with="value:scope.price"></div>
+            <div src="json/select.json" class="form-control" style="width:160px" placeholder="select price" v-component="select" v-with="value:price"></div>
         </div>
         <div class="form-group">
             <span> X </span>
         </div>
         <div class="form-group">
-            <div src="json/select.json" class="form-control" style="width:160px" cache="false" placeholder="select count" v-component="select" v-with="value:scope.count"></div>
+            <div src="json/select.json" class="form-control" style="width:160px" cache="false" placeholder="select count" v-component="select" v-with="value:count"></div>
         </div>
         <div class="form-group">
-            <span> = {{scope.price * scope.count}}</span>
+            <span> = {{price * count}}</span>
         </div>
     </form>
 
@@ -45,16 +45,16 @@
 <pre class="prettyprint" v-pre>
 &lt;form class="form-inline" role="form"&gt;
     &lt;div class="form-group"&gt;
-        &lt;div src="json/select.json" class="form-control" style="width:160px" placeholder="select price" v-component="select" v-with="value:scope.price"&gt;&lt;/div&gt;
+        &lt;div src="json/select.json" class="form-control" style="width:160px" placeholder="select price" v-component="select" v-with="value:price"&gt;&lt;/div&gt;
     &lt;/div&gt;
     &lt;div class="form-group"&gt;
         &lt;span&gt; X &lt;/span&gt;
     &lt;/div&gt;
     &lt;div class="form-group"&gt;
-        &lt;div src="json/select.json" class="form-control" style="width:160px" cache="false" placeholder="select count" v-component="select" v-with="value:scope.count"&gt;&lt;/div&gt;
+        &lt;div src="json/select.json" class="form-control" style="width:160px" cache="false" placeholder="select count" v-component="select" v-with="value:count"&gt;&lt;/div&gt;
     &lt;/div&gt;
     &lt;div class="form-group"&gt;
-        &lt;span&gt; = {{scope.price * scope.count}}&lt;/span&gt;
+        &lt;span&gt; = {{price * count}}&lt;/span&gt;
     &lt;/div&gt;
 &lt;/form&gt;
 &lt;form class="form-inline" role="form"&gt;

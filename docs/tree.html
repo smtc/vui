@@ -19,12 +19,12 @@
     <h3>Example</h3>
 
     <div class="bs-example bs-example-type">
-        <ul src="json/tree.json" selectable="true" v-with="value:scope.value" key="id" v-component="tree"></ul>
-        selected id: {{scope.value}}
+        <ul src="json/tree.json" selectable="true" v-with="value:value" key="id" v-component="tree"></ul>
+        selected id: {{value}}
     </div>
     <pre v-pre class="prettyprint">
 &lt;ul src="json/tree.json" selectable="true" key="id" v-component="tree"&gt;&lt;/ul&gt;
-selected id: {{scope.value}}
+selected id: {{value}}
 </pre>
     <pre v-pre class="prettyprint">
 // data

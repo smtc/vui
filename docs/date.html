@@ -21,16 +21,16 @@
     <h3>Example</h3>
 
     <div class="bs-example bs-example-type">
-        <div class="form-control date" placeholder="yyyy-MM-dd" v-component="date" v-with="value:scope.date1"></div>
-        <div class="form-control date date-picker-up" placeholder="unixtime" unixtime="true" v-component="date" v-with="value:scope.date2"></div>
+        <div class="form-control date" placeholder="yyyy-MM-dd" v-component="date" v-with="value:date1"></div>
+        <div class="form-control date date-picker-up" placeholder="unixtime" unixtime="true" v-component="date" v-with="value:date2"></div>
         <br /><br />
-        <p>当前选择日期：{{scope.date1}} - {{scope.date2}}</p>
+        <p>当前选择日期：{{date1}} - {{date2}}</p>
     </div>
     <pre v-pre class="prettyprint">
-&lt;div class="form-control date" v-component="date" v-with="date:scope.date1"&gt;&lt;/div&gt;
-&lt;div class="form-control date date-picker-up" placeholder="unixtime" unixtime="true" v-component="date" v-with="date:scope.date2"&gt;&lt;/div&gt;
+&lt;div class="form-control date" v-component="date" v-with="date:date1"&gt;&lt;/div&gt;
+&lt;div class="form-control date date-picker-up" placeholder="unixtime" unixtime="true" v-component="date" v-with="date:date2"&gt;&lt;/div&gt;
 &lt;br /&gt;
-&lt;p&gt;当前选择日期：{{scope.date1}} - {{scope.date2}}&lt;/p&gt;
+&lt;p&gt;当前选择日期：{{date1}} - {{date2}}&lt;/p&gt;
 </pre>
         
 </div>

@@ -1,0 +1,17 @@
+<div v-show="$open" class="openbox" v-transition>
+    <div class="openbox-backdrop"></div>
+    <div class="openbox-inner" v-on="click:bgclose">
+        <div class="openbox-content col-md-{{width}}">
+            <a href="javascript:;" class="close" v-on="click:close(false)">&times;</a>
+            <div class="openbox-header" v-if="title">
+                <h3 v-text="title"></h3>
+            </div>
+            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>
+            <div class="openbox-body" v-if="body" v-html="body"></div>
+            <div v-show="btns.length > 0" class="openbox-footer">
+                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>
+            </div>
+        </div>
+    </div>
+</div>
+

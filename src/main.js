@@ -5,6 +5,7 @@ var lib     = require('./lib'),
     lang    = require('./lang'),
     loading = require('./service/loading'),
     message = require('./service/message'),
+    openbox = require('./service/openbox'),
     Vue     = lib.Vue 
 
 // set language
@@ -12,11 +13,12 @@ lang.set(require('./lang/zh-cn'))
 
 // components ======================================================
 var components = {
+    checkbox: require('./components/option').checkbox,
     date: require('./components/date'),
     loading: loading.component,
     'mult-select': require('./components/mult-select'),
+    progress: require('./components/progress'),
     radio: require('./components/option').radio,
-    checkbox: require('./components/option').checkbox,
     select: require('./components/select'),
     tree: require('./components/tree')
 }
@@ -47,6 +49,7 @@ module.exports = {
     underscore: lib.underscore,
     message: message,
     loading: loading,
+    openbox: openbox,
 
     require: function (path) {
         try {
