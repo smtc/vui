@@ -11875,14 +11875,15 @@ function contains(arr, val) {
 }
 
 var common = {
-    template: require('./option.html'),
+    template: '<div v-repeat="o:options" class="{{className}}"><label><input type="{{type}}" v-attr="checked:o.checked || o.value == value" v-on="change:setValue(o.value, $event)" name="{{name}}" value="{{o.value}}" /> {{o.text}}</label></div>',
 
-    paramAttributes: ['src', 'options', 'inline', 'name'],
+    paramAttributes: ['src', 'options', 'inline', 'name', 'array'],
 
     data: function () {
         return {
             options: null,
             className: '',
+            values: [],
             value: ''
         }
     },
@@ -11891,6 +11892,7 @@ var common = {
         var src = this.src
 
         this.className = this.type
+        this.array = this.array === 'true'
         this.name = this.name || _.uniqueId('opt_')
 
         if (this.inline)
@@ -11937,21 +11939,11 @@ var radio = {
             this.value = value
         },
 
-        /*
-        check: function (value) {
-            var vals = this.value
-            if (!vals)
-                vals = []
-            else if ('string' === typeof vals)
-                vals = [vals]
-
-            return vals.indexOf(value) >= 0
-        },
-        */
-
         change: function (value) {
-            if (value)
-                this.$el.querySelector('input[value="' + value + '"]').checked = true
+            if (undefined === value) {
+                this.value = this.options[0].value
+            }
+            this.$el.querySelector('input[value="' + this.value + '"]').checked = true
         }
     },
 
@@ -11971,23 +11963,27 @@ var checkbox = {
                     this.value = null
             } else {
                 if (checked)
-                    this.value.push(value)
+                    this.values.push(value)
                 else
-                    this.value = _.without(this.value, value)
+                    this.values = _.without(this.values, value)
+
+                this.value = this.array ? this.values : this.values.join(',')
             }
         },
 
         change: function (value) {
             if (typeof value === 'string') {
-                if (value === '') this.value = []
-                else this.value = this.value.split(',')
+                if (value === '') this.values = []
+                else this.values = value.split(',')
+            } else {
+                this.values = value
             }
             _.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
-                if (value === null) {
+                if (_.size(value) === 0) {
                     el.checked = false
                     return
                 }
-                el.checked = _.isEqual(value, el.value) || contains(value, el.value)
+                el.checked = value.toString() === el.value.toString() || contains(this.values, el.value)
             }.bind(this))
         }
     },
@@ -12003,10 +11999,7 @@ module.exports = {
     checkbox: _.extend(checkbox, common)
 }
 
-}, {"../request":85,"../lib":2,"./option.html":88}],
-88: [function(require, module, exports) {
-module.exports = '<div v-repeat="o:options" class="{{className}}">\n    <label><input type="{{type}}" v-attr="checked:o.checked || o.value == value" v-on="change:setValue(o.value, $event)" name="{{name}}" value="{{o.value}}" /> {{o.text}}</label>\n</div>\n';
-}, {}],
+}, {"../request":85,"../lib":2}],
 12: [function(require, module, exports) {
 var request = require('../request'),
     utils   = require('../utils'),
@@ -12099,8 +12092,8 @@ module.exports = {
     }
 }
 
-}, {"../request":85,"../utils":3,"../lang":5,"../service/message":7,"../lib":2,"./select.html":89}],
-89: [function(require, module, exports) {
+}, {"../request":85,"../utils":3,"../lang":5,"../service/message":7,"../lib":2,"./select.html":88}],
+88: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
 }, {}],
 13: [function(require, module, exports) {
