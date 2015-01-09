@@ -3,6 +3,7 @@ var lib         = require('./lib'),
     request     = require('./request'),
     utils       = require('./utils'),
     lastPath    = utils.urlResolve().pathname,
+    root        = lastPath,
     fns         = {},
     components  = {}
 
@@ -55,6 +56,8 @@ route.unbind = function (fn) {
 }
 
 route.getComponent = function (path, fn) {
+    if (path === root) return
+
     var hash = 'template' + utils.hashCode(path)
     if (!components[hash]) {
         components[hash] = true

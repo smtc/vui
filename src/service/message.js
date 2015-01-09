@@ -1,12 +1,14 @@
 /* 
  * message { text: '', type: '' }
  */
-var _        = require('../lib').underscore,
-    utils    = require('../utils'),
-    lang     = require('../lang'),
-    messages = []
+var lib     = require('../lib'),
+    _       = lib.underscore,
+    Vue     = lib.Vue,
+    utils   = require('../utils'),
+    lang    = require('../lang')
 
-var component = {
+
+var vm = new Vue({
     template:   '<div v-show="messages.length>0">' +
                 '<div v-repeat="messages" class="alert alert-{{type}}">' +
                     '<strong>{{time}}</strong><br />' +
@@ -19,7 +21,7 @@ var component = {
 
     data: function () {
         return {
-            messages: messages
+            messages: []
         }
     },
 
@@ -28,7 +30,8 @@ var component = {
             this.messages.$remove(item.$data)
         }
     }
-}
+
+})
 
 module.exports = {
     push: function (msg, type) {
@@ -39,12 +42,12 @@ module.exports = {
                 time: utils.formatTime(new Date(), lang.get('datetime.format'))
             }
         }
-        messages.push(msg)
+        vm.messages.push(msg)
 
         var timeout = msg.timeout || (msg.type === 'danger' ? 0 : 5000)
         if (timeout !== 0)
             setTimeout(function () {
-                messages = _.without(messages, msg)
+                vm.messages = _.without(vm.messages, msg)
             }, timeout)
     },
 
@@ -65,8 +68,8 @@ module.exports = {
     warn: function (msg) {
         this.push(msg, 'warning')
     },
-    
-    messages: messages,
 
-    component: component
+    vm: vm
 }
+
+

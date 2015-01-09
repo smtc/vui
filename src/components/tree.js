@@ -1,6 +1,8 @@
 var request = require('../request'),
     message = require('../service/message'),
-    _       = require('../lib').underscore
+    lib     = require('../lib'),
+    _       = lib.underscore,
+    Vue     = lib.Vue
 
 function hasChildren(node) {
     return node.children && node.children.length > 0
@@ -60,7 +62,57 @@ function setParent(p, list) {
     setParent(node.$parent, list)
 }
 
-var tree = {
+Vue.component('tree-folder', {
+    template:   '<label v-class="active:current==node">\
+                    <i class="icon" v-class="icon-minus-square-o:open, icon-plus-square-o:!open" v-on="click:open=!open"></i>\
+                    <i v-show="selectable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
+                    <i class="icon icon-folder-o" v-class="icon-folder-open-o: open"></i>\
+                    <span v-on="click:current=node">{{node.text}}</span>\
+                </label>\
+                <ul class="list-unstyled" v-show="open">\
+                    <li v-repeat="node:node.children" v-component="tree-{{node.$type}}"></li>\
+                </ul>',
+
+    inherit: true,
+
+    data: function () {
+        return {
+            open: false
+        }
+    },
+
+    methods: {
+        select: function (node) {
+            var status = node.vui_status < 2 ? 2 : 0
+            setStatus(node, status)
+            setParent(node.$parent, this.list)
+        }
+    }
+})
+
+Vue.component('tree-file', {
+    template:   '<label v-class="active:current==node">\
+                    <i class="icon icon-file-o"></i>\
+                    <i v-show="selectable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
+                    <span v-on="click:current=node">{{node.text}}</span>\
+                </label>',
+
+    inherit: true,
+
+    data: function () {
+        return {}
+    },
+
+    methods: {
+        select: function (node) {
+            var status = node.vui_status < 2 ? 2 : 0
+            setStatus(node, status)
+            setParent(node.$parent, this.list)
+        }
+    }
+})
+
+module.exports = {
     template: '<ul class="treeview list-unstyled"><li v-repeat="node:data" v-component="tree-{{node.$type}}"></li></ul>',
 
     replace: true,
@@ -168,58 +220,3 @@ var tree = {
     }
 }
 
-var folder = {
-    template:   '<label v-class="active:current==node">\
-                    <i class="icon" v-class="icon-minus-square-o:open, icon-plus-square-o:!open" v-on="click:open=!open"></i>\
-                    <i v-show="selectable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
-                    <i class="icon icon-folder-o" v-class="icon-folder-open-o: open"></i>\
-                    <span v-on="click:current=node">{{node.text}}</span>\
-                </label>\
-                <ul class="list-unstyled" v-show="open">\
-                    <li v-repeat="node:node.children" v-component="tree-{{node.$type}}"></li>\
-                </ul>',
-
-    inherit: true,
-
-    data: function () {
-        return {
-            open: false
-        }
-    },
-
-    methods: {
-        select: function (node) {
-            var status = node.vui_status < 2 ? 2 : 0
-            setStatus(node, status)
-            setParent(node.$parent, this.list)
-        }
-    }
-}
-
-var file = {
-    template:   '<label v-class="active:current==node">\
-                    <i class="icon icon-file-o"></i>\
-                    <i v-show="selectable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
-                    <span v-on="click:current=node">{{node.text}}</span>\
-                </label>',
-
-    inherit: true,
-
-    data: function () {
-        return {}
-    },
-
-    methods: {
-        select: function (node) {
-            var status = node.vui_status < 2 ? 2 : 0
-            setStatus(node, status)
-            setParent(node.$parent, this.list)
-        }
-    }
-}
-
-module.exports = {
-    tree:   tree,
-    folder: folder,
-    file:   file
-}

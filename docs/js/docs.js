@@ -45,12 +45,14 @@
     })
 
     vui.route(function (path) {
-        if (path.charAt(path.length-1) !== '/')
-            main.view = path
+        main.view = path
 
         // 延时等component 执行完
         setTimeout(function () {
             prettyPrint()
         }, 500)
     }, true)
+
+    if (!vui.utils.urlResolve().hash) 
+        vui.utils.url('main.html')
 })()

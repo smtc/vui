@@ -5,7 +5,6 @@ var lib     = require('./lib'),
     lang    = require('./lang'),
     loading = require('./service/loading'),
     message = require('./service/message'),
-    tree    = require('./components/tree'),
     Vue     = lib.Vue 
 
 // set language
@@ -15,14 +14,11 @@ lang.set(require('./lang/zh-cn'))
 var components = {
     date: require('./components/date'),
     loading: loading.component,
-    message: message.component,
     'mult-select': require('./components/mult-select'),
     radio: require('./components/option').radio,
     checkbox: require('./components/option').checkbox,
     select: require('./components/select'),
-    'tree-file': tree.file,
-    'tree-folder': tree.folder,
-    tree: tree.tree
+    tree: require('./components/tree')
 }
 
 _.each(components, function (v, k) {

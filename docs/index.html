@@ -37,7 +37,7 @@
 
 <div class="content" v-component="{{view}}"></div>
 
-<div v-component="message" class="message"></div>
+<div id="message" class="message"></div>
 <div v-component="loading" img="images/loading.gif" text="处理中，请稍候"></div>
 
 <script type="text/javascript" src="../dist/vui.js"></script>
@@ -45,8 +45,7 @@
 <script type="text/javascript" src="js/prettify.js"></script>
 <script type="text/javascript">
 ;(function () {
-    if (!vui.utils.urlResolve().hash) 
-        vui.utils.url('main.html')
+    vui.message.vm.$mount('#message')
 })()
 </script>
 

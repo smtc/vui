@@ -98,7 +98,6 @@ var lib     = require('./lib'),
     lang    = require('./lang'),
     loading = require('./service/loading'),
     message = require('./service/message'),
-    tree    = require('./components/tree'),
     Vue     = lib.Vue 
 
 // set language
@@ -108,14 +107,11 @@ lang.set(require('./lang/zh-cn'))
 var components = {
     date: require('./components/date'),
     loading: loading.component,
-    message: message.component,
     'mult-select': require('./components/mult-select'),
     radio: require('./components/option').radio,
     checkbox: require('./components/option').checkbox,
     select: require('./components/select'),
-    'tree-file': tree.file,
-    'tree-folder': tree.folder,
-    tree: tree.tree
+    tree: require('./components/tree')
 }
 
 _.each(components, function (v, k) {
@@ -154,7 +150,7 @@ module.exports = {
     }
 }
 
-}, {"./lib":2,"./utils":3,"./route":4,"./lang":5,"./service/loading":6,"./service/message":7,"./components/tree":8,"./lang/zh-cn":9,"./components/date":10,"./components/mult-select":11,"./components/option":12,"./components/select":13,"./directives/href":14}],
+}, {"./lib":2,"./utils":3,"./route":4,"./lang":5,"./service/loading":6,"./service/message":7,"./lang/zh-cn":8,"./components/date":9,"./components/mult-select":10,"./components/option":11,"./components/select":12,"./components/tree":13,"./directives/href":14}],
 2: [function(require, module, exports) {
 module.exports = {
     //Vue: require('yyx990803/vue@0.11.4'),
@@ -11164,6 +11160,7 @@ var lib         = require('./lib'),
     request     = require('./request'),
     utils       = require('./utils'),
     lastPath    = utils.urlResolve().pathname,
+    root        = lastPath,
     fns         = {},
     components  = {}
 
@@ -11216,6 +11213,8 @@ route.unbind = function (fn) {
 }
 
 route.getComponent = function (path, fn) {
+    if (path === root) return
+
     var hash = 'template' + utils.hashCode(path)
     if (!components[hash]) {
         components[hash] = true
@@ -11356,12 +11355,14 @@ module.exports = {
 /* 
  * message { text: '', type: '' }
  */
-var _        = require('../lib').underscore,
-    utils    = require('../utils'),
-    lang     = require('../lang'),
-    messages = []
+var lib     = require('../lib'),
+    _       = lib.underscore,
+    Vue     = lib.Vue,
+    utils   = require('../utils'),
+    lang    = require('../lang')
 
-var component = {
+
+var vm = new Vue({
     template:   '<div v-show="messages.length>0">' +
                 '<div v-repeat="messages" class="alert alert-{{type}}">' +
                     '<strong>{{time}}</strong><br />' +
@@ -11374,7 +11375,7 @@ var component = {
 
     data: function () {
         return {
-            messages: messages
+            messages: []
         }
     },
 
@@ -11383,7 +11384,8 @@ var component = {
             this.messages.$remove(item.$data)
         }
     }
-}
+
+})
 
 module.exports = {
     push: function (msg, type) {
@@ -11394,12 +11396,12 @@ module.exports = {
                 time: utils.formatTime(new Date(), lang.get('datetime.format'))
             }
         }
-        messages.push(msg)
+        vm.messages.push(msg)
 
         var timeout = msg.timeout || (msg.type === 'danger' ? 0 : 5000)
         if (timeout !== 0)
             setTimeout(function () {
-                messages = _.without(messages, msg)
+                vm.messages = _.without(vm.messages, msg)
             }, timeout)
     },
 
@@ -11420,242 +11422,14 @@ module.exports = {
     warn: function (msg) {
         this.push(msg, 'warning')
     },
-    
-    messages: messages,
 
-    component: component
+    vm: vm
 }
+
+
 
 }, {"../lib":2,"../utils":3,"../lang":5}],
 8: [function(require, module, exports) {
-var request = require('../request'),
-    message = require('../service/message'),
-    _       = require('../lib').underscore
-
-function hasChildren(node) {
-    return node.children && node.children.length > 0
-}
-
-function initData(data, list, p) {
-    list = list || {}
-    _.each(data, function (d) {
-        d.id = d.id || _.uniqueId()
-        d.$parent = p
-        if (d.children && d.children.length > 0) {
-            d.$type = 'folder'
-            d.children = initData(d.children, list, d.id)
-        } else {
-            d.$type = 'file'
-        }
-        list[d.id] = d
-        d.vui_status = 0
-    })
-    return data
-}
-
-function initValue(list, values, k) {
-    values = values || []
-    if (typeof values === 'string')
-        values = values.split(',')
-
-    _.each(list, function (d) {
-        if (!hasChildren(d) && values.indexOf(d[k]) >= 0) {
-            d.vui_status = 2
-            setParent(d.$parent, list)
-        }
-    })
-}
-
-function setStatus(node, status) {
-    node.vui_status = status
-    _.each(node.children, function (d) {
-        setStatus(d, status)
-    })
-}
-
-function setParent(p, list) {
-    if (p === undefined) return
-    var node = list[p]
-    var status = 0
-    _.each(node.children, function (d) {
-        status += d.vui_status
-    })
-    if (status === 0) {
-        node.vui_status = 0
-    } else if (status === (node.children.length * 2)) {
-        node.vui_status = 2
-    } else {
-        node.vui_status = 1
-    }
-    setParent(node.$parent, list)
-}
-
-var tree = {
-    template: '<ul class="treeview list-unstyled"><li v-repeat="node:data" v-component="tree-{{node.$type}}"></li></ul>',
-
-    replace: true,
-
-    paramAttributes: ['src', 'key', 'selectable'],
-    
-    data: function () {
-        return {
-            data: [],
-            selectable: false,
-            list: {},
-            current: null
-        }
-    },
-
-    computed: {
-        value: function () {
-            return this.getSelected(this.key)
-            var k = this.key,
-                str = []
-
-            var add = function (list) {
-                if (!list) return
-                _.each(list, function (node) {
-                    if (node.vui_status > 0)
-                        str.push(node[k])
-                    add(node.children)
-                })
-            }
-
-            add(this.list)
-            
-            return str.join(',')
-        }
-    },
-
-    methods: {
-        getSelected: function (k, full) {
-            var status = full ? 1 : 0,
-                str = []
-
-            var add = function (list) {
-                if (!list) return
-                _.each(list, function (node) {
-                    if (node.vui_status > status)
-                        str.push(node[k])
-                    add(node.children)
-                })
-            }
-
-            add(this.data)
-            
-            return str.join(',')
-        }
-    },
-
-    ready: function () {
-        var self = this
-        this.$initialized = false
-        this.$first = true
-        this.selectable = this.selectable === 'true'
-        this.key = this.key || 'id'
-
-        if (!this.src) {
-            message.error(null, 404)
-            return
-        }
-
-        request.get(this.src).end(function (res) {
-           if (res.status !== 200) {
-                message.error(null, res.status)
-                return
-            }
-            if (_.isArray(res.body)) {
-                res.body = {
-                    status: 1,
-                    data: res.body
-                }
-            } 
-            
-            if (res.body.status === 1) {
-                self.data = initData(res.body.data, self.list)
-                if (self.value && !self.$initialized) {
-                    self.$initialized = true
-                    initValue(self.list, self.value, self.key)
-                }
-
-            } else {
-                message.error(res.body.msg || res.body.errors)
-                return
-            } 
-
-            self.$watch('data', function () {
-                console.log(self.data)
-                //self.value = self.getSelected(self.key)
-            })
-        }, true)
-
-        // 初始化赋值
-        this.$watch('value', function () {
-            if (this.$initialized) return
-            this.$initialized = true
-            initValue(this.list, this.value, this.select)
-        }.bind(this))
-    }
-}
-
-var folder = {
-    template:   '<label v-class="active:current==node">\
-                    <i class="icon" v-class="icon-minus-square-o:open, icon-plus-square-o:!open" v-on="click:open=!open"></i>\
-                    <i v-show="selectable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
-                    <i class="icon icon-folder-o" v-class="icon-folder-open-o: open"></i>\
-                    <span v-on="click:current=node">{{node.text}}</span>\
-                </label>\
-                <ul class="list-unstyled" v-show="open">\
-                    <li v-repeat="node:node.children" v-component="tree-{{node.$type}}"></li>\
-                </ul>',
-
-    inherit: true,
-
-    data: function () {
-        return {
-            open: false
-        }
-    },
-
-    methods: {
-        select: function (node) {
-            var status = node.vui_status < 2 ? 2 : 0
-            setStatus(node, status)
-            setParent(node.$parent, this.list)
-        }
-    }
-}
-
-var file = {
-    template:   '<label v-class="active:current==node">\
-                    <i class="icon icon-file-o"></i>\
-                    <i v-show="selectable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
-                    <span v-on="click:current=node">{{node.text}}</span>\
-                </label>',
-
-    inherit: true,
-
-    data: function () {
-        return {}
-    },
-
-    methods: {
-        select: function (node) {
-            var status = node.vui_status < 2 ? 2 : 0
-            setStatus(node, status)
-            setParent(node.$parent, this.list)
-        }
-    }
-}
-
-module.exports = {
-    tree:   tree,
-    folder: folder,
-    file:   file
-}
-
-}, {"../request":85,"../service/message":7,"../lib":2}],
-9: [function(require, module, exports) {
 module.exports = {
     httpStatus: {
         401: '没有访问权限',
@@ -11723,7 +11497,7 @@ module.exports = {
 }
 
 }, {}],
-10: [function(require, module, exports) {
+9: [function(require, module, exports) {
 var utils = require('../utils'),
     lang  = require('../lang'),
     _     = require('../lib').underscore
@@ -11939,7 +11713,7 @@ module.exports = {
 86: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!value" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:stageToggle()" class="date-picker-handle year"><span>{{header}}</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="stage == 1">\n            <div class="week" v-repeat="w:options.weekday">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.date && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="stage == 2">\n            <button type="button" v-on="click:setMonth($index)" class="month" v-repeat="options.month">{{$value}}</button>\n        </div>\n        <div class="inner" v-show="stage == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 }, {}],
-11: [function(require, module, exports) {
+10: [function(require, module, exports) {
 var request = require('../request'),
     utils   = require('../utils'),
     message = require('../service/message')
@@ -12059,7 +11833,7 @@ module.exports = {
 87: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="mult-select-items"><li v-repeat="d:options"><a v-on="click:select(d)" v-class="active: value==d.value || values.indexOf(d) >= 0" href="javascript:;">{{d.text}}</a></li></ul>\n</div>\n';
 }, {}],
-12: [function(require, module, exports) {
+11: [function(require, module, exports) {
 var request = require('../request'),
     _       = require('../lib').underscore
 
@@ -12233,7 +12007,7 @@ module.exports = {
 88: [function(require, module, exports) {
 module.exports = '<div v-repeat="o:options" class="{{className}}">\n    <label><input type="{{type}}" v-attr="checked:o.checked || o.value == value" v-on="change:setValue(o.value, $event)" name="{{name}}" value="{{o.value}}" /> {{o.text}}</label>\n</div>\n';
 }, {}],
-13: [function(require, module, exports) {
+12: [function(require, module, exports) {
 var request = require('../request'),
     utils   = require('../utils'),
     lang    = require('../lang'),
@@ -12329,6 +12103,231 @@ module.exports = {
 89: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
 }, {}],
+13: [function(require, module, exports) {
+var request = require('../request'),
+    message = require('../service/message'),
+    lib     = require('../lib'),
+    _       = lib.underscore,
+    Vue     = lib.Vue
+
+function hasChildren(node) {
+    return node.children && node.children.length > 0
+}
+
+function initData(data, list, p) {
+    list = list || {}
+    _.each(data, function (d) {
+        d.id = d.id || _.uniqueId()
+        d.$parent = p
+        if (d.children && d.children.length > 0) {
+            d.$type = 'folder'
+            d.children = initData(d.children, list, d.id)
+        } else {
+            d.$type = 'file'
+        }
+        list[d.id] = d
+        d.vui_status = 0
+    })
+    return data
+}
+
+function initValue(list, values, k) {
+    values = values || []
+    if (typeof values === 'string')
+        values = values.split(',')
+
+    _.each(list, function (d) {
+        if (!hasChildren(d) && values.indexOf(d[k]) >= 0) {
+            d.vui_status = 2
+            setParent(d.$parent, list)
+        }
+    })
+}
+
+function setStatus(node, status) {
+    node.vui_status = status
+    _.each(node.children, function (d) {
+        setStatus(d, status)
+    })
+}
+
+function setParent(p, list) {
+    if (p === undefined) return
+    var node = list[p]
+    var status = 0
+    _.each(node.children, function (d) {
+        status += d.vui_status
+    })
+    if (status === 0) {
+        node.vui_status = 0
+    } else if (status === (node.children.length * 2)) {
+        node.vui_status = 2
+    } else {
+        node.vui_status = 1
+    }
+    setParent(node.$parent, list)
+}
+
+Vue.component('tree-folder', {
+    template:   '<label v-class="active:current==node">\
+                    <i class="icon" v-class="icon-minus-square-o:open, icon-plus-square-o:!open" v-on="click:open=!open"></i>\
+                    <i v-show="selectable" class="icon" v-on="click:select(node)" v-class="icon-square-o:node.vui_status==0,icon-check-square:node.vui_status==2,icon-check-square-o:node.vui_status==1"></i>\
+                    <i class="icon icon-folder-o" v-class="icon-folder-open-o: open"></i>\
+                    <span v-on="click:current=node">{{node.text}}</span>\
+                </label>\
+                <ul class="list-unstyled" v-show="open">\
+                    <li v-repeat="node:node.children" v-component="tree-{{node.$type}}"></li>\
+                </ul>',
+
+    inherit: true,
+
+    data: function () {
+        return {
+            open: false
+        }
+    },
+
+    methods: {
+        select: function (node) {
+            var status = node.vui_status < 2 ? 2 : 0
+            setStatus(node, status)
+            setParent(node.$parent, this.list)
+        }
+    }
+})
+
+Vue.component('tree-file', {
+    template:   '<label v-class="active:current==node">\
+                    <i class="icon icon-file-o"></i>\
+                    <i v-show="selectable" v-on="click:select(node)" class="icon icon-square-o" v-class="icon-check-square: node.vui_status==2"></i>\
+                    <span v-on="click:current=node">{{node.text}}</span>\
+                </label>',
+
+    inherit: true,
+
+    data: function () {
+        return {}
+    },
+
+    methods: {
+        select: function (node) {
+            var status = node.vui_status < 2 ? 2 : 0
+            setStatus(node, status)
+            setParent(node.$parent, this.list)
+        }
+    }
+})
+
+module.exports = {
+    template: '<ul class="treeview list-unstyled"><li v-repeat="node:data" v-component="tree-{{node.$type}}"></li></ul>',
+
+    replace: true,
+
+    paramAttributes: ['src', 'key', 'selectable'],
+    
+    data: function () {
+        return {
+            data: [],
+            selectable: false,
+            list: {},
+            current: null
+        }
+    },
+
+    computed: {
+        value: function () {
+            return this.getSelected(this.key)
+            var k = this.key,
+                str = []
+
+            var add = function (list) {
+                if (!list) return
+                _.each(list, function (node) {
+                    if (node.vui_status > 0)
+                        str.push(node[k])
+                    add(node.children)
+                })
+            }
+
+            add(this.list)
+            
+            return str.join(',')
+        }
+    },
+
+    methods: {
+        getSelected: function (k, full) {
+            var status = full ? 1 : 0,
+                str = []
+
+            var add = function (list) {
+                if (!list) return
+                _.each(list, function (node) {
+                    if (node.vui_status > status)
+                        str.push(node[k])
+                    add(node.children)
+                })
+            }
+
+            add(this.data)
+            
+            return str.join(',')
+        }
+    },
+
+    ready: function () {
+        var self = this
+        this.$initialized = false
+        this.$first = true
+        this.selectable = this.selectable === 'true'
+        this.key = this.key || 'id'
+
+        if (!this.src) {
+            message.error(null, 404)
+            return
+        }
+
+        request.get(this.src).end(function (res) {
+           if (res.status !== 200) {
+                message.error(null, res.status)
+                return
+            }
+            if (_.isArray(res.body)) {
+                res.body = {
+                    status: 1,
+                    data: res.body
+                }
+            } 
+            
+            if (res.body.status === 1) {
+                self.data = initData(res.body.data, self.list)
+                if (self.value && !self.$initialized) {
+                    self.$initialized = true
+                    initValue(self.list, self.value, self.key)
+                }
+
+            } else {
+                message.error(res.body.msg || res.body.errors)
+                return
+            } 
+
+            self.$watch('data', function () {
+                console.log(self.data)
+                //self.value = self.getSelected(self.key)
+            })
+        }, true)
+
+        // 初始化赋值
+        this.$watch('value', function () {
+            if (this.$initialized) return
+            this.$initialized = true
+            initValue(this.list, this.value, this.select)
+        }.bind(this))
+    }
+}
+
+
+}, {"../request":85,"../service/message":7,"../lib":2}],
 14: [function(require, module, exports) {
 var utils = require('../utils')
 
