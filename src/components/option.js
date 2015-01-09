@@ -140,7 +140,7 @@ module.exports = {
                 }
                 utils.forEach(this.$el.querySelectorAll('input[type="checkbox"]'), function (el) {
                     if (this.$single) {
-                        el.checked = value && value == this.value 
+                        el.checked = value && !vui.utils.equals(value, []) && value == this.value 
                         return
                     }
                     if (value === null) {
