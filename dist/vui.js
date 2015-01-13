@@ -9433,7 +9433,8 @@ module.exports = {
 
         function change(value) {
             if (this.type === 'radio') {
-                this.$el.querySelector('input[value="' + this.value + '"]').checked = true
+                var el = this.$el.querySelector('input[value="' + this.value + '"]')
+                if (el) el.checked = true
             } else {
                 if (typeof value === 'string') {
                     if (value === '') this.values = []
