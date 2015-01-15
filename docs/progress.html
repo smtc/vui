@@ -1,0 +1,24 @@
+<div v-component="scope">
+    <h1 class="page-header">Progress</h1>
+
+    <p>progress控件</p>
+
+    <div class="bs-callout bs-callout-info">
+        <h4>v-component="date"</h4>
+        <pre class="prettyprint"></pre>
+        <p><span class="text-warning">使用 <a href="http://vuejs.org/api/directives.html#v-with" target="_blank">v-with</a> 同步参数</span></p>
+    </div>
+
+    <br />
+
+    <h3>Example</h3>
+
+    <div class="bs-example bs-example-type">
+        <div v-component="progress" v-with="progress:progress"></div>
+        <div v-component="progress" min="10" max="10000" unit="kg" v-with="progress:progress2"></div>
+    </div>
+    <pre v-pre class="prettyprint">
+&lt;div v-component="progress" v-with="progress:progress"&gt;&lt;/div&gt;
+&lt;div v-component="progress" min="10" max="10000" unit="kg" v-with="progress:progress2"&gt;&lt;/div&gt; 
+    </pre>
+</div>
