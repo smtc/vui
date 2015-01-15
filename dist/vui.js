@@ -8236,7 +8236,7 @@ var component = {
                         this.model[f._name] = null
                         post.attach(f._name, f.data, f.value)
                         utils.forEach(this.model, function (v, k) {
-                            post.field(k, v)
+                            if (k !== f._name) post.field(k, v)
                         })
                     }.bind(this))
                 } else {
@@ -9068,6 +9068,17 @@ function _len(val, t) {
 }
 
 
+function _allowExt(exts) {
+    if (!this.value || !exts) return this.pass()
+    if ('string' === typeof exts) exts = exts.split(',')
+    var val = this.value.substring(this.value.lastIndexOf('.') + 1)
+    if (exts.indexOf(val) >= 0)
+        this.pass()
+    else
+        this.fail('exts') 
+}
+
+
 // 正则
 function regex(reg) {
     if (reg.test(this.value))
@@ -9099,6 +9110,7 @@ function initMessage() {
             case 'maxlen':
             case 'min':
             case 'minlen':
+            case 'exts':
                 if (this._type === 'checkbox') t += '_cb'
                 tip += TIPS[t] + ', '
                 break
@@ -9151,6 +9163,9 @@ module.exports = {
                     case 'require':
                         _require.call(this)
                         break
+                    case 'exts':
+                        _allowExt.call(this, ck[1])
+                        break
                 }
             }
         },
@@ -9186,7 +9201,7 @@ module.exports = {
         }.bind(this))
 
         // validate
-        utils.forEach(['max', 'min', 'maxlen', 'minlen', 'require'], function (attr) {
+        utils.forEach(['max', 'min', 'maxlen', 'minlen', 'require', 'exts'], function (attr) {
             if (!this.$el.hasAttribute(attr)) return
 
             this.checkList.push([attr, this.$el.getAttribute(attr)])
@@ -9865,7 +9880,8 @@ module.exports = {
             'regex': '格式不正确',
             'alpha': '只能包含英文字符，"-"，"_"',
             'alphanum': '只能包含数字、英文字符和"_"',
-            'tip': '{_tip}'
+            'tip': '{_tip}',
+            'exts': '只允许上传{_exts}格式的文件'
         },
         tips: {
             'require': '必填',
@@ -9874,7 +9890,8 @@ module.exports = {
             'maxlen': '最大长度{_maxlen}',
             'minlen': '最小长度{_minlen}',
             'maxlen_cb': '最多选{_maxlen}项',
-            'minlen_cb': '最少选{_minlen}项'
+            'minlen_cb': '最少选{_minlen}项',
+            'exts': '可以上传的文件格式{_exts}'
         }
     },
     page: {

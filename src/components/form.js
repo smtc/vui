@@ -226,7 +226,7 @@ var component = {
                         this.model[f._name] = null
                         post.attach(f._name, f.data, f.value)
                         utils.forEach(this.model, function (v, k) {
-                            post.field(k, v)
+                            if (k !== f._name) post.field(k, v)
                         })
                     }.bind(this))
                 } else {

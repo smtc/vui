@@ -35,7 +35,8 @@ module.exports = {
             'regex': '格式不正确',
             'alpha': '只能包含英文字符，"-"，"_"',
             'alphanum': '只能包含数字、英文字符和"_"',
-            'tip': '{_tip}'
+            'tip': '{_tip}',
+            'exts': '只允许上传{_exts}格式的文件'
         },
         tips: {
             'require': '必填',
@@ -44,7 +45,8 @@ module.exports = {
             'maxlen': '最大长度{_maxlen}',
             'minlen': '最小长度{_minlen}',
             'maxlen_cb': '最多选{_maxlen}项',
-            'minlen_cb': '最少选{_minlen}项'
+            'minlen_cb': '最少选{_minlen}项',
+            'exts': '可以上传的文件格式{_exts}'
         }
     },
     page: {

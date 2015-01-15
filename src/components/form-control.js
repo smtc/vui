@@ -88,6 +88,17 @@ function _len(val, t) {
 }
 
 
+function _allowExt(exts) {
+    if (!this.value || !exts) return this.pass()
+    if ('string' === typeof exts) exts = exts.split(',')
+    var val = this.value.substring(this.value.lastIndexOf('.') + 1)
+    if (exts.indexOf(val) >= 0)
+        this.pass()
+    else
+        this.fail('exts') 
+}
+
+
 // 正则
 function regex(reg) {
     if (reg.test(this.value))
@@ -119,6 +130,7 @@ function initMessage() {
             case 'maxlen':
             case 'min':
             case 'minlen':
+            case 'exts':
                 if (this._type === 'checkbox') t += '_cb'
                 tip += TIPS[t] + ', '
                 break
@@ -171,6 +183,9 @@ module.exports = {
                     case 'require':
                         _require.call(this)
                         break
+                    case 'exts':
+                        _allowExt.call(this, ck[1])
+                        break
                 }
             }
         },
@@ -206,7 +221,7 @@ module.exports = {
         }.bind(this))
 
         // validate
-        utils.forEach(['max', 'min', 'maxlen', 'minlen', 'require'], function (attr) {
+        utils.forEach(['max', 'min', 'maxlen', 'minlen', 'require', 'exts'], function (attr) {
             if (!this.$el.hasAttribute(attr)) return
 
             this.checkList.push([attr, this.$el.getAttribute(attr)])
