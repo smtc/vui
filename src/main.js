@@ -20,6 +20,7 @@ require('./prototype')
 
 var components = {
     'date': require('./components/date'),
+    'file': require('./components/file'),
     'form': form.form,
     'form-struct': form['form-struct'],
     'form-control': require('./components/form-control'),

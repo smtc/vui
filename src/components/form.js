@@ -140,6 +140,7 @@ var component = {
         this.valid = true
         this.controls = {}
         this.model = {}
+        this.files = []
         this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
@@ -217,7 +218,21 @@ var component = {
             if (this.valid) {
                 loading.start()
                 var post = request.post(this.src)
-                if (this.xform) post = post.type('form')
+                if (this.xform) {
+                    post.type('form').send(this.model)
+                } else if (this.files.length > 0) {
+                    post.type('multipart/form-data')
+                    utils.forEach(this.files, function (f) {
+                        this.model[f._name] = null
+                        post.attach(f._name, f.data, f.value)
+                        utils.forEach(this.model, function (v, k) {
+                            post.field(k, v)
+                        })
+                    }.bind(this))
+                } else {
+                    post.send(this.model)
+                }
+                
                 post.send(this.model).end(function (res) {
                     loading.end()
                     if (res.status === 200) {

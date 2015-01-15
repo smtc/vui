@@ -113,6 +113,7 @@ require('./prototype')
 
 var components = {
     'date': require('./components/date'),
+    'file': require('./components/file'),
     'form': form.form,
     'form-struct': form['form-struct'],
     'form-control': require('./components/form-control'),
@@ -204,7 +205,7 @@ module.exports = {
 }
 
 
-}, {"vue":2,"./request":3,"./location":4,"./route":5,"./utils":6,"./components/openbox":7,"./components/loading":8,"./components/message":9,"./components/tree":10,"./components/form":11,"./components/page":12,"./lang/lang":13,"./filters/string":14,"./prototype":15,"./components/date":16,"./components/form-control":17,"./components/mult-select":18,"./components/option":19,"./components/pagination":20,"./components/progress":21,"./components/scope":22,"./components/select":23,"./filters/icon":24,"./directives/editable":25,"./directives/href":26,"./lang/zh-cn":27}],
+}, {"vue":2,"./request":3,"./location":4,"./route":5,"./utils":6,"./components/openbox":7,"./components/loading":8,"./components/message":9,"./components/tree":10,"./components/form":11,"./components/page":12,"./lang/lang":13,"./filters/string":14,"./prototype":15,"./components/date":16,"./components/file":17,"./components/form-control":18,"./components/mult-select":19,"./components/option":20,"./components/pagination":21,"./components/progress":22,"./components/scope":23,"./components/select":24,"./filters/icon":25,"./directives/editable":26,"./directives/href":27,"./lang/zh-cn":28}],
 2: [function(require, module, exports) {
 var config      = require('./config'),
     ViewModel   = require('./viewmodel'),
@@ -394,8 +395,8 @@ function inheritOptions (child, parent, topLevel) {
 }
 
 module.exports = ViewModel
-}, {"./config":28,"./viewmodel":29,"./utils":30,"./transition":31,"./observer":32,"./directives":33,"./filters":34}],
-28: [function(require, module, exports) {
+}, {"./config":29,"./viewmodel":30,"./utils":31,"./transition":32,"./observer":33,"./directives":34,"./filters":35}],
+29: [function(require, module, exports) {
 var TextParser = require('./text-parser')
 
 module.exports = {
@@ -415,8 +416,8 @@ Object.defineProperty(module.exports, 'delimiters', {
         TextParser.setDelimiters(delimiters)
     }
 })
-}, {"./text-parser":35}],
-35: [function(require, module, exports) {
+}, {"./text-parser":36}],
+36: [function(require, module, exports) {
 var openChar        = '{',
     endChar         = '}',
     ESCAPE_RE       = /[-.*+?^${}()|[\]\/\\]/g,
@@ -513,8 +514,8 @@ exports.parse         = parse
 exports.parseAttr     = parseAttr
 exports.setDelimiters = setDelimiters
 exports.delimiters    = [openChar, endChar]
-}, {"./directive":36}],
-36: [function(require, module, exports) {
+}, {"./directive":37}],
+37: [function(require, module, exports) {
 var dirId           = 1,
     ARG_RE          = /^[\w\$-]+$/,
     FILTER_TOKEN_RE = /[^\s'"]+|'[^']+'|"[^"]+"/g,
@@ -773,8 +774,8 @@ function escapeQuote (v) {
 }
 
 module.exports = Directive
-}, {"./text-parser":35}],
-29: [function(require, module, exports) {
+}, {"./text-parser":36}],
+30: [function(require, module, exports) {
 var Compiler   = require('./compiler'),
     utils      = require('./utils'),
     transition = require('./transition'),
@@ -966,8 +967,8 @@ function query (el) {
 
 module.exports = ViewModel
 
-}, {"./compiler":37,"./utils":30,"./transition":31,"./batcher":38}],
-37: [function(require, module, exports) {
+}, {"./compiler":38,"./utils":31,"./transition":32,"./batcher":39}],
+38: [function(require, module, exports) {
 var Emitter     = require('./emitter'),
     Observer    = require('./observer'),
     config      = require('./config'),
@@ -2005,8 +2006,8 @@ function getRoot (compiler) {
 }
 
 module.exports = Compiler
-}, {"./emitter":39,"./observer":32,"./config":28,"./utils":30,"./binding":40,"./directive":36,"./text-parser":35,"./deps-parser":41,"./exp-parser":42,"./viewmodel":29}],
-39: [function(require, module, exports) {
+}, {"./emitter":40,"./observer":33,"./config":29,"./utils":31,"./binding":41,"./directive":37,"./text-parser":36,"./deps-parser":42,"./exp-parser":43,"./viewmodel":30}],
+40: [function(require, module, exports) {
 var slice = [].slice
 
 function Emitter (ctx) {
@@ -2105,7 +2106,7 @@ EmitterProto.applyEmit = function (event) {
 
 module.exports = Emitter
 }, {}],
-32: [function(require, module, exports) {
+33: [function(require, module, exports) {
 /* jshint proto:true */
 
 var Emitter  = require('./emitter'),
@@ -2552,8 +2553,8 @@ var pub = module.exports = {
     convert     : convert,
     convertKey  : convertKey
 }
-}, {"./emitter":39,"./utils":30}],
-30: [function(require, module, exports) {
+}, {"./emitter":40,"./utils":31}],
+31: [function(require, module, exports) {
 var config       = require('./config'),
     toString     = ({}).toString,
     win          = window,
@@ -2880,8 +2881,8 @@ function enableDebug () {
         }
     }
 }
-}, {"./config":28,"./fragment":43,"./template-parser.js":44,"./viewmodel":29}],
-43: [function(require, module, exports) {
+}, {"./config":29,"./fragment":44,"./template-parser.js":45,"./viewmodel":30}],
+44: [function(require, module, exports) {
 // string -> DOM conversion
 // wrappers originally from jQuery, scooped from component/domify
 var map = {
@@ -2950,7 +2951,7 @@ module.exports = function (templateString) {
     return frag
 }
 }, {}],
-44: [function(require, module, exports) {
+45: [function(require, module, exports) {
 var toFragment = require('./fragment');
 
 /**
@@ -2998,8 +2999,8 @@ module.exports = function(template) {
     return toFragment(templateNode.outerHTML);
 }
 
-}, {"./fragment":43}],
-40: [function(require, module, exports) {
+}, {"./fragment":44}],
+41: [function(require, module, exports) {
 var Batcher        = require('./batcher'),
     bindingBatcher = new Batcher(),
     bindingId      = 1
@@ -3103,8 +3104,8 @@ BindingProto.unbind = function () {
 }
 
 module.exports = Binding
-}, {"./batcher":38}],
-38: [function(require, module, exports) {
+}, {"./batcher":39}],
+39: [function(require, module, exports) {
 var utils = require('./utils')
 
 function Batcher () {
@@ -3150,8 +3151,8 @@ BatcherProto.reset = function () {
 }
 
 module.exports = Batcher
-}, {"./utils":30}],
-41: [function(require, module, exports) {
+}, {"./utils":31}],
+42: [function(require, module, exports) {
 var Emitter  = require('./emitter'),
     utils    = require('./utils'),
     Observer = require('./observer'),
@@ -3217,8 +3218,8 @@ module.exports = {
     }
     
 }
-}, {"./emitter":39,"./utils":30,"./observer":32}],
-42: [function(require, module, exports) {
+}, {"./emitter":40,"./utils":31,"./observer":33}],
+43: [function(require, module, exports) {
 var utils           = require('./utils'),
     STR_SAVE_RE     = /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,
     STR_RESTORE_RE  = /"(\d+)"/g,
@@ -3409,8 +3410,8 @@ exports.eval = function (exp, compiler, data) {
     }
     return res
 }
-}, {"./utils":30}],
-31: [function(require, module, exports) {
+}, {"./utils":31}],
+32: [function(require, module, exports) {
 var endEvents  = sniffEndEvents(),
     config     = require('./config'),
     // batch enter animations so we only force the layout once
@@ -3639,8 +3640,8 @@ function sniffEndEvents () {
 // Expose some stuff for testing purposes
 transition.codes = codes
 transition.sniff = sniffEndEvents
-}, {"./config":28,"./batcher":38}],
-33: [function(require, module, exports) {
+}, {"./config":29,"./batcher":39}],
+34: [function(require, module, exports) {
 var utils      = require('../utils'),
     config     = require('../config'),
     transition = require('../transition'),
@@ -3770,8 +3771,8 @@ directives.html    = require('./html')
 directives.style   = require('./style')
 directives.partial = require('./partial')
 directives.view    = require('./view')
-}, {"../utils":30,"../config":28,"../transition":31,"./on":45,"./repeat":46,"./model":47,"./if":48,"./with":49,"./html":50,"./style":51,"./partial":52,"./view":53}],
-45: [function(require, module, exports) {
+}, {"../utils":31,"../config":29,"../transition":32,"./on":46,"./repeat":47,"./model":48,"./if":49,"./with":50,"./html":51,"./style":52,"./partial":53,"./view":54}],
+46: [function(require, module, exports) {
 var utils    = require('../utils')
 
 /**
@@ -3830,8 +3831,8 @@ module.exports = {
         this.el.removeEventListener('load', this.iframeBind)
     }
 }
-}, {"../utils":30}],
-46: [function(require, module, exports) {
+}, {"../utils":31}],
+47: [function(require, module, exports) {
 var utils      = require('../utils'),
     config     = require('../config')
 
@@ -4078,8 +4079,8 @@ function indexOf (vms, obj) {
     }
     return -1
 }
-}, {"../utils":30,"../config":28}],
-47: [function(require, module, exports) {
+}, {"../utils":31,"../config":29}],
+48: [function(require, module, exports) {
 var utils = require('../utils'),
     isIE9 = navigator.userAgent.indexOf('MSIE 9.0') > 0,
     filter = [].filter
@@ -4254,8 +4255,8 @@ module.exports = {
         }
     }
 }
-}, {"../utils":30}],
-48: [function(require, module, exports) {
+}, {"../utils":31}],
+49: [function(require, module, exports) {
 var utils    = require('../utils')
 
 /**
@@ -4312,8 +4313,8 @@ module.exports = {
         }
     }
 }
-}, {"../utils":30}],
-49: [function(require, module, exports) {
+}, {"../utils":31}],
+50: [function(require, module, exports) {
 var utils = require('../utils')
 
 /**
@@ -4364,8 +4365,8 @@ module.exports = {
     }
 
 }
-}, {"../utils":30}],
-50: [function(require, module, exports) {
+}, {"../utils":31}],
+51: [function(require, module, exports) {
 var utils = require('../utils'),
     slice = [].slice
 
@@ -4407,8 +4408,8 @@ module.exports = {
         parent.insertBefore(frag, this.el)
     }
 }
-}, {"../utils":30}],
-51: [function(require, module, exports) {
+}, {"../utils":31}],
+52: [function(require, module, exports) {
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 
 /**
@@ -4456,7 +4457,7 @@ module.exports = {
 
 }
 }, {}],
-52: [function(require, module, exports) {
+53: [function(require, module, exports) {
 var utils = require('../utils')
 
 /**
@@ -4507,8 +4508,8 @@ module.exports = {
     }
 
 }
-}, {"../utils":30}],
-53: [function(require, module, exports) {
+}, {"../utils":31}],
+54: [function(require, module, exports) {
 /**
  *  Manages a conditional child VM using the
  *  binding's value as the component ID.
@@ -4566,7 +4567,7 @@ module.exports = {
 
 }
 }, {}],
-34: [function(require, module, exports) {
+35: [function(require, module, exports) {
 var utils    = require('./utils'),
     get      = utils.get,
     slice    = [].slice,
@@ -4758,7 +4759,7 @@ function stripQuotes (str) {
         return str.slice(1, -1)
     }
 }
-}, {"./utils":30}],
+}, {"./utils":31}],
 3: [function(require, module, exports) {
 // 暂时先用superagent
 
@@ -4798,8 +4799,8 @@ request.getTemplate = function (src) {
 
 module.exports = request
 
-}, {"superagent":54}],
-54: [function(require, module, exports) {
+}, {"superagent":55}],
+55: [function(require, module, exports) {
 /**
  * Module dependencies.
  */
@@ -5426,7 +5427,12 @@ Request.prototype.getHeader = function(field){
  */
 
 Request.prototype.type = function(type){
-  this.set('Content-Type', request.types[type] || type);
+  if (type === 'multipart/form-data')
+    this.set('enctype', 'multipart/form-data')
+  else if (this.getHeader('enctype') === 'multipart/form-data')
+    return type
+  else
+    this.set('Content-Type', request.types[type] || type);
   return this;
 };
 
@@ -5898,8 +5904,8 @@ request.put = function(url, data, fn){
  */
 module.exports = request;
 
-}, {"emitter":55,"reduce":56}],
-55: [function(require, module, exports) {
+}, {"emitter":56,"reduce":57}],
+56: [function(require, module, exports) {
 
 /**
  * Expose `Emitter`.
@@ -6066,7 +6072,7 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 }, {}],
-56: [function(require, module, exports) {
+57: [function(require, module, exports) {
 
 /**
  * Reduce `arr` with `fn`.
@@ -7664,7 +7670,7 @@ openbox.confirm = function (message, callback) {
 
 module.exports = openbox
 
-}, {"vue":2,"../utils":6,"../lang/lang":13,"../route":5,"./openbox.html":57}],
+}, {"vue":2,"../utils":6,"../lang/lang":13,"../route":5,"./openbox.html":58}],
 13: [function(require, module, exports) {
 var utils = require('../utils')
 
@@ -7693,7 +7699,7 @@ module.exports = {
 }
 
 }, {"../utils":6}],
-57: [function(require, module, exports) {
+58: [function(require, module, exports) {
 module.exports = '<div v-show="$open" class="openbox" v-transition>\n    <div class="openbox-backdrop"></div>\n    <div class="openbox-inner" v-on="click:bgclose">\n        <div class="openbox-content col-md-{{width}}">\n            <a href="javascript:;" class="close" v-on="click:close(false)">&times;</a>\n            <div class="openbox-header" v-if="title">\n                <h3 v-text="title"></h3>\n            </div>\n            <div class="openbox-body" v-view="content" v-with="src:src, model:model"></div>\n            <div class="openbox-body" v-if="body" v-html="body"></div>\n            <div v-show="btns.length > 0" class="openbox-footer">\n                <button type="button" class="btn btn-{{type}}" v-text="text" v-on="click:fn()" v-repeat="btns"></button>\n            </div>\n        </div>\n    </div>\n</div>\n\n';
 }, {}],
 8: [function(require, module, exports) {
@@ -8144,6 +8150,7 @@ var component = {
         this.valid = true
         this.controls = {}
         this.model = {}
+        this.files = []
         this.colon = _location.node(true).colon
 
         this.src = this.$el.getAttribute('action') || this.$el.getAttribute('src')
@@ -8221,7 +8228,21 @@ var component = {
             if (this.valid) {
                 loading.start()
                 var post = request.post(this.src)
-                if (this.xform) post = post.type('form')
+                if (this.xform) {
+                    post.type('form').send(this.model)
+                } else if (this.files.length > 0) {
+                    post.type('multipart/form-data')
+                    utils.forEach(this.files, function (f) {
+                        this.model[f._name] = null
+                        post.attach(f._name, f.data, f.value)
+                        utils.forEach(this.model, function (v, k) {
+                            post.field(k, v)
+                        })
+                    }.bind(this))
+                } else {
+                    post.send(this.model)
+                }
+                
                 post.send(this.model).end(function (res) {
                     loading.end()
                     if (res.status === 200) {
@@ -8670,8 +8691,8 @@ module.exports = {
     'page-struct': component_struct
 }
 
-}, {"../request":3,"../utils":6,"../location":4,"../route":5,"./message":9,"./loading":8,"../lang/lang":13,"./openbox":7,"./page.html":58}],
-58: [function(require, module, exports) {
+}, {"../request":3,"../utils":6,"../location":4,"../route":5,"./message":9,"./loading":8,"../lang/lang":13,"./openbox":7,"./page.html":59}],
+59: [function(require, module, exports) {
 module.exports = '<div class="page-header">\n    <div class="buttons" v-html="multOp"></div>\n</div>\n<div class="page-content">\n    <form v-show="filterShow" class="form-inline page-filter" v-transition v-on="submit:search">\n        <div v-repeat="f:filterTpl" v-html="f" class="form-group"></div><div class="form-group"><button class="btn btn-primary">{{button.ok}}</button></div><div class="form-group"><button v-on="click:search(null)" type="button" class="btn btn-default">{{button.reset}}</button></div>\n    </form>\n    <table class="table table-hover">\n        <thead>\n            <tr>\n                <th class="check" v-on="click: selectAll"><i v-class="icon-check-square-o:allChecked, icon-square-o:!allChecked" class="icon"></i></th>\n                <th></th>\n                <th v-repeat="h:struct">{{h.text}}</th>\n            </tr>\n        </thead>\n        <tbody>\n            <tr v-repeat="d:data">\n                <td class="check" v-on="click: select(d)"><i v-class="icon-check-square-o:d.vui_checked, icon-square-o:!d.vui_checked" class="icon"></i></td>\n                <td v-html="unitOp"></td>\n                <td v-repeat="h:struct" v-html="d[h.key]"></td>\n            </tr>\n        </body>\n    </table>\n    <div v-if="pageable" v-component="pagination" v-with="page:pager.page, size:pager.size, total:total"></div>\n</div>\n';
 }, {}],
 14: [function(require, module, exports) {
@@ -8930,11 +8951,33 @@ module.exports = {
 
 }
 
-}, {"../utils":6,"./date.html":59}],
-59: [function(require, module, exports) {
+}, {"../utils":6,"./date.html":60}],
+60: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <span v-class="hide:!!date" class="placeholder">{{placeholder}}</span>\n    <span class="date-text" v-text="text"></span>\n    <i class="icon icon-calendar"></i>\n    <div class="date-picker" v-class="date-picker-up: pickerUp">\n        <div class="date-picker-header">\n            <a href="javascript:;" class="date-picker-handle pre" v-on="click:change(-1)"><i class="icon icon-chevron-left"></i></a>\n            <a href="javascript:;" v-on="click:statusToggle()" class="date-picker-handle year">{{showDate.year}} 年<span v-show="status == 1"> {{showDate.month + 1}} 月</span></a>\n            <a href="javascript:;" class="date-picker-handle next" v-on="click:change(1)"><i class="icon icon-chevron-right"></i></a>\n        </div>\n        <div class="inner" v-show="status == 1">\n            <div class="week" v-repeat="w:[\'日\', \'一\', \'二\', \'三\', \'四\', \'五\', \'六\']">{{w}}</div>\n            <button type="button" v-on="click:set(day, $event)" v-class="gray: day.month!=showDate.month, today:day.date==currentDate.day && day.month==currentDate.month" class="day" v-repeat="day:days">{{day.date}}</button>\n        </div>\n        <div class="inner" v-show="status == 2">\n            <button type="button" v-on="click:setMonth(month-1)" class="month" v-repeat="month:[1,2,3,4,5,6,7,8,9,10,11,12]"">{{month}}月</button>\n        </div>\n        <div class="inner" v-show="status == 3">\n            <button type="button" v-on="click:setYear(year)" class="year" v-repeat="year:years">{{year}}</button>\n        </div>\n    </div>\n</div> \n';
 }, {}],
 17: [function(require, module, exports) {
+module.exports = {
+    template: '<input type="file" />',
+
+    replace: true,
+
+    data: {
+        data: null,
+        value: ''
+    },
+
+    ready: function () {
+        var self = this
+        this.$el.addEventListener('change', function (evt) {
+            var f = evt.target.files[0]; 
+            self.value = f.name
+            self.data = f
+        })
+    }
+}
+
+}, {}],
+18: [function(require, module, exports) {
 var utils = require('../utils'),
     lang  = require('../lang/lang')
 
@@ -8960,6 +9003,7 @@ function getCol(str, label) {
 var TEMPLATES = {
         'submit': '<button class="btn" type="submit">{{_text}}</button>',
         'button': '<button class="btn" type="button">{{_text}}</button>',
+        'file': '<div class="file" v-component="file" v-with="value:value, data:data"></div>',
         'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
@@ -9131,6 +9175,7 @@ module.exports = {
         MSGS = lang.get('validation.msgs')
 
         this.id = utils.nextUid()
+        this.data = null
         this.pass()
         this.checkList = []
 
@@ -9180,6 +9225,10 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
+
+        if (this._type === 'file' || this._type === 'image') {
+            this.$parent.files.push(this)
+        }
     },
 
     computed: {
@@ -9192,11 +9241,11 @@ module.exports = {
     }
 }
 
-}, {"../utils":6,"../lang/lang":13,"./form-control.html":60}],
-60: [function(require, module, exports) {
+}, {"../utils":6,"../lang/lang":13,"./form-control.html":61}],
+61: [function(require, module, exports) {
 module.exports = '<div v-class="has-error:!valid" class="form-group">\n    <label for="{{id}}" class="{{labelClass}} control-label">{{_label}}</label>\n    <div v-if="_type!==\'empty\'" class="{{controlClass}}" v-html="_content"></div>\n    <div v-if="_type===\'empty\'" class="{{controlClass}}"><content></content></div>\n</div>\n';
 }, {}],
-18: [function(require, module, exports) {
+19: [function(require, module, exports) {
 var request = require('../request'),
     utils   = require('../utils'),
     lang    = require('../lang/lang'),
@@ -9301,11 +9350,11 @@ module.exports = {
     }
 }
 
-}, {"../request":3,"../utils":6,"../lang/lang":13,"./mult-select.html":61}],
-61: [function(require, module, exports) {
+}, {"../request":3,"../utils":6,"../lang/lang":13,"./mult-select.html":62}],
+62: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="mult-select-items"><li v-repeat="d:options"><a v-on="click:select(d)" v-class="active: value==d.value || values.indexOf(d) >= 0" href="javascript:;">{{d.text}}</a></li></ul>\n</div>\n';
 }, {}],
-19: [function(require, module, exports) {
+20: [function(require, module, exports) {
 var request = require('../request'),
     utils   = require('../utils')
 
@@ -9470,11 +9519,11 @@ module.exports = {
     }
 }
 
-}, {"../request":3,"../utils":6,"./option.html":62}],
-62: [function(require, module, exports) {
+}, {"../request":3,"../utils":6,"./option.html":63}],
+63: [function(require, module, exports) {
 module.exports = '<div v-repeat="o:options" class="{{className}}">\n    <label><input type="{{type}}" v-attr="checked:value==o.value" v-on="change:setValue(o.value, $event)" name="{{name}}" value="{{o.value}}" /> {{o.text}}</label> \n</div>\n';
 }, {}],
-20: [function(require, module, exports) {
+21: [function(require, module, exports) {
 module.exports = {
     template: require('./pagination.html'),
     replace: true,
@@ -9518,11 +9567,11 @@ module.exports = {
     }
 }
 
-}, {"./pagination.html":63}],
-63: [function(require, module, exports) {
+}, {"./pagination.html":64}],
+64: [function(require, module, exports) {
 module.exports = '<div class="pagination-wrapper">\n    <ul class="pagination">\n        <li v-if="page>1"><a href="javascript:;" v-on="click:change(page-1)">«</a></li>\n        <li v-class="active:page==p" v-repeat="p:pages"><a href="javascript:;" v-on="click:change(p)" v-text="p"></a></li>\n        <li v-if="page<max"><a href="javascript:;" v-on="click:change(page+1)">»</a></li>\n    </ul>\n    <div v-if="showPageinfo" class="pageinfo">{{(page-1) * size + 1}}-{{ (page * size > total) ? total: (page * size) }} / {{total}}</div>\n</div>\n';
 }, {}],
-21: [function(require, module, exports) {
+22: [function(require, module, exports) {
 module.exports = {
     template: require('./progress.html'),
     data: {
@@ -9619,11 +9668,11 @@ module.exports = {
     }
 }
 
-}, {"./progress.html":64}],
-64: [function(require, module, exports) {
+}, {"./progress.html":65}],
+65: [function(require, module, exports) {
 module.exports = '<div v-class="progress-drag:$drag" class="progress-out">\n    <div class="progress"><div class="progress-bar" style="width:{{width}}%;">{{progress}}{{unit}}</div></div>\n    <span v-show="!$drag" class="progress-tip">{{tip}}{{unit}}</span>\n    <a v-show="$drag" href="javascript:;" class="progress-handle" style="left:{{width}}%"></a>\n</div>\n';
 }, {}],
-22: [function(require, module, exports) {
+23: [function(require, module, exports) {
 // 先占个位置
 module.exports = {
     methods: {
@@ -9639,7 +9688,7 @@ module.exports = {
 }
 
 }, {}],
-23: [function(require, module, exports) {
+24: [function(require, module, exports) {
 var request = require('../request'),
     utils   = require('../utils'),
     lang    = require('../lang/lang'),
@@ -9719,11 +9768,11 @@ module.exports = {
     }
 }
 
-}, {"../request":3,"../utils":6,"../lang/lang":13,"./select.html":65}],
-65: [function(require, module, exports) {
+}, {"../request":3,"../utils":6,"../lang/lang":13,"./select.html":66}],
+66: [function(require, module, exports) {
 module.exports = '<div v-on="click:open()">\n    <div class="inner"><span v-class="hide:!!text" class="placeholder">{{placeholder}}</span>{{text}}</div>\n    <ul class="dropdown-menu"><li v-on="click:select(d)" v-repeat="d:options"><a ng-class="{\'active\':d.$selected}" href="javascript:;">{{d.text}}</a></li></ul>\n    <b class="caret"></b>\n</div>\n';
 }, {}],
-24: [function(require, module, exports) {
+25: [function(require, module, exports) {
 module.exports = function (value) {
     if (value === true || value === 'true')
         return '<i class="icon icon-check text-success"></i>'
@@ -9739,7 +9788,7 @@ module.exports = function (value) {
 }
 
 }, {}],
-25: [function(require, module, exports) {
+26: [function(require, module, exports) {
 module.exports = {
 
     bind: function () {
@@ -9757,7 +9806,7 @@ module.exports = {
 }
 
 }, {}],
-26: [function(require, module, exports) {
+27: [function(require, module, exports) {
 var _location = require('../location')
 
 module.exports = {
@@ -9778,7 +9827,7 @@ module.exports = {
 }
 
 }, {"../location":4}],
-27: [function(require, module, exports) {
+28: [function(require, module, exports) {
 module.exports = {
     httpStatus: {
         401: '没有访问权限',

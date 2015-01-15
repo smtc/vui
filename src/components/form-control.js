@@ -23,6 +23,7 @@ function getCol(str, label) {
 var TEMPLATES = {
         'submit': '<button class="btn" type="submit">{{_text}}</button>',
         'button': '<button class="btn" type="button">{{_text}}</button>',
+        'file': '<div class="file" v-component="file" v-with="value:value, data:data"></div>',
         'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
@@ -194,6 +195,7 @@ module.exports = {
         MSGS = lang.get('validation.msgs')
 
         this.id = utils.nextUid()
+        this.data = null
         this.pass()
         this.checkList = []
 
@@ -243,6 +245,10 @@ module.exports = {
         this.$watch('value', function () {
             this.check()
         }.bind(this))
+
+        if (this._type === 'file' || this._type === 'image') {
+            this.$parent.files.push(this)
+        }
     },
 
     computed: {
