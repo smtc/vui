@@ -4,7 +4,7 @@
             open: function (url) {
                 vui.openbox({
                     show: true,
-                    width: 900,
+                    width: 8,
                     src: url,
                     title: 'Openbox',
                     btns: ['ok', 'close'],

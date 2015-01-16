@@ -1,0 +1,16 @@
+[
+    {"value":"jiangsu", "text": "江苏"},
+    {"value":"shanghai", "text": "上海"},
+    {"value":"beijing", "text": "北京"},
+    {"value":"chongqin", "text": "重庆"},
+    {"value":"tianjin", "text": "天津"},
+    {"value":"guangdong", "text": "广东"},
+    {"value":"ningxia", "text": "宁夏回族"},
+    {"value":"guangxi", "text": "广西"},
+    {"value":"heilongjiang", "text": "黑龙江"},
+    {"value":"neimenggu", "text": "内蒙古"},
+    {"value":"fujian", "text": "福建"},
+    {"value":"hainandao", "text": "海南岛"},
+    {"value":"zhejiang", "text": "浙江"},
+    {"value":"wulumuqi", "text": "乌鲁木齐"}
+]
