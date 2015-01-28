@@ -9,7 +9,7 @@ var request   = require('../request'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
-function getSearch(pager, filters, sort) {
+function getSearch(pager, filters, sort, src) {
     var search = {},
         txt = ""
 
@@ -22,9 +22,10 @@ function getSearch(pager, filters, sort) {
     })
 
     txt = utils.toKeyValue(search)
+    var sp = src.indexOf('?') >= 0 ? '&' : '?'
     return {
         obj: search,
-        txt: txt ? "?" + txt : ""
+        txt: txt ? sp + txt : ""
     }
 }
 
@@ -117,7 +118,7 @@ var component = {
 
         update: function () {
             var self = this,
-                search = getSearch(this.pager, this.filters, this.sort),
+                search = getSearch(this.pager, this.filters, this.sort, this.src),
                 url = this.currentUrl = this.src + search.txt
 
             if (this.routeChange && this.routeChange === 'true')
