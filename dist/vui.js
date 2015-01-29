@@ -8473,17 +8473,22 @@ var component = {
                     return
                 }
 
-                var index = -1
-                for (var i=0; i<self.data.length; i++) {
-                    if (self.data[i][key] === val) {
-                        index = i
-                        break
+                if ('function' === typeof key) {
+                    // 如果第三个参数是function，作为callback
+                    key.call(self)
+                } else if ('string' === typeof key) {
+                    var index = -1
+                    for (var i=0; i<self.data.length; i++) {
+                        if (self.data[i][key] === val) {
+                            index = i
+                            break
+                        }
                     }
-                }
-                if (index >= 0) {
-                    self.data.splice(index, 1)
-                    if (res.body.data)
-                        self.data.unshift(res.body.data)
+                    if (index >= 0) {
+                        self.data.splice(index, 1)
+                        if (res.body.data)
+                            self.data.unshift(res.body.data)
+                    }
                 }
                 if (res.body.msg) {
                     message.info(res.body.msg)
