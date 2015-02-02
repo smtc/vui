@@ -66,7 +66,7 @@
             <form-control label="文本框" col=",10" type="textarea" rows="6" v-with="value:model.textarea"></form-control>
             <form-control label="treeview" col=",10" type="tree" src="json/tree.json" selectable="true" select="id" v-with="value:model.tree"></form-control>
             <form-control label="文件" col=",10" type="file" exts="txt" name="upfile" v-with="value:model.upfile"></form-control>
-            <form-control label="图片" col=",10" type="image" src="http://legacy.vuejs.org/images/logo.png" name="image" v-with="value:model.image"></form-control>
+            <form-control label="图片" col=",10" type="image" name="image" v-with="value:model.image, src:model.imgUrl + '.png'"></form-control>
 
             <form-control>
                 <button class="btn btn-primary" type="submit">提 交</button>
@@ -93,6 +93,7 @@
     &lt;form-control label="文本框" col=",10" type="textarea" rows="6" v-with="value:model.textarea"&gt;&lt;/form-control&gt;
     &lt;form-control label="treeview" col=",10" type="tree" src="json/tree.json" selectable="true" select="id" v-with="value:model.tree"&gt;&lt;/form-control&gt;
     &lt;form-control label="文件" col=",10" type="file" name="upfile" v-with="value:model.upfile"&gt;&lt;/form-control&gt;
+    &lt;form-control label="图片" col=",10" type="image" name="image" v-with="value:model.image, src:model.imgUrl + '.png'"&gt;&lt;/form-control&gt;
 
     &lt;form-control&gt;
         &lt;button class="btn btn-primary" type="submit"&gt;提 交&lt;/button&gt;
