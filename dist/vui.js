@@ -8283,7 +8283,7 @@ var request   = require('../request'),
     forEach   = utils.forEach,
     basepath  = _location.node(true).pathname
 
-function getSearch(pager, filters, sort) {
+function getSearch(pager, filters, sort, src) {
     var search = {},
         txt = ""
 
@@ -8296,9 +8296,10 @@ function getSearch(pager, filters, sort) {
     })
 
     txt = utils.toKeyValue(search)
+    var sp = src.indexOf('?') >= 0 ? '&' : '?'
     return {
         obj: search,
-        txt: txt ? "?" + txt : ""
+        txt: txt ? sp + txt : ""
     }
 }
 
@@ -8391,7 +8392,7 @@ var component = {
 
         update: function () {
             var self = this,
-                search = getSearch(this.pager, this.filters, this.sort),
+                search = getSearch(this.pager, this.filters, this.sort, this.src),
                 url = this.currentUrl = this.src + search.txt
 
             if (this.routeChange && this.routeChange === 'true')
@@ -8472,17 +8473,22 @@ var component = {
                     return
                 }
 
-                var index = -1
-                for (var i=0; i<self.data.length; i++) {
-                    if (self.data[i][key] === val) {
-                        index = i
-                        break
+                if ('function' === typeof key) {
+                    // 如果第三个参数是function，作为callback
+                    key.call(self)
+                } else if ('string' === typeof key) {
+                    var index = -1
+                    for (var i=0; i<self.data.length; i++) {
+                        if (self.data[i][key] === val) {
+                            index = i
+                            break
+                        }
                     }
-                }
-                if (index >= 0) {
-                    self.data.splice(index, 1)
-                    if (res.body.data)
-                        self.data.unshift(res.body.data)
+                    if (index >= 0) {
+                        self.data.splice(index, 1)
+                        if (res.body.data)
+                            self.data.unshift(res.body.data)
+                    }
                 }
                 if (res.body.msg) {
                     message.info(res.body.msg)
@@ -9005,7 +9011,7 @@ var TEMPLATES = {
         'submit': '<button class="btn" type="submit">{{_text}}</button>',
         'button': '<button class="btn" type="button">{{_text}}</button>',
         'file': '<div class="file" v-component="file" v-with="value:value, data:data"></div>',
-        'image': '<div class="image" v-component="image" src="{{_src}}" v-with="value:value, data:data"></div>',
+        'image': '<div class="image" v-component="image" src="{{src}}" v-with="value:value, data:data"></div>',
         'radio': '<div type="radio" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'checkbox': '<div type="checkbox" v-component="option" name="{{_name}}" v-with="value:value" inline="{{_inline}}" src="{{_src}}" options="{{_options}}"></div>',
         'textarea': '<textarea class="form-control col-sm-{{_col[1]}}" v-attr="readonly:_readonly" name="{{_name}}" v-model="value" rows="{{_rows}}"></textarea>',
@@ -9185,7 +9191,9 @@ module.exports = {
         }
     },
 
-    data: {},
+    data: {
+        src: ''
+    },
 
     created: function () {
         TIPS = lang.get('validation.tips')
@@ -9233,6 +9241,11 @@ module.exports = {
         initMessage.call(this)
 
         this.$parent.controls[this.id] = true
+
+        this.$watch('src', function () {
+console.log(this.src)
+        }.bind(this))
+
     },
 
     ready: function () {

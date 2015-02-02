@@ -7,6 +7,7 @@
         "status": true,
         "checkbox": "1",
         "date": "2010-12-12",
-        "unixtime": 1414684800
+        "unixtime": 1414684800,
+        "imgUrl": "http://legacy.vuejs.org/images/logo"
     }
 }
